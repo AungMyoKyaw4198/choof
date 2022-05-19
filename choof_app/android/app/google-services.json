@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "267400150336",
+    "project_id": "choof-6bb24",
+    "storage_bucket": "choof-6bb24.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:267400150336:android:7009dd191e9581e1334ea5",
+        "android_client_info": {
+          "package_name": "com.choof.choof_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "267400150336-ctmhd6hnbp07sju96ggfp1l6au9r7d1h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAc0bqpxry5LM8P0gULKPyDStCaECHWEak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "267400150336-ctmhd6hnbp07sju96ggfp1l6au9r7d1h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
