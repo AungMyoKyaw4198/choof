@@ -467,8 +467,8 @@ class LandingPageController extends GetxController {
     setData('imageUrl', user.imageUrl);
     setData('allow', user.allowNotifications);
     setData('isInvited', user.isInvited);
-    setData('blockByUsers', user.blockByUsers.toString());
-    setData('blockedUsers', user.blockedUsers.toString());
+    setData('blockByUsers', user.blockByUsers);
+    setData('blockedUsers', user.blockedUsers);
   }
 
   storeAppleInformation(AuthorizationResult result) {
@@ -502,8 +502,8 @@ class LandingPageController extends GetxController {
       imageUrl: GetStorage().read('imageUrl'),
       allowNotifications: GetStorage().read('allow'),
       isInvited: GetStorage().read('isInvited') ?? false,
-      blockByUsers: GetStorage().read('blockByUsers') ?? [],
-      blockedUsers: GetStorage().read('blockedUsers') ?? [],
+      blockByUsers: GetStorage().read('blockByUsers').cast<String>() ?? [],
+      blockedUsers: GetStorage().read('blockedUsers').cast<String>() ?? [],
     ));
   }
 
