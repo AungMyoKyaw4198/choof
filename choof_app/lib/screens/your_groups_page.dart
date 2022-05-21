@@ -19,7 +19,7 @@ class YourGroupsPage extends StatefulWidget {
 }
 
 class _YourGroupsPageState extends State<YourGroupsPage> {
-  final controller = Get.put(YourGroupController());
+  final controller = Get.find<YourGroupController>();
   final landingPagecontroller = Get.find<LandingPageController>();
 
   final tagName = TextEditingController();

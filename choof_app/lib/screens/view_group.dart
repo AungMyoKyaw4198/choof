@@ -132,9 +132,12 @@ class _ViewGroupState extends State<ViewGroup> {
                   widget.currentGroup.owner
               ? IconButton(
                   onPressed: () {
-                    Get.offAll(() => AddVideoPage(
-                          group: widget.currentGroup,
-                        ));
+                    Get.to(() => AddVideoPage(
+                              group: widget.currentGroup,
+                              isFromFavPage: !widget.isFromGroup,
+                              isFromViewGroup: true,
+                            ))!
+                        .then((value) => _pullRefresh());
                   },
                   icon: Image.asset(
                     'assets/icons/FavAdd.png',
@@ -145,6 +148,7 @@ class _ViewGroupState extends State<ViewGroup> {
         ],
         elevation: 0.0,
       ),
+      bottomNavigationBar: BottomMenu(),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -537,6 +541,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                       onTap: () {
                                         Get.offAll(AddVideoPage(
                                           group: widget.currentGroup,
+                                          isFromFavPage: !widget.isFromGroup,
+                                          isFromViewGroup: true,
                                         ));
                                       },
                                       child: Image.asset(
@@ -570,6 +576,18 @@ class _ViewGroupState extends State<ViewGroup> {
                                 List<Post> currentPosts =
                                     viewGroupController.posts;
 
+                                YoutubePlayerController _controller =
+                                    YoutubePlayerController(
+                                  initialVideoId: YoutubePlayer.convertUrlToId(
+                                      currentPosts[index].youtubeLink)!,
+                                  flags: const YoutubePlayerFlags(
+                                    autoPlay: false,
+                                    mute: false,
+                                  ),
+                                );
+                                viewGroupController
+                                    .addToControllerList(_controller);
+
                                 return landingPagecontroller
                                             .userProfile.value.name ==
                                         widget.currentGroup.owner
@@ -581,10 +599,12 @@ class _ViewGroupState extends State<ViewGroup> {
                                                 .userProfile.value,
                                             youtubePlayer: YoutubePlayerBuilder(
                                                 player: YoutubePlayer(
-                                                  controller:
-                                                      viewGroupController
-                                                              .controllerList[
-                                                          index],
+                                                  // controller:
+                                                  //     viewGroupController
+                                                  //             .controllerList[
+                                                  //         index],
+                                                  controller: _controller,
+
                                                   thumbnail: Image.network(
                                                     YoutubePlayer.getThumbnail(
                                                         videoId: YoutubePlayer
@@ -673,8 +693,19 @@ class _ViewGroupState extends State<ViewGroup> {
                                             .userProfile.value,
                                         youtubePlayer: YoutubePlayerBuilder(
                                             player: YoutubePlayer(
-                                              controller: viewGroupController
-                                                  .controllerList[index],
+                                              // controller: viewGroupController
+                                              //     .controllerList[index],
+                                              controller:
+                                                  YoutubePlayerController(
+                                                initialVideoId: YoutubePlayer
+                                                    .convertUrlToId(
+                                                        currentPosts[index]
+                                                            .youtubeLink)!,
+                                                flags: const YoutubePlayerFlags(
+                                                  autoPlay: false,
+                                                  mute: false,
+                                                ),
+                                              ),
                                               thumbnail: Image.network(
                                                 YoutubePlayer.getThumbnail(
                                                     videoId: YoutubePlayer
@@ -750,6 +781,18 @@ class _ViewGroupState extends State<ViewGroup> {
                                 List<Post> currentPosts =
                                     viewGroupController.filteredTagResult;
 
+                                YoutubePlayerController _controller =
+                                    YoutubePlayerController(
+                                  initialVideoId: YoutubePlayer.convertUrlToId(
+                                      currentPosts[index].youtubeLink)!,
+                                  flags: const YoutubePlayerFlags(
+                                    autoPlay: false,
+                                    mute: false,
+                                  ),
+                                );
+                                viewGroupController
+                                    .addToControllerList(_controller);
+
                                 return landingPagecontroller
                                             .userProfile.value.name ==
                                         widget.currentGroup.owner
@@ -761,10 +804,11 @@ class _ViewGroupState extends State<ViewGroup> {
                                                 .userProfile.value,
                                             youtubePlayer: YoutubePlayerBuilder(
                                                 player: YoutubePlayer(
-                                                  controller:
-                                                      viewGroupController
-                                                              .controllerList[
-                                                          index],
+                                                  // controller:
+                                                  //     viewGroupController
+                                                  //             .controllerList[
+                                                  //         index],
+                                                  controller: _controller,
                                                   thumbnail: Image.network(
                                                     YoutubePlayer.getThumbnail(
                                                         videoId: YoutubePlayer
@@ -853,8 +897,9 @@ class _ViewGroupState extends State<ViewGroup> {
                                             .userProfile.value,
                                         youtubePlayer: YoutubePlayerBuilder(
                                             player: YoutubePlayer(
-                                              controller: viewGroupController
-                                                  .controllerList[index],
+                                              // controller: viewGroupController
+                                              //     .controllerList[index],
+                                              controller: _controller,
                                               thumbnail: Image.network(
                                                 YoutubePlayer.getThumbnail(
                                                     videoId: YoutubePlayer

@@ -2,6 +2,7 @@ class Post {
   String? docId;
   String name;
   String youtubeLink;
+  String? thumbnailUrl;
   List<String> tags;
   String creator;
   String creatorImageUrl;
@@ -14,6 +15,7 @@ class Post {
       {this.docId,
       required this.name,
       required this.youtubeLink,
+      this.thumbnailUrl,
       required this.tags,
       required this.groupName,
       required this.creator,
@@ -26,6 +28,7 @@ class Post {
         docId: json['docId'] ?? '',
         name: json['name'],
         youtubeLink: json['youtubeLink'],
+        thumbnailUrl: json['thumbnailUrl'],
         tags: json['tags']
             .toString()
             .substring(1, json['tags'].toString().length - 1)
@@ -41,6 +44,7 @@ class Post {
         'docId': docId ?? '',
         'name': name,
         'youtubeLink': youtubeLink,
+        'thumbnailUrl': thumbnailUrl,
         'tags': tags.toString(),
         'groupName': groupName,
         'creator': creator,

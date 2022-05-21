@@ -1,3 +1,4 @@
+import 'package:choof_app/controllers/add_video_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +74,7 @@ class YourGroupController extends GetxController {
               }
               groups.add(currentGroup);
               allGroups.add(currentGroup);
+
               for (var tag in currentGroup.tags) {
                 metaAllTags.add(tag.trim());
               }

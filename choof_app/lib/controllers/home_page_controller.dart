@@ -9,7 +9,9 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../models/group.dart';
 import '../models/post.dart';
 import '../models/profile.dart';
+import '../models/youtubeVideoResponse.dart';
 import '../services/notification_service.dart';
+import '../services/youtube_service.dart';
 
 class HomePageController extends GetxController {
   static HomePageController get to => Get.find();
@@ -22,7 +24,7 @@ class HomePageController extends GetxController {
   final CollectionReference _notifications =
       FirebaseFirestore.instance.collection("notifications");
 
-  final controllerList = <YoutubePlayerController>[].obs;
+  // final controllerList = <YoutubePlayerController>[].obs;
   final allpost = <Post>[].obs;
   final posts = <Post>[].obs;
   final creators = <Profile>[].obs;
@@ -47,19 +49,19 @@ class HomePageController extends GetxController {
     postLimit(value);
   }
 
-  reloadControllerList() {
-    for (int i = 0; i < posts.length; i++) {
-      controllerList[i]
-          .load(YoutubePlayer.convertUrlToId(posts[i].youtubeLink)!);
-      controllerList[i].pause();
-    }
-  }
+  // reloadControllerList(List<Post> postlist) {
+  //   for (int i = 0; i < postlist.length; i++) {
+  //     controllerList[i]
+  //         .load(YoutubePlayer.convertUrlToId(postlist[i].youtubeLink)!);
+  //     controllerList[i].pause();
+  //   }
+  // }
 
-  disposeControllerList() {
-    for (var element in controllerList) {
-      element.dispose();
-    }
-  }
+  // disposeControllerList() {
+  //   for (var element in controllerList) {
+  //     element.dispose();
+  //   }
+  // }
 
   // Get groups which user is member of
   Future<List<Group>> getMemberedGroup() async {
@@ -119,7 +121,7 @@ class HomePageController extends GetxController {
       int index = 0;
       List<String> metaAllTags = [];
       QuerySnapshot<Object?> allposts = await _allPosts.get();
-      await getMemberedGroup().then((userGroups) {
+      await getMemberedGroup().then((userGroups) async {
         if (userGroups.isNotEmpty) {
           for (int i = 0; i < userGroups.length; i++) {
             for (var element in allposts.docs) {
@@ -128,6 +130,14 @@ class HomePageController extends GetxController {
                     Post.fromJson(element.data() as Map<String, dynamic>);
                 currentPost.docId = element.id;
                 currentPost.controllerIndex = index;
+                // Get Thumbnail URL
+                // String videID =
+                //     currentPost.youtubeLink.replaceAll('https://youtu.be/', '');
+                // YoutubeVideoResponse resposne =
+                //     await YouTubeService.instance.fetchVideoInfo(id: videID);
+                // currentPost.thumbnailUrl =
+                //     resposne.items!.first.snippet!.thumbnails!.defaultQ!.url;
+                // --------------------------
                 YoutubePlayerController _controller = YoutubePlayerController(
                   initialVideoId:
                       YoutubePlayer.convertUrlToId(currentPost.youtubeLink)!,
@@ -136,7 +146,7 @@ class HomePageController extends GetxController {
                     mute: false,
                   ),
                 );
-                controllerList.add(_controller);
+                // controllerList.add(_controller);
 
                 posts.add(currentPost);
                 allpost.add(currentPost);
@@ -173,7 +183,7 @@ class HomePageController extends GetxController {
   // Refresh all posts
   refreshPosts() {
     loaded(false);
-    controllerList([]);
+    // controllerList([]);
     allpost([]);
     posts([]);
     creators([]);
@@ -195,7 +205,7 @@ class HomePageController extends GetxController {
     if (name == 'all') {
       posts(allpost);
       sort(sortByRecent.value);
-      reloadControllerList();
+      // reloadControllerList(pos);
       loaded(true);
     } else {
       posts([]);
@@ -205,7 +215,7 @@ class HomePageController extends GetxController {
         }
       }
       sort(sortByRecent.value);
-      reloadControllerList();
+      // reloadControllerList();
       loaded(true);
     }
   }
@@ -248,7 +258,7 @@ class HomePageController extends GetxController {
         }
       }
 
-      reloadControllerList();
+      // reloadControllerList(posts);
       loaded(true);
     } else {
       isFilter(false);
@@ -262,12 +272,12 @@ class HomePageController extends GetxController {
     sortByRecent(value);
     if (value) {
       posts.sort((a, b) => b.addedTime.compareTo(a.addedTime));
-      reloadControllerList();
+      // reloadControllerList(posts);
       loaded(true);
     } else {
       posts
           .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-      reloadControllerList();
+      // reloadControllerList(posts);
       loaded(true);
     }
   }
