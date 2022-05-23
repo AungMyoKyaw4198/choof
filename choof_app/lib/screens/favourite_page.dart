@@ -10,6 +10,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../controllers/home_page_controller.dart';
 import '../controllers/landing_page_controller.dart';
+import '../controllers/your_group_controller.dart';
 import '../models/group.dart';
 import '../models/post.dart';
 import '../models/profile.dart';
@@ -27,6 +28,7 @@ class FavouritePage extends StatefulWidget {
 
 class _FavouritePageState extends State<FavouritePage> {
   final homePageController = Get.find<HomePageController>();
+  final yourGroupController = Get.find<YourGroupController>();
   final landingPagecontroller = Get.find<LandingPageController>();
 
   final tagName = TextEditingController();
@@ -601,6 +603,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                               isInsideGroup: false,
                                               reportFunction: () {
                                                 _pullRefresh();
+                                                yourGroupController
+                                                    .refreshGroups();
                                               },
                                             )
                                       : VideoWidget(
@@ -696,6 +700,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                           isInsideGroup: false,
                                           reportFunction: () {
                                             _pullRefresh();
+                                            yourGroupController.refreshGroups();
                                           },
                                         );
                                 })
@@ -820,6 +825,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                               isInsideGroup: false,
                                               reportFunction: () {
                                                 _pullRefresh();
+                                                yourGroupController
+                                                    .refreshGroups();
                                               },
                                             )
                                       : VideoWidget(
@@ -915,6 +922,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                           isInsideGroup: false,
                                           reportFunction: () {
                                             _pullRefresh();
+                                            yourGroupController.refreshGroups();
                                           },
                                         );
                                 })),

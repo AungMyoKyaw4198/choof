@@ -13,6 +13,8 @@ import '../screens/home_page.dart';
 import '../screens/landing_page.dart';
 import '../screens/widgets/shared_widgets.dart';
 import '../services/user_auth.dart';
+import 'home_page_controller.dart';
+import 'your_group_controller.dart';
 
 class LandingPageController extends GetxController {
   final UserAuthService _userAuthService = UserAuthService();
@@ -213,14 +215,19 @@ class LandingPageController extends GetxController {
   }
 
   toggleSignOut(bool value) async {
+    final homePagecontroller = Get.find<HomePageController>();
+    final yourGroupsPagecontroller = Get.find<YourGroupController>();
     loadingDialog();
     signOut(value);
     if (value) {
       await _userAuthService.signOut();
       deleteUserProfile();
       resetData();
+
       Get.back();
       Get.offAll(() => LandingPage());
+      homePagecontroller.refreshPosts();
+      yourGroupsPagecontroller.refreshGroups();
     }
   }
 

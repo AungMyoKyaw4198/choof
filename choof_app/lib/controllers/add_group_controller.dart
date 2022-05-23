@@ -7,10 +7,12 @@ import 'package:get/get.dart';
 
 import '../screens/view_group.dart';
 import '../screens/widgets/shared_widgets.dart';
+import 'landing_page_controller.dart';
 
 class AddGroupContoller extends GetxController {
   static AddGroupContoller get to => Get.find();
   final yourGroupcontroller = Get.find<YourGroupController>();
+  final landingPagecontroller = Get.find<LandingPageController>();
 
   final CollectionReference _groups =
       FirebaseFirestore.instance.collection("groups");
@@ -31,14 +33,13 @@ class AddGroupContoller extends GetxController {
     try {
       loadingDialog();
       List<String> currentMembers = [];
-      User currentUser = FirebaseAuth.instance.currentUser!;
-      currentMembers.add(currentUser.displayName!);
+      currentMembers.add(landingPagecontroller.userProfile.value.name);
 
       final Group _currentGroup = Group(
           name: groupName.text,
           tags: tags,
-          owner: currentUser.displayName!,
-          ownerImageUrl: currentUser.photoURL!,
+          owner: landingPagecontroller.userProfile.value.name,
+          ownerImageUrl: landingPagecontroller.userProfile.value.imageUrl,
           members: currentMembers,
           lastUpdatedTime: DateTime.now(),
           createdTime: DateTime.now());
