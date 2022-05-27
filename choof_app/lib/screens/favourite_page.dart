@@ -10,11 +10,13 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../controllers/home_page_controller.dart';
 import '../controllers/landing_page_controller.dart';
+import '../controllers/your_group_controller.dart';
 import '../models/group.dart';
 import '../models/post.dart';
 import '../models/profile.dart';
 import '../utils/app_constant.dart';
 import 'add_group_page.dart';
+import 'add_video.dart';
 import 'full_screen_page.dart';
 
 class FavouritePage extends StatefulWidget {
@@ -25,7 +27,8 @@ class FavouritePage extends StatefulWidget {
 }
 
 class _FavouritePageState extends State<FavouritePage> {
-  final homePageController = Get.put(HomePageController());
+  final homePageController = Get.find<HomePageController>();
+  final yourGroupController = Get.find<YourGroupController>();
   final landingPagecontroller = Get.find<LandingPageController>();
 
   final tagName = TextEditingController();
@@ -42,7 +45,7 @@ class _FavouritePageState extends State<FavouritePage> {
 
   @override
   void dispose() {
-    homePageController.disposeControllerList();
+    // homePageController.disposeControllerList();
     super.dispose();
   }
 
@@ -71,6 +74,32 @@ class _FavouritePageState extends State<FavouritePage> {
               color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         elevation: 0.0,
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() => AddVideoPage(
+                          index: 0,
+                          group: Group(
+                              name: '',
+                              tags: [],
+                              owner: '',
+                              ownerImageUrl: '',
+                              members: [],
+                              lastUpdatedTime: DateTime.now(),
+                              createdTime: DateTime.now()),
+                          isFromFavPage: true,
+                          isFromViewGroup: false,
+                        ))!
+                    .then((value) {
+                  _pullRefresh();
+                });
+              },
+              icon: Image.asset(
+                'assets/icons/FavAdd.png',
+                width: 60,
+                height: 60,
+              ))
+        ],
       ),
       // body
       body: Container(
@@ -432,7 +461,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      Get.to(() => AddGroupPage())!;
+                                      Get.to(() => const AddGroupPage(
+                                            isFromFavPage: true,
+                                            index: 0,
+                                          ))!;
                                     },
                                     child: Image.asset(
                                       'assets/icons/FriendsAdd.png',
@@ -477,25 +509,52 @@ class _FavouritePageState extends State<FavouritePage> {
                                               youtubePlayer:
                                                   YoutubePlayerBuilder(
                                                       player: YoutubePlayer(
+                                                        // controller:
+                                                        //     homePageController
+                                                        //             .controllerList[
+                                                        //         index],
                                                         controller:
-                                                            homePageController
-                                                                    .controllerList[
-                                                                index],
-                                                        thumbnail:
-                                                            Image.network(
-                                                          YoutubePlayer.getThumbnail(
-                                                              videoId: YoutubePlayer
-                                                                  .convertUrlToId(
-                                                                      currentPosts[
-                                                                              index]
-                                                                          .youtubeLink)!),
-                                                          fit: BoxFit.fitWidth,
-                                                          height: 200,
-                                                          width: MediaQuery.of(
-                                                                  context)
-                                                              .size
-                                                              .width,
+                                                            YoutubePlayerController(
+                                                          initialVideoId: YoutubePlayer
+                                                              .convertUrlToId(
+                                                                  currentPosts[
+                                                                          index]
+                                                                      .youtubeLink)!,
+                                                          flags:
+                                                              const YoutubePlayerFlags(
+                                                            autoPlay: false,
+                                                            mute: false,
+                                                          ),
                                                         ),
+                                                        thumbnail: currentPosts[
+                                                                        index]
+                                                                    .thumbnailUrl !=
+                                                                null
+                                                            ? Image.network(
+                                                                currentPosts[
+                                                                        index]
+                                                                    .thumbnailUrl!,
+                                                                fit: BoxFit
+                                                                    .fitWidth,
+                                                                height: 200,
+                                                                width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width,
+                                                              )
+                                                            : Image.network(
+                                                                YoutubePlayer.getThumbnail(
+                                                                    videoId: YoutubePlayer.convertUrlToId(
+                                                                        currentPosts[index]
+                                                                            .youtubeLink)!),
+                                                                fit: BoxFit
+                                                                    .fitWidth,
+                                                                height: 200,
+                                                                width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width,
+                                                              ),
                                                       ),
                                                       onEnterFullScreen: () {
                                                         Get.to(() =>
@@ -531,6 +590,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                                   Get.back();
                                                   if (value.docs.isNotEmpty) {
                                                     Get.to(() => ViewGroup(
+                                                              index: 0,
                                                               currentGroup: Group
                                                                   .fromJson(value
                                                                       .docs
@@ -548,6 +608,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                               isInsideGroup: false,
                                               reportFunction: () {
                                                 _pullRefresh();
+                                                yourGroupController
+                                                    .refreshGroups();
                                               },
                                             )
                                       : VideoWidget(
@@ -556,21 +618,47 @@ class _FavouritePageState extends State<FavouritePage> {
                                               .userProfile.value,
                                           youtubePlayer: YoutubePlayerBuilder(
                                               player: YoutubePlayer(
-                                                controller: homePageController
-                                                    .controllerList[index],
-                                                thumbnail: Image.network(
-                                                  YoutubePlayer.getThumbnail(
-                                                      videoId: YoutubePlayer
-                                                          .convertUrlToId(
-                                                              currentPosts[
-                                                                      index]
-                                                                  .youtubeLink)!),
-                                                  fit: BoxFit.fitWidth,
-                                                  height: 200,
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
+                                                controller:
+                                                    YoutubePlayerController(
+                                                  initialVideoId: YoutubePlayer
+                                                      .convertUrlToId(
+                                                          currentPosts[index]
+                                                              .youtubeLink)!,
+                                                  flags:
+                                                      const YoutubePlayerFlags(
+                                                    autoPlay: false,
+                                                    mute: false,
+                                                  ),
                                                 ),
+                                                // controller: homePageController
+                                                //     .controllerList[index],
+                                                thumbnail: currentPosts[index]
+                                                            .thumbnailUrl !=
+                                                        null
+                                                    ? Image.network(
+                                                        currentPosts[index]
+                                                            .thumbnailUrl!,
+                                                        fit: BoxFit.fitWidth,
+                                                        height: 200,
+                                                        width: MediaQuery.of(
+                                                                context)
+                                                            .size
+                                                            .width,
+                                                      )
+                                                    : Image.network(
+                                                        YoutubePlayer.getThumbnail(
+                                                            videoId: YoutubePlayer
+                                                                .convertUrlToId(
+                                                                    currentPosts[
+                                                                            index]
+                                                                        .youtubeLink)!),
+                                                        fit: BoxFit.fitWidth,
+                                                        height: 200,
+                                                        width: MediaQuery.of(
+                                                                context)
+                                                            .size
+                                                            .width,
+                                                      ),
                                               ),
                                               onEnterFullScreen: () {
                                                 Get.to(() => FullScreenPage(
@@ -601,6 +689,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                               Get.back();
                                               if (value.docs.isNotEmpty) {
                                                 Get.to(() => ViewGroup(
+                                                          index: 0,
                                                           currentGroup:
                                                               Group.fromJson(
                                                                   value.docs
@@ -617,6 +706,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                           isInsideGroup: false,
                                           reportFunction: () {
                                             _pullRefresh();
+                                            yourGroupController.refreshGroups();
                                           },
                                         );
                                 })
@@ -651,22 +741,47 @@ class _FavouritePageState extends State<FavouritePage> {
                                               youtubePlayer:
                                                   YoutubePlayerBuilder(
                                                 player: YoutubePlayer(
-                                                  controller: homePageController
-                                                      .controllerList[index],
-                                                  thumbnail: Image.network(
-                                                    YoutubePlayer.getThumbnail(
-                                                        videoId: YoutubePlayer
-                                                            .convertUrlToId(
-                                                                currentPosts[
-                                                                        index]
-                                                                    .youtubeLink)!),
-                                                    fit: BoxFit.fitWidth,
-                                                    height: 200,
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                            .size
-                                                            .width,
+                                                  // controller: homePageController
+                                                  //     .controllerList[index],
+                                                  controller:
+                                                      YoutubePlayerController(
+                                                    initialVideoId: YoutubePlayer
+                                                        .convertUrlToId(
+                                                            currentPosts[index]
+                                                                .youtubeLink)!,
+                                                    flags:
+                                                        const YoutubePlayerFlags(
+                                                      autoPlay: false,
+                                                      mute: false,
+                                                    ),
                                                   ),
+                                                  thumbnail: currentPosts[index]
+                                                              .thumbnailUrl !=
+                                                          null
+                                                      ? Image.network(
+                                                          currentPosts[index]
+                                                              .thumbnailUrl!,
+                                                          fit: BoxFit.fitWidth,
+                                                          height: 200,
+                                                          width: MediaQuery.of(
+                                                                  context)
+                                                              .size
+                                                              .width,
+                                                        )
+                                                      : Image.network(
+                                                          YoutubePlayer.getThumbnail(
+                                                              videoId: YoutubePlayer
+                                                                  .convertUrlToId(
+                                                                      currentPosts[
+                                                                              index]
+                                                                          .youtubeLink)!),
+                                                          fit: BoxFit.fitWidth,
+                                                          height: 200,
+                                                          width: MediaQuery.of(
+                                                                  context)
+                                                              .size
+                                                              .width,
+                                                        ),
                                                 ),
                                                 builder: (context, player) {
                                                   return Column(
@@ -699,6 +814,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                                   Get.back();
                                                   if (value.docs.isNotEmpty) {
                                                     Get.to(() => ViewGroup(
+                                                              index: 0,
                                                               currentGroup: Group
                                                                   .fromJson(value
                                                                       .docs
@@ -716,6 +832,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                               isInsideGroup: false,
                                               reportFunction: () {
                                                 _pullRefresh();
+                                                yourGroupController
+                                                    .refreshGroups();
                                               },
                                             )
                                       : VideoWidget(
@@ -724,20 +842,46 @@ class _FavouritePageState extends State<FavouritePage> {
                                               .userProfile.value,
                                           youtubePlayer: YoutubePlayerBuilder(
                                             player: YoutubePlayer(
-                                              controller: homePageController
-                                                  .controllerList[index],
-                                              thumbnail: Image.network(
-                                                YoutubePlayer.getThumbnail(
-                                                    videoId: YoutubePlayer
-                                                        .convertUrlToId(
-                                                            currentPosts[index]
-                                                                .youtubeLink)!),
-                                                fit: BoxFit.fitWidth,
-                                                height: 200,
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
+                                              // controller: homePageController
+                                              //     .controllerList[index],
+                                              controller:
+                                                  YoutubePlayerController(
+                                                initialVideoId: YoutubePlayer
+                                                    .convertUrlToId(
+                                                        currentPosts[index]
+                                                            .youtubeLink)!,
+                                                flags: const YoutubePlayerFlags(
+                                                  autoPlay: false,
+                                                  mute: false,
+                                                ),
                                               ),
+                                              thumbnail: currentPosts[index]
+                                                          .thumbnailUrl !=
+                                                      null
+                                                  ? Image.network(
+                                                      currentPosts[index]
+                                                          .thumbnailUrl!,
+                                                      fit: BoxFit.fitWidth,
+                                                      height: 200,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                    )
+                                                  : Image.network(
+                                                      YoutubePlayer.getThumbnail(
+                                                          videoId: YoutubePlayer
+                                                              .convertUrlToId(
+                                                                  currentPosts[
+                                                                          index]
+                                                                      .youtubeLink)!),
+                                                      fit: BoxFit.fitWidth,
+                                                      height: 200,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                    ),
                                             ),
                                             builder: (context, player) {
                                               return Column(
@@ -769,6 +913,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                               Get.back();
                                               if (value.docs.isNotEmpty) {
                                                 Get.to(() => ViewGroup(
+                                                          index: 0,
                                                           currentGroup:
                                                               Group.fromJson(
                                                                   value.docs
@@ -785,6 +930,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                           isInsideGroup: false,
                                           reportFunction: () {
                                             _pullRefresh();
+                                            yourGroupController.refreshGroups();
                                           },
                                         );
                                 })),

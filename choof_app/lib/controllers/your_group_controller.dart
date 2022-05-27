@@ -73,6 +73,7 @@ class YourGroupController extends GetxController {
               }
               groups.add(currentGroup);
               allGroups.add(currentGroup);
+
               for (var tag in currentGroup.tags) {
                 metaAllTags.add(tag.trim());
               }

@@ -19,7 +19,7 @@ class YourGroupsPage extends StatefulWidget {
 }
 
 class _YourGroupsPageState extends State<YourGroupsPage> {
-  final controller = Get.put(YourGroupController());
+  final controller = Get.find<YourGroupController>();
   final landingPagecontroller = Get.find<LandingPageController>();
 
   final tagName = TextEditingController();
@@ -62,7 +62,10 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
         actions: [
           IconButton(
               onPressed: () {
-                Get.to(() => AddGroupPage())!;
+                Get.to(() => const AddGroupPage(
+                      isFromFavPage: false,
+                      index: 1,
+                    ))!;
               },
               icon: Image.asset(
                 'assets/icons/FriendsAdd.png',
@@ -413,7 +416,10 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    Get.to(() => AddGroupPage())!;
+                                    Get.to(() => const AddGroupPage(
+                                          isFromFavPage: false,
+                                          index: 1,
+                                        ))!;
                                   },
                                   child: Image.asset(
                                     'assets/icons/FriendsAdd.png',
@@ -436,6 +442,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                   (index) => InkWell(
                                       onTap: () {
                                         Get.to(() => ViewGroup(
+                                                  index: 1,
                                                   currentGroup:
                                                       controller.groups[index],
                                                   isFromGroup: true,
@@ -477,6 +484,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                   (index) => InkWell(
                                     onTap: () {
                                       Get.to(() => ViewGroup(
+                                                index: 1,
                                                 currentGroup: controller
                                                     .filteredTagResult[index],
                                                 isFromGroup: true,

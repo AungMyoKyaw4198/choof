@@ -60,486 +60,525 @@ class _VideoWidgetState extends State<VideoWidget> {
                   ),
                 ),
                 // Report Button
-                IconButton(
-                    onPressed: () {
-                      Get.defaultDialog(
-                          title: '',
-                          content: Container(
-                            height: 200,
-                            color: Colors.white,
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Report this post
-                                  TextButton(
-                                    // when report is pressed
-                                    onPressed: () {
-                                      TextEditingController _controller =
-                                          TextEditingController();
-                                      Get.back();
-                                      // Choose report reasons
-                                      Get.defaultDialog(
-                                          title: '',
-                                          content: Container(
-                                            height: 300,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width -
-                                                100,
-                                            color: Colors.white,
-                                            child: ListView(
-                                              shrinkWrap: true,
-                                              children: [
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportPost(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  'Sexual content')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                        'Sexual content',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportPost(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  'Violent or Repulsive content')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                        'Violent or Repulsive content',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportPost(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  'Hateful or abusive content')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                        'Hateful or abusive content',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportPost(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  'Harmful or dangerous acts')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                        'Harmful or dangerous acts',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportPost(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  'Spam')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text('Spam',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportPost(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  ' False or misleading')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                        ' False or misleading',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      Get.defaultDialog(
-                                                          title:
-                                                              'Please specify reason',
-                                                          titlePadding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      10),
-                                                          textConfirm: 'OK',
-                                                          onConfirm: () async {
-                                                            Get.back();
-                                                            await reportPost(
-                                                                    post: widget
-                                                                        .post,
-                                                                    reportedUser:
-                                                                        widget
-                                                                            .user,
-                                                                    reportedReason:
-                                                                        _controller
-                                                                            .text)
-                                                                .then((value) {
-                                                              widget
-                                                                  .reportFunction();
-                                                            });
-                                                          },
-                                                          content: Container(
-                                                            padding:
-                                                                const EdgeInsets
+                widget.post.creator.trim() == widget.user.name.trim()
+                    ? const SizedBox.shrink()
+                    : IconButton(
+                        onPressed: () {
+                          Get.defaultDialog(
+                              title: '',
+                              content: Container(
+                                height: 200,
+                                color: Colors.white,
+                                child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      // Report this post
+                                      TextButton(
+                                        // when report is pressed
+                                        onPressed: () {
+                                          TextEditingController _controller =
+                                              TextEditingController();
+                                          Get.back();
+                                          // Choose report reasons
+                                          Get.defaultDialog(
+                                              title: '',
+                                              content: Container(
+                                                height: 300,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    100,
+                                                color: Colors.white,
+                                                child: ListView(
+                                                  shrinkWrap: true,
+                                                  children: [
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportPost(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      'Sexual content')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            'Sexual content',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportPost(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      'Violent or Repulsive content')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            'Violent or Repulsive content',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportPost(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      'Hateful or abusive content')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            'Hateful or abusive content',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportPost(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      'Harmful or dangerous acts')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            'Harmful or dangerous acts',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportPost(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      'Spam')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            'Spam',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportPost(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      ' False or misleading')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            ' False or misleading',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          Get.defaultDialog(
+                                                              title:
+                                                                  'Please specify reason',
+                                                              titlePadding:
+                                                                  const EdgeInsets
+                                                                          .symmetric(
+                                                                      horizontal:
+                                                                          10),
+                                                              textConfirm: 'OK',
+                                                              onConfirm:
+                                                                  () async {
+                                                                Get.back();
+                                                                await reportPost(
+                                                                        post: widget
+                                                                            .post,
+                                                                        reportedUser:
+                                                                            widget
+                                                                                .user,
+                                                                        reportedReason:
+                                                                            _controller
+                                                                                .text)
+                                                                    .then(
+                                                                        (value) {
+                                                                  widget
+                                                                      .reportFunction();
+                                                                });
+                                                              },
+                                                              content:
+                                                                  Container(
+                                                                padding: const EdgeInsets
                                                                         .symmetric(
                                                                     horizontal:
                                                                         10),
-                                                            child: TextField(
-                                                              controller:
-                                                                  _controller,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                hintText:
-                                                                    "Enter here....",
-                                                                fillColor:
-                                                                    Colors
-                                                                        .white,
-                                                                border:
-                                                                    OutlineInputBorder(
-                                                                  borderSide: const BorderSide(
-                                                                      color: Colors
-                                                                          .black,
-                                                                      width:
-                                                                          1.0),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
+                                                                child:
+                                                                    TextField(
+                                                                  controller:
+                                                                      _controller,
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    hintText:
+                                                                        "Enter here....",
+                                                                    fillColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    border:
+                                                                        OutlineInputBorder(
+                                                                      borderSide: const BorderSide(
+                                                                          color: Colors
+                                                                              .black,
+                                                                          width:
+                                                                              1.0),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
                                                                               5.0),
+                                                                    ),
+                                                                  ),
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .multiline,
+                                                                  minLines: 1,
+                                                                  maxLines: 5,
                                                                 ),
-                                                              ),
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .multiline,
-                                                              minLines: 1,
-                                                              maxLines: 5,
-                                                            ),
-                                                          ));
-                                                    },
-                                                    child: const Text(
-                                                        'Other (please specify)',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                              ],
-                                            ),
-                                          ));
-                                    },
-                                    child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 50),
-                                        child: Row(
-                                          children: const [
-                                            Icon(Icons.flag),
-                                            SizedBox(
-                                              width: 10,
-                                            ),
-                                            Text('Flag Content',
-                                                style: TextStyle(
-                                                    color: Colors.black))
-                                          ],
-                                        )),
-                                  ),
-
-                                  // Report this user
-                                  TextButton(
-                                    onPressed: () async {
-                                      Get.back();
-                                      // User reported User
-                                      Get.defaultDialog(
-                                          title: '',
-                                          content: Container(
-                                            height: 300,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width -
-                                                100,
-                                            color: Colors.white,
-                                            child: ListView(
-                                              shrinkWrap: true,
-                                              children: [
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportUser(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  'Pretending to be someone')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                        'Pretending to be someone',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportUser(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  'Fake account')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                        'Fake account',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportUser(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  'Fake name')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                        'Fake name',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      Get.back();
-                                                      await reportUser(
-                                                              post: widget.post,
-                                                              reportedUser:
-                                                                  widget.user,
-                                                              reportedReason:
-                                                                  'Posting inappropriate content')
-                                                          .then((value) {
-                                                        widget.reportFunction();
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                        'Posting inappropriate content',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      TextEditingController
-                                                          _controller =
-                                                          TextEditingController();
-                                                      Get.back();
-
-                                                      Get.defaultDialog(
-                                                          title:
-                                                              'Please specify reason',
-                                                          titlePadding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      10),
-                                                          textConfirm: 'OK',
-                                                          onConfirm: () async {
-                                                            Get.back();
-                                                            await reportUser(
-                                                                    post: widget
-                                                                        .post,
-                                                                    reportedUser:
-                                                                        widget
-                                                                            .user,
-                                                                    reportedReason:
-                                                                        _controller
-                                                                            .text)
-                                                                .then((value) {
-                                                              widget
-                                                                  .reportFunction();
-                                                            });
-                                                          },
-                                                          content: Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                            child: TextField(
-                                                              controller:
-                                                                  _controller,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                hintText:
-                                                                    "Enter here....",
-                                                                fillColor:
-                                                                    Colors
-                                                                        .white,
-                                                                border:
-                                                                    OutlineInputBorder(
-                                                                  borderSide: const BorderSide(
-                                                                      color: Colors
-                                                                          .black,
-                                                                      width:
-                                                                          1.0),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              5.0),
-                                                                ),
-                                                              ),
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .multiline,
-                                                              minLines: 1,
-                                                              maxLines: 5,
-                                                            ),
-                                                          ));
-                                                    },
-                                                    child: const Text(
-                                                        'Other (please specify)',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.red))),
-                                                const Divider(),
-                                              ],
-                                            ),
-                                          ));
-                                    },
-                                    child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 50),
-                                        child: Row(
-                                          children: const [
-                                            Icon(Icons.info),
-                                            SizedBox(
-                                              width: 10,
-                                            ),
-                                            Text('Report User',
-                                                style: TextStyle(
-                                                    color: Colors.black))
-                                          ],
-                                        )),
-                                  ),
-                                  // Block this user
-                                  TextButton(
-                                    onPressed: () async {
-                                      Get.back();
-                                      Get.defaultDialog(
-                                          title: 'Are you sure?',
-                                          content: Container(
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                    '1. You will be removed from all groups created by ${widget.post.creator}. '),
-                                                const SizedBox(
-                                                  height: 10,
+                                                              ));
+                                                        },
+                                                        child: const Text(
+                                                            'Other (please specify)',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                  ],
                                                 ),
-                                                Text(
-                                                    '2. ${widget.post.creator} will not be able to add you to any of their groups')
+                                              ));
+                                        },
+                                        child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 50),
+                                            child: Row(
+                                              children: const [
+                                                Icon(Icons.flag),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Text('Flag Content',
+                                                    style: TextStyle(
+                                                        color: Colors.black))
                                               ],
-                                            ),
-                                          ),
-                                          textCancel: 'Cancel',
-                                          textConfirm: 'OK',
-                                          onCancel: () {
-                                            Get.back();
-                                          },
-                                          onConfirm: () async {
-                                            Get.back();
-                                            await blockUser(
-                                                    currentUser: widget.user,
-                                                    reportedName:
-                                                        widget.post.creator)
-                                                .then((value) {
-                                              widget.reportFunction();
-                                            });
-                                          });
-                                    },
-                                    child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 50),
-                                        child: Row(
-                                          children: const [
-                                            Icon(Icons.block),
-                                            SizedBox(
-                                              width: 10,
-                                            ),
-                                            Text('Block User',
-                                                style: TextStyle(
-                                                    color: Colors.black))
-                                          ],
-                                        )),
-                                  )
-                                ]),
-                          ));
-                    },
-                    icon: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 5),
-                        child: Icon(
-                          Icons.more_vert,
-                          color: Colors.white,
-                        )))
+                                            )),
+                                      ),
+
+                                      // Report this user
+                                      TextButton(
+                                        onPressed: () async {
+                                          Get.back();
+                                          // User reported User
+                                          Get.defaultDialog(
+                                              title: '',
+                                              content: Container(
+                                                height: 300,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    100,
+                                                color: Colors.white,
+                                                child: ListView(
+                                                  shrinkWrap: true,
+                                                  children: [
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportUser(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      'Pretending to be someone')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            'Pretending to be someone',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportUser(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      'Fake account')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            'Fake account',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportUser(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      'Fake name')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            'Fake name',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          await reportUser(
+                                                                  post: widget
+                                                                      .post,
+                                                                  reportedUser:
+                                                                      widget
+                                                                          .user,
+                                                                  reportedReason:
+                                                                      'Posting inappropriate content')
+                                                              .then((value) {
+                                                            widget
+                                                                .reportFunction();
+                                                          });
+                                                        },
+                                                        child: const Text(
+                                                            'Posting inappropriate content',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          TextEditingController
+                                                              _controller =
+                                                              TextEditingController();
+                                                          Get.back();
+
+                                                          Get.defaultDialog(
+                                                              title:
+                                                                  'Please specify reason',
+                                                              titlePadding:
+                                                                  const EdgeInsets
+                                                                          .symmetric(
+                                                                      horizontal:
+                                                                          10),
+                                                              textConfirm: 'OK',
+                                                              onConfirm:
+                                                                  () async {
+                                                                Get.back();
+                                                                await reportUser(
+                                                                        post: widget
+                                                                            .post,
+                                                                        reportedUser:
+                                                                            widget
+                                                                                .user,
+                                                                        reportedReason:
+                                                                            _controller
+                                                                                .text)
+                                                                    .then(
+                                                                        (value) {
+                                                                  widget
+                                                                      .reportFunction();
+                                                                });
+                                                              },
+                                                              content:
+                                                                  Container(
+                                                                padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                    horizontal:
+                                                                        10),
+                                                                child:
+                                                                    TextField(
+                                                                  controller:
+                                                                      _controller,
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    hintText:
+                                                                        "Enter here....",
+                                                                    fillColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    border:
+                                                                        OutlineInputBorder(
+                                                                      borderSide: const BorderSide(
+                                                                          color: Colors
+                                                                              .black,
+                                                                          width:
+                                                                              1.0),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              5.0),
+                                                                    ),
+                                                                  ),
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .multiline,
+                                                                  minLines: 1,
+                                                                  maxLines: 5,
+                                                                ),
+                                                              ));
+                                                        },
+                                                        child: const Text(
+                                                            'Other (please specify)',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red))),
+                                                    const Divider(),
+                                                  ],
+                                                ),
+                                              ));
+                                        },
+                                        child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 50),
+                                            child: Row(
+                                              children: const [
+                                                Icon(Icons.info),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Text('Report User',
+                                                    style: TextStyle(
+                                                        color: Colors.black))
+                                              ],
+                                            )),
+                                      ),
+                                      // Block this user
+                                      TextButton(
+                                        onPressed: () async {
+                                          Get.back();
+                                          Get.defaultDialog(
+                                              title: 'Are you sure?',
+                                              content: Container(
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                        '1. You will be removed from all groups created by ${widget.post.creator}. '),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    Text(
+                                                        '2. ${widget.post.creator} will not be able to add you to any of their groups')
+                                                  ],
+                                                ),
+                                              ),
+                                              textCancel: 'Cancel',
+                                              textConfirm: 'OK',
+                                              onCancel: () {
+                                                Get.back();
+                                              },
+                                              onConfirm: () async {
+                                                Get.back();
+                                                await blockUser(
+                                                        currentUser:
+                                                            widget.user,
+                                                        reportedName:
+                                                            widget.post.creator)
+                                                    .then((value) {
+                                                  widget.reportFunction();
+                                                });
+                                              });
+                                        },
+                                        child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 50),
+                                            child: Row(
+                                              children: const [
+                                                Icon(Icons.block),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Text('Block User',
+                                                    style: TextStyle(
+                                                        color: Colors.black))
+                                              ],
+                                            )),
+                                      )
+                                    ]),
+                              ));
+                        },
+                        icon: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 5),
+                            child: Icon(
+                              Icons.more_vert,
+                              color: Colors.white,
+                            )))
               ],
             ),
 

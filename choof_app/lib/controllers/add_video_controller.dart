@@ -11,7 +11,8 @@ import 'package:http/http.dart' as http;
 import '../models/group.dart';
 import '../models/notification.dart';
 import '../models/post.dart';
-import '../screens/view_group.dart';
+import '../models/youtubeVideoResponse.dart';
+import '../services/youtube_service.dart';
 
 class AddVideoContoller extends GetxController {
   static AddVideoContoller get to => Get.find();
@@ -27,10 +28,11 @@ class AddVideoContoller extends GetxController {
   final youtubeLink = TextEditingController();
   final youtubeThumbnail = ''.obs;
   final isVerify = false.obs;
-  final tagName = TextEditingController();
+  TextEditingController tagName = TextEditingController();
   final tagList = <String>[].obs;
   final groupName = ''.obs;
   final groupMembers = <String>[].obs;
+  final usergroupList = <Group>[].obs;
   final currentGroup = Group(
           name: '',
           tags: [],
@@ -111,30 +113,40 @@ class AddVideoContoller extends GetxController {
     tagList.remove(currentTag);
   }
 
-  addNewVideo() async {
+  addNewVideo({required isFromFavPage}) async {
     try {
       loadingDialog();
       String postName = await getDetail(youtubeLink.text);
 
+      // Get Thumbnail URL
+      String videID = youtubeLink.text.replaceAll('https://youtu.be/', '');
+      YoutubeVideoResponse resposne =
+          await YouTubeService.instance.fetchVideoInfo(id: videID);
+
       final Post currentPost = Post(
           name: postName,
           youtubeLink: youtubeLink.text,
+          thumbnailUrl:
+              resposne.items!.first.snippet!.thumbnails!.defaultQ!.url,
           tags: tagList,
           creator: landingPagecontroller.userProfile.value.name,
           creatorImageUrl: landingPagecontroller.userProfile.value.imageUrl,
           addedTime: DateTime.now(),
           groupName: groupName.value);
       await _allPosts.add(currentPost.toJson());
-      // Get cureent Group
-      QuerySnapshot<Object?> groupSnapshot =
-          await _groups.where('name', isEqualTo: currentGroup.value.name).get();
+      // Get current Group
+      QuerySnapshot<Object?> groupSnapshot = await _groups
+          .where('name', isEqualTo: currentGroup.value.name)
+          .where('docId', isEqualTo: currentGroup.value.docId)
+          .get();
       if (groupSnapshot.docs.isNotEmpty) {
         groupSnapshot.docs.forEach((element) {
           Group thisGroup =
               Group.fromJson(element.data() as Map<String, dynamic>);
+          thisGroup.docId = element.id;
           thisGroup.lastUpdatedTime = DateTime.now();
           setCurrentGroup(thisGroup);
-          _groups.doc(element.id).update(currentGroup.toJson());
+          _groups.doc(thisGroup.docId).update(thisGroup.toJson());
         });
       }
 
@@ -145,8 +157,15 @@ class AddVideoContoller extends GetxController {
               sentTime: DateTime.now())
           .toJson());
       Get.back();
-      Get.offAll(
-          () => ViewGroup(currentGroup: currentGroup.value, isFromGroup: true));
+      if (isFromFavPage) {
+        setCurrentGroup(usergroupList.first);
+        Get.back();
+      } else {
+        Get.back();
+        // Get.offAll(() =>
+        //     ViewGroup(currentGroup: currentGroup.value, isFromGroup: true));
+      }
+
       return true;
     } catch (e) {
       print(e);
@@ -161,21 +180,56 @@ class AddVideoContoller extends GetxController {
     }
   }
 
-  cancelAddVideo() async {
-    loadingDialog();
-    QuerySnapshot<Object?> groupSnapshot =
-        await _groups.where('name', isEqualTo: currentGroup.value.name).get();
-    if (groupSnapshot.docs.isNotEmpty) {
-      groupSnapshot.docs.forEach((element) {
-        Group thisGroup =
-            Group.fromJson(element.data() as Map<String, dynamic>);
-        thisGroup.lastUpdatedTime = DateTime.now();
-        setCurrentGroup(thisGroup);
-        _groups.doc(element.id).update(currentGroup.toJson());
-      });
+  cancelAddVideo({required isFromFavPage}) async {
+    if (isFromFavPage) {
+      setCurrentGroup(usergroupList.first);
+      Get.back();
+    } else {
+      loadingDialog();
+      QuerySnapshot<Object?> groupSnapshot =
+          await _groups.where('name', isEqualTo: currentGroup.value.name).get();
+      if (groupSnapshot.docs.isNotEmpty) {
+        groupSnapshot.docs.forEach((element) {
+          Group thisGroup =
+              Group.fromJson(element.data() as Map<String, dynamic>);
+          thisGroup.lastUpdatedTime = DateTime.now();
+          setCurrentGroup(thisGroup);
+          _groups.doc(element.id).update(currentGroup.toJson());
+        });
+      }
+      Get.back();
+      Get.back();
     }
-    Get.back();
-    Get.offAll(
-        () => ViewGroup(currentGroup: currentGroup.value, isFromGroup: true));
+  }
+
+  getGroups() async {
+    try {
+      usergroupList([]);
+      QuerySnapshot<Object?> querySnapshot = await _groups
+          .where('owner',
+              isEqualTo: landingPagecontroller.userProfile.value.name.trim())
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        for (var element in querySnapshot.docs) {
+          final Group meta =
+              Group.fromJson(element.data() as Map<String, dynamic>);
+          meta.docId = element.id;
+
+          usergroupList.add(meta);
+        }
+        setCurrentGroup(usergroupList.first);
+        setTags(usergroupList.first.tags);
+        setGroupName(usergroupList.first.name);
+        setGroupMembers(usergroupList.first.members);
+      }
+    } catch (e) {
+      print(e);
+      Get.snackbar(
+        "Something went wrong!",
+        "Please try again later.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    }
   }
 }

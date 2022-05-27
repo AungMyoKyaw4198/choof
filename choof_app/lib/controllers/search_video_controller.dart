@@ -14,15 +14,11 @@ class SearchVideoController extends GetxController {
 
   searchVideos() async {
     if (videoList.isEmpty) {
-      print('Empty');
-      print(searchResult.value.nextPageToken);
       YoutubeSearchResult result = await YouTubeService.instance
           .searchVideos(query: searchController.text);
       searchResult(result);
       videoList(result.items);
     } else {
-      print('Not Empty');
-      print(searchResult.value.nextPageToken);
       YoutubeSearchResult result = await YouTubeService.instance.searchVideos(
           query: searchController.text,
           pageToken: searchResult.value.nextPageToken);

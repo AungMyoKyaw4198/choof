@@ -40,12 +40,16 @@ class ViewGroupController extends GetxController {
     groupName(name);
   }
 
-  reloadControllerList() {
-    for (int i = 0; i < posts.length; i++) {
-      controllerList[i]
-          .load(YoutubePlayer.convertUrlToId(posts[i].youtubeLink)!);
-      controllerList[i].pause();
-    }
+  // reloadControllerList() {
+  //   for (int i = 0; i < posts.length; i++) {
+  //     controllerList[i]
+  //         .load(YoutubePlayer.convertUrlToId(posts[i].youtubeLink)!);
+  //     controllerList[i].pause();
+  //   }
+  // }
+
+  addToControllerList(YoutubePlayerController controller) {
+    controllerList.add(controller);
   }
 
   disposeControllerList() {
@@ -69,15 +73,15 @@ class ViewGroupController extends GetxController {
               Post.fromJson(element.data() as Map<String, dynamic>);
           currentPost.docId = element.id;
 
-          YoutubePlayerController _controller = YoutubePlayerController(
-            initialVideoId:
-                YoutubePlayer.convertUrlToId(currentPost.youtubeLink)!,
-            flags: const YoutubePlayerFlags(
-              autoPlay: false,
-              mute: false,
-            ),
-          );
-          controllerList.add(_controller);
+          // YoutubePlayerController _controller = YoutubePlayerController(
+          //   initialVideoId:
+          //       YoutubePlayer.convertUrlToId(currentPost.youtubeLink)!,
+          //   flags: const YoutubePlayerFlags(
+          //     autoPlay: false,
+          //     mute: false,
+          //   ),
+          // );
+          // controllerList.add(_controller);
 
           posts.add(currentPost);
           allpost.add(currentPost);
@@ -110,7 +114,7 @@ class ViewGroupController extends GetxController {
   // Refresh all posts
   refreshPosts(Group group) {
     loaded(false);
-    controllerList([]);
+    // controllerList([]);
     allpost([]);
     posts([]);
     allTags([]);
@@ -240,7 +244,7 @@ class ViewGroupController extends GetxController {
           filteredTagResult.add(post);
         }
       }
-      reloadControllerList();
+      // reloadControllerList();
       loaded(true);
     } else {
       isFilter(false);
@@ -254,12 +258,12 @@ class ViewGroupController extends GetxController {
     sortByRecent(value);
     if (value) {
       posts.sort((a, b) => b.addedTime.compareTo(a.addedTime));
-      reloadControllerList();
+      // reloadControllerList();
       loaded(true);
     } else {
       posts
           .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-      reloadControllerList();
+      // reloadControllerList();
       loaded(true);
     }
   }

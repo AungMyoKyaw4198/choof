@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <string name="app_name">CHOOF APP</string>
-<string name="facebook_app_id">1177849966367002</string>
-<string name="fb_login_protocol_scheme">fb1418029498553151</string>
-<string name="facebook_client_token">f41d50249d8cd948ccb247a8709eb582</string>
+<string name="facebook_app_id">357719206396746</string>
+<string name="facebook_client_token">97b03cacb8f50e21cb78dcc60668ca59</string>
 </resources>

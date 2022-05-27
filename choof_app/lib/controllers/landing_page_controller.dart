@@ -13,6 +13,8 @@ import '../screens/home_page.dart';
 import '../screens/landing_page.dart';
 import '../screens/widgets/shared_widgets.dart';
 import '../services/user_auth.dart';
+import 'home_page_controller.dart';
+import 'your_group_controller.dart';
 
 class LandingPageController extends GetxController {
   final UserAuthService _userAuthService = UserAuthService();
@@ -43,6 +45,8 @@ class LandingPageController extends GetxController {
 
   final isFilter = false.obs;
   final filteredUsersResult = <Profile>[].obs;
+
+  final autoTags = <String>[].obs;
 
   resetData() {
     loadingDialog();
@@ -166,20 +170,21 @@ class LandingPageController extends GetxController {
   signInWithTwitter() async {
     loadingDialog();
     await _userAuthService.signOut();
-    // Create a TwitterLogin instance
     final twitterLogin = TwitterLogin(
-        apiKey: 'WRh0FrNXrBzDHQhZae1HLCsjx',
-        apiSecretKey: 'pZcep2fsxZfKu9meKiKadBKVnHvbixmnZGeaFh9X7dHTQtJSmi',
+        apiKey: 'SorRtCYPqzRR4PtwMW2Y1CmcO',
+        apiSecretKey: 'q6IKKCcPSg0fw1ZXII46T57EVv4gQlpbVg3rPKZ9ttMfU1frxX',
         redirectURI: 'choofapp://');
 
     await twitterLogin.login(forceLogin: true).then((value) async {
+      print(value.status);
+      print(value.errorMessage);
       final twitterAuthCredential = TwitterAuthProvider.credential(
         accessToken: value.authToken!,
         secret: value.authTokenSecret!,
       );
       final result = await FirebaseAuth.instance
           .signInWithCredential(twitterAuthCredential);
-
+      print(result);
       if (result != null) {
         final UserCredential _userCredential = result;
         userProfile(Profile(
@@ -204,6 +209,7 @@ class LandingPageController extends GetxController {
         );
       }
     }).onError((error, stackTrace) {
+      print(error);
       Get.back();
     });
   }
@@ -213,14 +219,19 @@ class LandingPageController extends GetxController {
   }
 
   toggleSignOut(bool value) async {
+    final homePagecontroller = Get.find<HomePageController>();
+    final yourGroupsPagecontroller = Get.find<YourGroupController>();
     loadingDialog();
     signOut(value);
     if (value) {
       await _userAuthService.signOut();
       deleteUserProfile();
       resetData();
+
       Get.back();
       Get.offAll(() => LandingPage());
+      homePagecontroller.refreshPosts();
+      yourGroupsPagecontroller.refreshGroups();
     }
   }
 
@@ -297,18 +308,18 @@ class LandingPageController extends GetxController {
                         .where('owner', isEqualTo: userProfile.value.name)
                         .get();
                     if (groupSnapshot.docs.isNotEmpty) {
-                      groupSnapshot.docs.forEach((element) {
+                      for (var element in groupSnapshot.docs) {
                         _groups.doc(element.id).delete();
-                      });
+                      }
                     }
 
                     // Clear Members Group
                     QuerySnapshot<Object?> memberSnapshot = await _groups.get();
                     if (memberSnapshot.docs.isNotEmpty) {
-                      memberSnapshot.docs.forEach((element) async {
-                        final Group meta = Group.fromJson(
-                            element.data() as Map<String, dynamic>);
-                        meta.docId = element.id;
+                      for (var doc in memberSnapshot.docs) {
+                        final Group meta =
+                            Group.fromJson(doc.data() as Map<String, dynamic>);
+                        meta.docId = doc.id;
                         if (meta.members
                             .toString()
                             .contains(userProfile.value.name)) {
@@ -322,16 +333,16 @@ class LandingPageController extends GetxController {
                           meta.members = members;
                           await _groups.doc(meta.docId).update(meta.toJson());
                         }
-                      });
+                      }
                     }
                     // Clear users's posts
                     QuerySnapshot<Object?> postSnapshot = await _posts
                         .where('creator', isEqualTo: userProfile.value.name)
                         .get();
                     if (postSnapshot.docs.isNotEmpty) {
-                      postSnapshot.docs.forEach((element) {
+                      for (var element in postSnapshot.docs) {
                         _posts.doc(element.id).delete();
-                      });
+                      }
                     }
 
                     // Clear users's notis
@@ -339,9 +350,9 @@ class LandingPageController extends GetxController {
                         .where('sender', isEqualTo: userProfile.value.name)
                         .get();
                     if (notiSnapshot.docs.isNotEmpty) {
-                      notiSnapshot.docs.forEach((element) {
+                      for (var element in notiSnapshot.docs) {
                         _notis.doc(element.id).delete();
-                      });
+                      }
                     }
                     //--------------------
                     deleteUserProfile();
@@ -389,7 +400,7 @@ class LandingPageController extends GetxController {
           // Search for use email in groups // if found replace with user name
           QuerySnapshot<Object?> memberSnapshot = await _groups.get();
           if (memberSnapshot.docs.isNotEmpty) {
-            memberSnapshot.docs.forEach((element) async {
+            for (var element in memberSnapshot.docs) {
               final Group meta =
                   Group.fromJson(element.data() as Map<String, dynamic>);
               meta.docId = element.id;
@@ -406,7 +417,7 @@ class LandingPageController extends GetxController {
                   }
                 }
               }
-            });
+            }
           }
         }
       }
@@ -473,14 +484,6 @@ class LandingPageController extends GetxController {
 
   storeAppleInformation(AuthorizationResult result) {
     setData('appleCredential', result);
-    // setData('appleAuthorizationCode', result.credential!.authorizationCode);
-    // setData('appleAuthorizedScopes', result.credential!.authorizedScopes);
-    // setData('appleFullName', result.credential!.fullName);
-    // setData('appleEmail', result.credential!.email);
-    // setData('appleIdentityToken', result.credential!.identityToken);
-    // setData('appleRealUserStatus', result.credential!.realUserStatus);
-    // setData('appleState', result.credential!.state);
-    // setData('appleUser', result.credential!.user);
   }
 
   deleteUserProfile() {
@@ -524,19 +527,19 @@ class LandingPageController extends GetxController {
           metaAllUsers.add(Profile.fromJson(
               querySnapshot.docs[i].data() as Map<String, dynamic>));
           // add group members
-          group.members.forEach((element) {
+          for (var element in group.members) {
             if (element.trim() == querySnapshot.docs[i]['name']) {
               groupedUsers.add(Profile.fromJson(
                   querySnapshot.docs[i].data() as Map<String, dynamic>));
             }
-          });
+          }
         }
 
         // Add Free users
-        group.members.forEach((targetUser) {
+        for (var targetUser in group.members) {
           metaAllUsers.removeWhere(
               (element) => element.name.trim() == targetUser.trim());
-        });
+        }
 
         // freeUsers(metaAllUsers);
         List<String> blockByList = [];
@@ -623,10 +626,35 @@ class LandingPageController extends GetxController {
 
   filterUsers(String name) {
     filteredUsersResult.clear();
-    freeUsers.forEach((element) {
+    for (var element in freeUsers) {
       if (element.name.toLowerCase().contains(name.toLowerCase())) {
         filteredUsersResult.add(element);
       }
-    });
+    }
+  }
+
+  clearAutoTags() {
+    autoTags([]);
+  }
+
+  addAutoTags(String tag) {
+    autoTags.add(tag);
+  }
+
+  setAutoTags(List<String> tags) {
+    autoTags(tags);
+  }
+
+  bool checkUserBlockState(List<String> userList, String name) {
+    bool isBlock = false;
+    for (int i = 0; i < userList.length; i++) {
+      if (userList[i].trim() == name.trim()) {
+        isBlock = true;
+        break;
+      } else {
+        isBlock = false;
+      }
+    }
+    return isBlock;
   }
 }

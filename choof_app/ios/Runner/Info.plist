@@ -37,7 +37,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fb1177849966367002</string>
+				<string>fb357719206396746</string>
 			</array>
 		</dict>
 		<dict>
@@ -56,9 +56,9 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>FacebookAppID</key>
-	<string>1177849966367002</string>
+	<string>357719206396746</string>
 	<key>FacebookClientToken</key>
-	<string>f41d50249d8cd948ccb247a8709eb582</string>
+	<string>97b03cacb8f50e21cb78dcc60668ca59</string>
 	<key>FacebookDisplayName</key>
 	<string>CHOOF APP</string>
 	<key>LSApplicationCategoryType</key>
