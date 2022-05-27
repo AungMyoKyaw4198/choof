@@ -18,7 +18,7 @@ class EditGroupContoller extends GetxController {
       FirebaseFirestore.instance.collection("posts");
 
   TextEditingController groupName = TextEditingController();
-  final tagName = TextEditingController();
+  TextEditingController tagName = TextEditingController();
   final tags = <String>[].obs;
 
   setInitialValue(String currName, List<String> currTags) {
@@ -41,6 +41,7 @@ class EditGroupContoller extends GetxController {
       // Update GroupName From Posts
       QuerySnapshot<Object?> postSnapshot = await _allPosts
           .where('groupName', isEqualTo: initialGroup.name)
+          .where('docId', isEqualTo: initialGroup.docId)
           .get();
       if (postSnapshot.docs.isNotEmpty) {
         postSnapshot.docs.forEach((element) async {
@@ -69,10 +70,7 @@ class EditGroupContoller extends GetxController {
       }
 
       Get.back();
-      Get.off(() => ViewGroup(
-            currentGroup: currGroup,
-            isFromGroup: true,
-          ));
+      Get.back();
       return true;
     } catch (e) {
       Get.back(result: groupName.text);

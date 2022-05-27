@@ -9,9 +9,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../models/group.dart';
 import '../models/post.dart';
 import '../models/profile.dart';
-import '../models/youtubeVideoResponse.dart';
 import '../services/notification_service.dart';
-import '../services/youtube_service.dart';
 
 class HomePageController extends GetxController {
   static HomePageController get to => Get.find();
@@ -130,6 +128,10 @@ class HomePageController extends GetxController {
                     Post.fromJson(element.data() as Map<String, dynamic>);
                 currentPost.docId = element.id;
                 currentPost.controllerIndex = index;
+                currentPost.tags.forEach((tag) {
+                  landingPagecontroller.addAutoTags(tag);
+                });
+
                 // Get Thumbnail URL
                 // String videID =
                 //     currentPost.youtubeLink.replaceAll('https://youtu.be/', '');
@@ -194,6 +196,7 @@ class HomePageController extends GetxController {
     filteredTagResult([]);
     sortByRecent(true);
     postLimit(15);
+    landingPagecontroller.clearAutoTags();
     getAllPost();
     update();
   }

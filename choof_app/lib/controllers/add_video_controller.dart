@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:choof_app/controllers/landing_page_controller.dart';
-import 'package:choof_app/screens/favourite_page.dart';
 import 'package:choof_app/screens/widgets/shared_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,6 @@ import '../models/group.dart';
 import '../models/notification.dart';
 import '../models/post.dart';
 import '../models/youtubeVideoResponse.dart';
-import '../screens/view_group.dart';
 import '../services/youtube_service.dart';
 
 class AddVideoContoller extends GetxController {
@@ -30,7 +28,7 @@ class AddVideoContoller extends GetxController {
   final youtubeLink = TextEditingController();
   final youtubeThumbnail = ''.obs;
   final isVerify = false.obs;
-  final tagName = TextEditingController();
+  TextEditingController tagName = TextEditingController();
   final tagList = <String>[].obs;
   final groupName = ''.obs;
   final groupMembers = <String>[].obs;
@@ -136,16 +134,19 @@ class AddVideoContoller extends GetxController {
           addedTime: DateTime.now(),
           groupName: groupName.value);
       await _allPosts.add(currentPost.toJson());
-      // Get cureent Group
-      QuerySnapshot<Object?> groupSnapshot =
-          await _groups.where('name', isEqualTo: currentGroup.value.name).get();
+      // Get current Group
+      QuerySnapshot<Object?> groupSnapshot = await _groups
+          .where('name', isEqualTo: currentGroup.value.name)
+          .where('docId', isEqualTo: currentGroup.value.docId)
+          .get();
       if (groupSnapshot.docs.isNotEmpty) {
         groupSnapshot.docs.forEach((element) {
           Group thisGroup =
               Group.fromJson(element.data() as Map<String, dynamic>);
+          thisGroup.docId = element.id;
           thisGroup.lastUpdatedTime = DateTime.now();
           setCurrentGroup(thisGroup);
-          _groups.doc(element.id).update(currentGroup.toJson());
+          _groups.doc(thisGroup.docId).update(thisGroup.toJson());
         });
       }
 
@@ -198,8 +199,6 @@ class AddVideoContoller extends GetxController {
       }
       Get.back();
       Get.back();
-      // Get.offAll(
-      //     () => ViewGroup(currentGroup: currentGroup.value, isFromGroup: true));
     }
   }
 

@@ -213,7 +213,6 @@ class _FriendsPageState extends State<FriendsPage> {
                             : const SizedBox.shrink(),
                   ),
                   // Friends horixontal view
-                  // print(email.replaceRange(2,"example@gmail.com".indexOf("@"),"****"));
                   // GROUP
                   Obx(
                     () => landingPagecontroller.groupedUsers.length > 1
@@ -442,9 +441,14 @@ class _FriendsPageState extends State<FriendsPage> {
                                       '${widget.group.owner} added you to the Choof group: ${widget.group.name}.',
                                   body:
                                       '''${widget.group.owner} has some recommendation for you in the Choof group: ${widget.group.name}.
-             Download the Choof app and sign in with a social account linked to your email: ${_filter.text}''',
+
+             Download the Choof app and sign in with this email or a social account linked to this email : ${_filter.text}.
+             <html>
+             <a href="https://play.google.com/store/apps/details?id=com.choof.choof_app&gl=FR"><img src="blob:https://likewise-chat.atlassian.net/89840e4d-6e61-43d6-a47e-4f6c950e096d" /></a>
+             <a href="https://apps.apple.com/us/app/testflight/id899247664?platform=ios"><img src="blob:https://likewise-chat.atlassian.net/9b6e2ab4-4f56-4bea-b923-4180ec41cbf7" /></a>
+             </html>''',
                                   recipients: [_filter.text],
-                                  isHTML: false,
+                                  isHTML: true,
                                 );
 
                                 await FlutterEmailSender.send(email)
@@ -504,10 +508,16 @@ class _FriendsPageState extends State<FriendsPage> {
                               if (landingPagecontroller
                                       .userProfile.value.blockedUsers !=
                                   null) {
-                                if (landingPagecontroller
-                                    .userProfile.value.blockedUsers!
-                                    .contains(landingPagecontroller
-                                        .filteredUsersResult[index].name)) {
+                                // if (landingPagecontroller
+                                //     .userProfile.value.blockedUsers!
+                                //     .contains(landingPagecontroller
+                                //         .filteredUsersResult[index].name))
+                                if (landingPagecontroller.checkUserBlockState(
+                                    landingPagecontroller
+                                        .userProfile.value.blockedUsers!,
+                                    landingPagecontroller
+                                        .filteredUsersResult[index].name
+                                        .trim())) {
                                   Get.defaultDialog(
                                       title:
                                           'Unblock ${landingPagecontroller.filteredUsersResult[index].name}? ',
@@ -544,11 +554,22 @@ class _FriendsPageState extends State<FriendsPage> {
                                 landingPagecontroller
                                             .userProfile.value.blockedUsers !=
                                         null
-                                    ? landingPagecontroller
-                                            .userProfile.value.blockedUsers!
-                                            .contains(landingPagecontroller
-                                                .filteredUsersResult[index]
-                                                .name)
+                                    ? (landingPagecontroller
+                                            .checkUserBlockState(
+                                                landingPagecontroller
+                                                    .userProfile
+                                                    .value
+                                                    .blockedUsers!,
+                                                landingPagecontroller
+                                                    .filteredUsersResult[index]
+                                                    .name
+                                                    .trim()))
+
+                                        // landingPagecontroller
+                                        //         .userProfile.value.blockedUsers!
+                                        //         .contains(landingPagecontroller
+                                        //             .filteredUsersResult[index]
+                                        //             .name)
                                         ? Image.asset(
                                             'assets/icons/block.png',
                                             width: 30,
@@ -613,9 +634,12 @@ class _FriendsPageState extends State<FriendsPage> {
                                             .userProfile.value.blockedUsers !=
                                         null) {
                                       if (landingPagecontroller
-                                          .userProfile.value.blockedUsers!
-                                          .contains(landingPagecontroller
-                                              .freeUsers[index].name)) {
+                                          .checkUserBlockState(
+                                              landingPagecontroller.userProfile
+                                                  .value.blockedUsers!,
+                                              landingPagecontroller
+                                                  .freeUsers[index].name
+                                                  .trim())) {
                                         Get.defaultDialog(
                                             title:
                                                 'Unblock ${landingPagecontroller.freeUsers[index].name}? ',
@@ -655,12 +679,23 @@ class _FriendsPageState extends State<FriendsPage> {
                                       landingPagecontroller.userProfile.value
                                                   .blockedUsers !=
                                               null
-                                          ? landingPagecontroller.userProfile
-                                                  .value.blockedUsers!
-                                                  .contains(
+                                          ? (landingPagecontroller
+                                                  .checkUserBlockState(
                                                       landingPagecontroller
-                                                          .freeUsers[index]
-                                                          .name)
+                                                          .userProfile
+                                                          .value
+                                                          .blockedUsers!,
+                                                      landingPagecontroller
+                                                          .freeUsers[index].name
+                                                          .trim()))
+
+                                              // landingPagecontroller.userProfile
+                                              //         .value.blockedUsers!
+                                              //         .contains(
+                                              //             landingPagecontroller
+                                              //                 .freeUsers[index]
+                                              //                 .name)
+
                                               ? Image.asset(
                                                   'assets/icons/block.png',
                                                   width: 30,

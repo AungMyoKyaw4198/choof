@@ -13,11 +13,13 @@ import 'search_video_page.dart';
 import 'widgets/shared_widgets.dart';
 
 class AddVideoPage extends StatefulWidget {
+  final int index;
   final Group group;
   final bool isFromFavPage;
   final bool isFromViewGroup;
   const AddVideoPage(
       {Key? key,
+      required this.index,
       required this.group,
       required this.isFromFavPage,
       required this.isFromViewGroup})
@@ -50,17 +52,25 @@ class _AddVideoPageState extends State<AddVideoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(bgColor),
-        centerTitle: true,
-        title: const Text(
-          'Add Favorite',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        elevation: 0.0,
+      appBar: PreferredSize(
+        preferredSize: const Size(60, 60),
+        child: Obx(() => widget.index == landingPagecontroller.tabIndex.value
+            ? AppBar(
+                backgroundColor: const Color(bgColor),
+                centerTitle: true,
+                title: const Text(
+                  'Add Favorite',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                elevation: 0.0,
+              )
+            : Container(
+                height: MediaQuery.of(context).padding.top,
+                color: const Color(mainBgColor),
+              )),
       ),
       bottomNavigationBar: BottomMenu(),
       body: Obx(
@@ -297,43 +307,113 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                     Container(
                                       width: MediaQuery.of(context).size.width /
                                           1.25,
-                                      child: TextFormField(
-                                        controller: addVideoController.tagName,
-                                        decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                            ),
-                                            filled: true,
-                                            hintStyle: TextStyle(
-                                                color: Colors.grey[800]),
-                                            hintText:
-                                                ''' “At least one tag (food, music, etc.)”''',
-                                            fillColor: Colors.white70,
-                                            suffixIcon: IconButton(
-                                              onPressed: () {
-                                                addVideoController.tagName
-                                                    .clear();
-                                              },
-                                              icon: const Icon(
-                                                  Icons.close_rounded),
-                                            )),
-                                        onFieldSubmitted: (value) {
-                                          if (value.isNotEmpty) {
-                                            // Split if input contains ,
-                                            if (value.contains(',')) {
-                                              List<String> splitedString =
-                                                  value.split(',');
-                                              splitedString.forEach((element) {
-                                                addVideoController
-                                                    .addTags(element.trim());
-                                              });
-                                            } else {
-                                              addVideoController
-                                                  .addTags(value.trim());
-                                            }
+                                      child: Autocomplete(
+                                        optionsBuilder: (TextEditingValue
+                                            textEditingValue) {
+                                          if (textEditingValue.text.isEmpty) {
+                                            return const Iterable<
+                                                String>.empty();
+                                          } else {
+                                            return landingPagecontroller
+                                                .autoTags
+                                                .where((String option) {
+                                              return option
+                                                  .trim()
+                                                  .toLowerCase()
+                                                  .contains(textEditingValue
+                                                      .text
+                                                      .trim()
+                                                      .toLowerCase());
+                                            });
                                           }
+                                        },
+                                        optionsViewBuilder: (context,
+                                            Function(String) onSelected,
+                                            options) {
+                                          return Material(
+                                            elevation: 4,
+                                            child: ListView.separated(
+                                              padding: EdgeInsets.zero,
+                                              itemBuilder: (context, index) {
+                                                final option =
+                                                    options.elementAt(index);
+                                                return ListTile(
+                                                  title:
+                                                      Text(option.toString()),
+                                                  onTap: () {
+                                                    addVideoController.addTags(
+                                                        option
+                                                            .toString()
+                                                            .trim());
+                                                    addVideoController.tagName
+                                                        .clear();
+                                                    FocusScope.of(context)
+                                                        .unfocus();
+                                                  },
+                                                );
+                                              },
+                                              separatorBuilder:
+                                                  (context, index) =>
+                                                      const Divider(),
+                                              itemCount: options.length,
+                                            ),
+                                          );
+                                        },
+                                        onSelected: (selectedString) {
+                                          addVideoController.addTags(
+                                              selectedString.toString().trim());
                                           addVideoController.tagName.clear();
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                        fieldViewBuilder: (context, controller,
+                                            focusNode, onEditingComplete) {
+                                          addVideoController.tagName =
+                                              controller;
+
+                                          return TextField(
+                                            controller: controller,
+                                            focusNode: focusNode,
+                                            onEditingComplete:
+                                                onEditingComplete,
+                                            onSubmitted: (value) {
+                                              if (value.isNotEmpty) {
+                                                // Split if input contains ,
+                                                if (value.contains(',')) {
+                                                  List<String> splitedString =
+                                                      value.split(',');
+                                                  splitedString
+                                                      .forEach((element) {
+                                                    addVideoController.addTags(
+                                                        element.trim());
+                                                  });
+                                                } else {
+                                                  addVideoController
+                                                      .addTags(value.trim());
+                                                }
+                                              }
+                                              addVideoController.tagName
+                                                  .clear();
+                                            },
+                                            decoration: InputDecoration(
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          30.0),
+                                                ),
+                                                filled: true,
+                                                hintStyle: TextStyle(
+                                                    color: Colors.grey[800]),
+                                                hintText:
+                                                    ''' “At least one tag (food, music, etc.)”''',
+                                                fillColor: Colors.white70,
+                                                suffixIcon: IconButton(
+                                                  onPressed: () {
+                                                    controller.clear();
+                                                  },
+                                                  icon: const Icon(
+                                                      Icons.close_rounded),
+                                                )),
+                                          );
                                         },
                                       ),
                                     ),
@@ -1203,9 +1283,30 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                       if (addVideoController.tagList.isEmpty) {
                                         Get.dialog(tagEmptyDialog());
                                       } else {
-                                        addVideoController.addNewVideo(
-                                            isFromFavPage:
-                                                widget.isFromFavPage);
+                                        addVideoController.verifyYoutubeLink();
+                                        if (addVideoController
+                                            .tagName.text.isNotEmpty) {
+                                          // Split if input contains ,
+                                          if (addVideoController.tagName.text
+                                              .contains(',')) {
+                                            List<String> splitedString =
+                                                addVideoController.tagName.text
+                                                    .split(',');
+                                            splitedString.forEach((element) {
+                                              addVideoController
+                                                  .addTags(element.trim());
+                                            });
+                                          } else {
+                                            addVideoController.addTags(
+                                                addVideoController.tagName.text
+                                                    .trim());
+                                          }
+                                        }
+                                        if (addVideoController.isVerify.value) {
+                                          addVideoController.addNewVideo(
+                                              isFromFavPage:
+                                                  widget.isFromFavPage);
+                                        }
                                       }
                                     }
                                   },

@@ -78,6 +78,7 @@ class _FavouritePageState extends State<FavouritePage> {
           IconButton(
               onPressed: () {
                 Get.to(() => AddVideoPage(
+                          index: 0,
                           group: Group(
                               name: '',
                               tags: [],
@@ -460,7 +461,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      Get.to(() => AddGroupPage())!;
+                                      Get.to(() => const AddGroupPage(
+                                            isFromFavPage: true,
+                                            index: 0,
+                                          ))!;
                                     },
                                     child: Image.asset(
                                       'assets/icons/FriendsAdd.png',
@@ -586,6 +590,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                                   Get.back();
                                                   if (value.docs.isNotEmpty) {
                                                     Get.to(() => ViewGroup(
+                                                              index: 0,
                                                               currentGroup: Group
                                                                   .fromJson(value
                                                                       .docs
@@ -684,6 +689,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                               Get.back();
                                               if (value.docs.isNotEmpty) {
                                                 Get.to(() => ViewGroup(
+                                                          index: 0,
                                                           currentGroup:
                                                               Group.fromJson(
                                                                   value.docs
@@ -808,6 +814,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                                   Get.back();
                                                   if (value.docs.isNotEmpty) {
                                                     Get.to(() => ViewGroup(
+                                                              index: 0,
                                                               currentGroup: Group
                                                                   .fromJson(value
                                                                       .docs
@@ -906,6 +913,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                               Get.back();
                                               if (value.docs.isNotEmpty) {
                                                 Get.to(() => ViewGroup(
+                                                          index: 0,
                                                           currentGroup:
                                                               Group.fromJson(
                                                                   value.docs
