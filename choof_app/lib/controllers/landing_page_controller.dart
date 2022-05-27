@@ -176,15 +176,12 @@ class LandingPageController extends GetxController {
         redirectURI: 'choofapp://');
 
     await twitterLogin.login(forceLogin: true).then((value) async {
-      print(value.status);
-      print(value.errorMessage);
       final twitterAuthCredential = TwitterAuthProvider.credential(
         accessToken: value.authToken!,
         secret: value.authTokenSecret!,
       );
       final result = await FirebaseAuth.instance
           .signInWithCredential(twitterAuthCredential);
-      print(result);
       if (result != null) {
         final UserCredential _userCredential = result;
         userProfile(Profile(
@@ -209,7 +206,6 @@ class LandingPageController extends GetxController {
         );
       }
     }).onError((error, stackTrace) {
-      print(error);
       Get.back();
     });
   }
