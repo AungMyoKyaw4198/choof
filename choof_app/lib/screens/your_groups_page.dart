@@ -63,9 +63,10 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
           IconButton(
               onPressed: () {
                 Get.to(() => const AddGroupPage(
-                      isFromFavPage: false,
-                      index: 1,
-                    ))!;
+                          isFromFavPage: false,
+                          index: 1,
+                        ))!
+                    .then((value) => _pullRefresh());
               },
               icon: Image.asset(
                 'assets/icons/FriendsAdd.png',
@@ -417,9 +418,10 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                 InkWell(
                                   onTap: () {
                                     Get.to(() => const AddGroupPage(
-                                          isFromFavPage: false,
-                                          index: 1,
-                                        ))!;
+                                              isFromFavPage: false,
+                                              index: 1,
+                                            ))!
+                                        .then((value) => _pullRefresh());
                                   },
                                   child: Image.asset(
                                     'assets/icons/FriendsAdd.png',
@@ -447,8 +449,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                       controller.groups[index],
                                                   isFromGroup: true,
                                                 ))!
-                                            .then((value) =>
-                                                controller.refreshGroups());
+                                            .then((value) => _pullRefresh());
                                       },
                                       child: landingPagecontroller.userProfile
                                                   .value.blockedUsers !=
@@ -489,8 +490,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                     .filteredTagResult[index],
                                                 isFromGroup: true,
                                               ))!
-                                          .then((value) =>
-                                              controller.refreshGroups());
+                                          .then((value) => _pullRefresh());
                                     },
                                     child: landingPagecontroller.userProfile
                                                 .value.blockedUsers !=

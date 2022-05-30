@@ -130,7 +130,17 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                                   .usergroupList
                                                   .map((selectedType) {
                                                 return DropdownMenuItem(
-                                                  child: Text(selectedType.name,
+                                                  child: Text(
+                                                      selectedType.name
+                                                              .contains('#')
+                                                          ? selectedType.name
+                                                              .substring(
+                                                                  0,
+                                                                  selectedType
+                                                                      .name
+                                                                      .indexOf(
+                                                                          '#'))
+                                                          : selectedType.name,
                                                       style: const TextStyle(
                                                           color: Colors.white,
                                                           fontWeight:
@@ -144,7 +154,7 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                         );
                                       })
                                     : Text(
-                                        'Group : ${addVideoController.currentGroup.value.name}',
+                                        "Group : ${addVideoController.currentGroup.value.name.contains('#') ? addVideoController.currentGroup.value.name.substring(0, addVideoController.currentGroup.value.name.indexOf('#')) : addVideoController.currentGroup.value.name}",
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,

@@ -162,8 +162,6 @@ class AddVideoContoller extends GetxController {
         Get.back();
       } else {
         Get.back();
-        // Get.offAll(() =>
-        //     ViewGroup(currentGroup: currentGroup.value, isFromGroup: true));
       }
 
       return true;

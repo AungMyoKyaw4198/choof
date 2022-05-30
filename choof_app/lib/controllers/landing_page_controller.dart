@@ -169,6 +169,7 @@ class LandingPageController extends GetxController {
   // Sign in with Twitter
   signInWithTwitter() async {
     loadingDialog();
+
     await _userAuthService.signOut();
     final twitterLogin = TwitterLogin(
         apiKey: 'SorRtCYPqzRR4PtwMW2Y1CmcO',

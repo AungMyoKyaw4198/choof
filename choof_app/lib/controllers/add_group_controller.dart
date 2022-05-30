@@ -41,6 +41,16 @@ class AddGroupContoller extends GetxController {
           members: currentMembers,
           lastUpdatedTime: DateTime.now(),
           createdTime: DateTime.now());
+
+      // Check Group Already Exist??
+      QuerySnapshot<Object?> querySnapshot =
+          await _groups.where('name', isEqualTo: _currentGroup.name).get();
+      if (querySnapshot.docs.isEmpty) {
+        _currentGroup.name = _currentGroup.name + '#ID1';
+      } else {
+        _currentGroup.name =
+            _currentGroup.name + '#ID${querySnapshot.docs.length + 1}';
+      }
       await _groups.add(_currentGroup.toJson());
       Get.back();
       yourGroupcontroller.refreshGroups();

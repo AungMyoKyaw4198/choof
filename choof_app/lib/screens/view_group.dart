@@ -1,6 +1,5 @@
 import 'package:choof_app/screens/add_video.dart';
 import 'package:choof_app/screens/favourite_page.dart';
-import 'package:choof_app/screens/full_screen_page.dart';
 import 'package:choof_app/screens/home_page.dart';
 import 'package:choof_app/screens/settings_page.dart';
 import 'package:choof_app/screens/widgets/shared_widgets.dart';
@@ -21,6 +20,7 @@ import '../models/post.dart';
 import '../utils/app_constant.dart';
 import 'edit_group_page.dart';
 import 'friends_page.dart';
+import 'full_screen_page.dart';
 
 class ViewGroup extends StatefulWidget {
   final int index;
@@ -92,8 +92,18 @@ class _ViewGroupState extends State<ViewGroup> {
                       () => Expanded(
                         child: Text(
                           viewGroupController.groupName.value.isEmpty
-                              ? widget.currentGroup.name
-                              : viewGroupController.groupName.value,
+                              ? widget.currentGroup.name.contains('#')
+                                  ? widget.currentGroup.name.substring(
+                                      0, widget.currentGroup.name.indexOf('#'))
+                                  : widget.currentGroup.name
+                              : viewGroupController.groupName.value
+                                      .contains('#')
+                                  ? viewGroupController.groupName.value
+                                      .substring(
+                                          0,
+                                          viewGroupController.groupName.value
+                                              .indexOf('#'))
+                                  : viewGroupController.groupName.value,
                           style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -125,8 +135,9 @@ class _ViewGroupState extends State<ViewGroup> {
                               IconButton(
                                   onPressed: () {
                                     Get.to(() => EditGroupPage(
-                                          currentGroup: widget.currentGroup,
-                                        ));
+                                              currentGroup: widget.currentGroup,
+                                            ))!
+                                        .then((value) => _pullRefresh());
                                   },
                                   icon: const Icon(
                                     Icons.edit,
@@ -688,93 +699,61 @@ class _ViewGroupState extends State<ViewGroup> {
                                                       widget.currentGroup.owner
                                                   ? Stack(
                                                       children: [
-                                                        VideoWidget(
-                                                          post: currentPosts[
-                                                              index],
-                                                          user:
-                                                              landingPagecontroller
-                                                                  .userProfile
-                                                                  .value,
-                                                          youtubePlayer:
-                                                              YoutubePlayerBuilder(
-                                                                  player:
-                                                                      YoutubePlayer(
-                                                                    // controller:
-                                                                    //     viewGroupController
-                                                                    //             .controllerList[
-                                                                    //         index],
-                                                                    controller:
-                                                                        _controller,
-
-                                                                    thumbnail: Image
-                                                                        .network(
-                                                                      YoutubePlayer.getThumbnail(
-                                                                          videoId:
-                                                                              YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!),
-                                                                      fit: BoxFit
-                                                                          .fitWidth,
-                                                                      height:
-                                                                          200,
-                                                                      width: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width,
-                                                                    ),
-                                                                  ),
-                                                                  onEnterFullScreen:
-                                                                      () {
-                                                                    Get.to(() =>
-                                                                        FullScreenPage(
-                                                                          youtubeLink:
-                                                                              currentPosts[index].youtubeLink,
-                                                                          name:
-                                                                              currentPosts[index].name,
-                                                                        ));
-                                                                  },
-                                                                  builder:
-                                                                      (context,
-                                                                          player) {
-                                                                    return Column(
-                                                                      children: [
-                                                                        // some widgets
-                                                                        player,
-                                                                        //some other widgets
-                                                                      ],
-                                                                    );
-                                                                  }),
-                                                          viewGroupFunc: () {
-                                                            loadingDialog();
-                                                            FirebaseFirestore
-                                                                .instance
-                                                                .collection(
-                                                                    "groups")
-                                                                .where('name',
-                                                                    isEqualTo: currentPosts[
+                                                        InkWell(
+                                                          onTap: () {
+                                                            Get.to(() =>
+                                                                FullScreenPage(
+                                                                    index: 1,
+                                                                    post: currentPosts[
+                                                                        index]));
+                                                          },
+                                                          child: VideoWidget(
+                                                            post: currentPosts[
+                                                                index],
+                                                            user:
+                                                                landingPagecontroller
+                                                                    .userProfile
+                                                                    .value,
+                                                            thumbnailUrl: YoutubePlayer.getThumbnail(
+                                                                videoId: YoutubePlayer.convertUrlToId(
+                                                                    currentPosts[
                                                                             index]
-                                                                        .groupName)
-                                                                .get()
-                                                                .then((value) {
-                                                              Get.back();
-                                                              if (value.docs
-                                                                  .isNotEmpty) {
-                                                                Get.to(() =>
-                                                                    ViewGroup(
-                                                                      index: widget
-                                                                          .index,
-                                                                      currentGroup: Group.fromJson(value
-                                                                          .docs
-                                                                          .first
-                                                                          .data()),
-                                                                      isFromGroup:
-                                                                          true,
-                                                                    ));
-                                                              }
-                                                            });
-                                                          },
-                                                          isInsideGroup: true,
-                                                          reportFunction: () {
-                                                            _pullRefresh();
-                                                          },
+                                                                        .youtubeLink)!),
+                                                            viewGroupFunc: () {
+                                                              loadingDialog();
+                                                              FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      "groups")
+                                                                  .where('name',
+                                                                      isEqualTo:
+                                                                          currentPosts[index]
+                                                                              .groupName)
+                                                                  .get()
+                                                                  .then(
+                                                                      (value) {
+                                                                Get.back();
+                                                                if (value.docs
+                                                                    .isNotEmpty) {
+                                                                  Get.to(() =>
+                                                                      ViewGroup(
+                                                                        index: widget
+                                                                            .index,
+                                                                        currentGroup: Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                        isFromGroup:
+                                                                            true,
+                                                                      ));
+                                                                }
+                                                              });
+                                                            },
+                                                            isInsideGroup: true,
+                                                            reportFunction: () {
+                                                              _pullRefresh();
+                                                            },
+                                                          ),
                                                         ),
                                                         InkWell(
                                                           onTap: () {
@@ -805,102 +784,63 @@ class _ViewGroupState extends State<ViewGroup> {
                                                         )
                                                       ],
                                                     )
-                                                  : VideoWidget(
-                                                      post: currentPosts[index],
-                                                      user:
-                                                          landingPagecontroller
-                                                              .userProfile
-                                                              .value,
-                                                      youtubePlayer:
-                                                          YoutubePlayerBuilder(
-                                                              player:
-                                                                  YoutubePlayer(
-                                                                // controller: viewGroupController
-                                                                //     .controllerList[index],
-                                                                controller:
-                                                                    YoutubePlayerController(
-                                                                  initialVideoId:
-                                                                      YoutubePlayer.convertUrlToId(
-                                                                          currentPosts[index]
-                                                                              .youtubeLink)!,
-                                                                  flags:
-                                                                      const YoutubePlayerFlags(
-                                                                    autoPlay:
-                                                                        false,
-                                                                    mute: false,
-                                                                  ),
-                                                                ),
-                                                                thumbnail: Image
-                                                                    .network(
-                                                                  YoutubePlayer
-                                                                      .getThumbnail(
-                                                                          videoId:
-                                                                              YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!),
-                                                                  fit: BoxFit
-                                                                      .fitWidth,
-                                                                  height: 200,
-                                                                  width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width,
-                                                                ),
-                                                              ),
-                                                              onEnterFullScreen:
-                                                                  () {
-                                                                Get.to(() =>
-                                                                    FullScreenPage(
-                                                                      youtubeLink:
-                                                                          currentPosts[index]
-                                                                              .youtubeLink,
-                                                                      name: currentPosts[
-                                                                              index]
-                                                                          .name,
-                                                                    ));
-                                                              },
-                                                              builder: (context,
-                                                                  player) {
-                                                                return Column(
-                                                                  children: [
-                                                                    // some widgets
-                                                                    player,
-                                                                    //some other widgets
-                                                                  ],
-                                                                );
-                                                              }),
-                                                      viewGroupFunc: () {
-                                                        loadingDialog();
-                                                        FirebaseFirestore
-                                                            .instance
-                                                            .collection(
-                                                                "groups")
-                                                            .where('name',
-                                                                isEqualTo:
+                                                  : InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
+                                                            FullScreenPage(
+                                                                index: 1,
+                                                                post:
+                                                                    currentPosts[
+                                                                        index]));
+                                                      },
+                                                      child: VideoWidget(
+                                                        post:
+                                                            currentPosts[index],
+                                                        user:
+                                                            landingPagecontroller
+                                                                .userProfile
+                                                                .value,
+                                                        thumbnailUrl: YoutubePlayer.getThumbnail(
+                                                            videoId: YoutubePlayer
+                                                                .convertUrlToId(
                                                                     currentPosts[
                                                                             index]
-                                                                        .groupName)
-                                                            .get()
-                                                            .then((value) {
-                                                          Get.back();
-                                                          if (value.docs
-                                                              .isNotEmpty) {
-                                                            Get.to(
-                                                                () => ViewGroup(
-                                                                      index: widget
-                                                                          .index,
-                                                                      currentGroup: Group.fromJson(value
-                                                                          .docs
-                                                                          .first
-                                                                          .data()),
-                                                                      isFromGroup:
-                                                                          true,
-                                                                    ));
-                                                          }
-                                                        });
-                                                      },
-                                                      isInsideGroup: true,
-                                                      reportFunction: () {
-                                                        _pullRefresh();
-                                                      },
+                                                                        .youtubeLink)!),
+                                                        viewGroupFunc: () {
+                                                          loadingDialog();
+                                                          FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  "groups")
+                                                              .where('name',
+                                                                  isEqualTo: currentPosts[
+                                                                          index]
+                                                                      .groupName)
+                                                              .get()
+                                                              .then((value) {
+                                                            Get.back();
+                                                            if (value.docs
+                                                                .isNotEmpty) {
+                                                              Get.to(() =>
+                                                                  ViewGroup(
+                                                                    index: widget
+                                                                        .index,
+                                                                    currentGroup:
+                                                                        Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                    isFromGroup:
+                                                                        true,
+                                                                  ));
+                                                            }
+                                                          });
+                                                        },
+                                                        isInsideGroup: true,
+                                                        reportFunction: () {
+                                                          _pullRefresh();
+                                                        },
+                                                      ),
                                                     );
                                             })
                                     // Filtered
@@ -947,92 +887,61 @@ class _ViewGroupState extends State<ViewGroup> {
                                                       widget.currentGroup.owner
                                                   ? Stack(
                                                       children: [
-                                                        VideoWidget(
-                                                          post: currentPosts[
-                                                              index],
-                                                          user:
-                                                              landingPagecontroller
-                                                                  .userProfile
-                                                                  .value,
-                                                          youtubePlayer:
-                                                              YoutubePlayerBuilder(
-                                                                  player:
-                                                                      YoutubePlayer(
-                                                                    // controller:
-                                                                    //     viewGroupController
-                                                                    //             .controllerList[
-                                                                    //         index],
-                                                                    controller:
-                                                                        _controller,
-                                                                    thumbnail: Image
-                                                                        .network(
-                                                                      YoutubePlayer.getThumbnail(
-                                                                          videoId:
-                                                                              YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!),
-                                                                      fit: BoxFit
-                                                                          .fitWidth,
-                                                                      height:
-                                                                          200,
-                                                                      width: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width,
-                                                                    ),
-                                                                  ),
-                                                                  onEnterFullScreen:
-                                                                      () {
-                                                                    Get.to(() =>
-                                                                        FullScreenPage(
-                                                                          youtubeLink:
-                                                                              currentPosts[index].youtubeLink,
-                                                                          name:
-                                                                              currentPosts[index].name,
-                                                                        ));
-                                                                  },
-                                                                  builder:
-                                                                      (context,
-                                                                          player) {
-                                                                    return Column(
-                                                                      children: [
-                                                                        // some widgets
-                                                                        player,
-                                                                        //some other widgets
-                                                                      ],
-                                                                    );
-                                                                  }),
-                                                          viewGroupFunc: () {
-                                                            loadingDialog();
-                                                            FirebaseFirestore
-                                                                .instance
-                                                                .collection(
-                                                                    "groups")
-                                                                .where('name',
-                                                                    isEqualTo: currentPosts[
+                                                        InkWell(
+                                                          onTap: () {
+                                                            Get.to(() =>
+                                                                FullScreenPage(
+                                                                    index: 1,
+                                                                    post: currentPosts[
+                                                                        index]));
+                                                          },
+                                                          child: VideoWidget(
+                                                            post: currentPosts[
+                                                                index],
+                                                            user:
+                                                                landingPagecontroller
+                                                                    .userProfile
+                                                                    .value,
+                                                            thumbnailUrl: YoutubePlayer.getThumbnail(
+                                                                videoId: YoutubePlayer.convertUrlToId(
+                                                                    currentPosts[
                                                                             index]
-                                                                        .groupName)
-                                                                .get()
-                                                                .then((value) {
-                                                              Get.back();
-                                                              if (value.docs
-                                                                  .isNotEmpty) {
-                                                                Get.to(() =>
-                                                                    ViewGroup(
-                                                                      index: widget
-                                                                          .index,
-                                                                      currentGroup: Group.fromJson(value
-                                                                          .docs
-                                                                          .first
-                                                                          .data()),
-                                                                      isFromGroup:
-                                                                          true,
-                                                                    ));
-                                                              }
-                                                            });
-                                                          },
-                                                          isInsideGroup: true,
-                                                          reportFunction: () {
-                                                            _pullRefresh();
-                                                          },
+                                                                        .youtubeLink)!),
+                                                            viewGroupFunc: () {
+                                                              loadingDialog();
+                                                              FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      "groups")
+                                                                  .where('name',
+                                                                      isEqualTo:
+                                                                          currentPosts[index]
+                                                                              .groupName)
+                                                                  .get()
+                                                                  .then(
+                                                                      (value) {
+                                                                Get.back();
+                                                                if (value.docs
+                                                                    .isNotEmpty) {
+                                                                  Get.to(() =>
+                                                                      ViewGroup(
+                                                                        index: widget
+                                                                            .index,
+                                                                        currentGroup: Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                        isFromGroup:
+                                                                            true,
+                                                                      ));
+                                                                }
+                                                              });
+                                                            },
+                                                            isInsideGroup: true,
+                                                            reportFunction: () {
+                                                              _pullRefresh();
+                                                            },
+                                                          ),
                                                         ),
                                                         InkWell(
                                                           onTap: () {
@@ -1063,91 +972,63 @@ class _ViewGroupState extends State<ViewGroup> {
                                                         )
                                                       ],
                                                     )
-                                                  : VideoWidget(
-                                                      post: currentPosts[index],
-                                                      user:
-                                                          landingPagecontroller
-                                                              .userProfile
-                                                              .value,
-                                                      youtubePlayer:
-                                                          YoutubePlayerBuilder(
-                                                              player:
-                                                                  YoutubePlayer(
-                                                                // controller: viewGroupController
-                                                                //     .controllerList[index],
-                                                                controller:
-                                                                    _controller,
-                                                                thumbnail: Image
-                                                                    .network(
-                                                                  YoutubePlayer
-                                                                      .getThumbnail(
-                                                                          videoId:
-                                                                              YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!),
-                                                                  fit: BoxFit
-                                                                      .fitWidth,
-                                                                  height: 200,
-                                                                  width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width,
-                                                                ),
-                                                              ),
-                                                              onEnterFullScreen:
-                                                                  () {
-                                                                Get.to(() =>
-                                                                    FullScreenPage(
-                                                                      youtubeLink:
-                                                                          currentPosts[index]
-                                                                              .youtubeLink,
-                                                                      name: currentPosts[
-                                                                              index]
-                                                                          .name,
-                                                                    ));
-                                                              },
-                                                              builder: (context,
-                                                                  player) {
-                                                                return Column(
-                                                                  children: [
-                                                                    // some widgets
-                                                                    player,
-                                                                    //some other widgets
-                                                                  ],
-                                                                );
-                                                              }),
-                                                      viewGroupFunc: () {
-                                                        loadingDialog();
-                                                        FirebaseFirestore
-                                                            .instance
-                                                            .collection(
-                                                                "groups")
-                                                            .where('name',
-                                                                isEqualTo:
+                                                  : InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
+                                                            FullScreenPage(
+                                                                index: 1,
+                                                                post:
+                                                                    currentPosts[
+                                                                        index]));
+                                                      },
+                                                      child: VideoWidget(
+                                                        post:
+                                                            currentPosts[index],
+                                                        user:
+                                                            landingPagecontroller
+                                                                .userProfile
+                                                                .value,
+                                                        thumbnailUrl: YoutubePlayer.getThumbnail(
+                                                            videoId: YoutubePlayer
+                                                                .convertUrlToId(
                                                                     currentPosts[
                                                                             index]
-                                                                        .groupName)
-                                                            .get()
-                                                            .then((value) {
-                                                          Get.back();
-                                                          if (value.docs
-                                                              .isNotEmpty) {
-                                                            Get.to(
-                                                                () => ViewGroup(
-                                                                      index: widget
-                                                                          .index,
-                                                                      currentGroup: Group.fromJson(value
-                                                                          .docs
-                                                                          .first
-                                                                          .data()),
-                                                                      isFromGroup:
-                                                                          true,
-                                                                    ));
-                                                          }
-                                                        });
-                                                      },
-                                                      isInsideGroup: true,
-                                                      reportFunction: () {
-                                                        _pullRefresh();
-                                                      },
+                                                                        .youtubeLink)!),
+                                                        viewGroupFunc: () {
+                                                          loadingDialog();
+                                                          FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  "groups")
+                                                              .where('name',
+                                                                  isEqualTo: currentPosts[
+                                                                          index]
+                                                                      .groupName)
+                                                              .get()
+                                                              .then((value) {
+                                                            Get.back();
+                                                            if (value.docs
+                                                                .isNotEmpty) {
+                                                              Get.to(() =>
+                                                                  ViewGroup(
+                                                                    index: widget
+                                                                        .index,
+                                                                    currentGroup:
+                                                                        Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                    isFromGroup:
+                                                                        true,
+                                                                  ));
+                                                            }
+                                                          });
+                                                        },
+                                                        isInsideGroup: true,
+                                                        reportFunction: () {
+                                                          _pullRefresh();
+                                                        },
+                                                      ),
                                                     );
                                             })),
                           ],
@@ -1619,93 +1500,61 @@ class _ViewGroupState extends State<ViewGroup> {
                                                       widget.currentGroup.owner
                                                   ? Stack(
                                                       children: [
-                                                        VideoWidget(
-                                                          post: currentPosts[
-                                                              index],
-                                                          user:
-                                                              landingPagecontroller
-                                                                  .userProfile
-                                                                  .value,
-                                                          youtubePlayer:
-                                                              YoutubePlayerBuilder(
-                                                                  player:
-                                                                      YoutubePlayer(
-                                                                    // controller:
-                                                                    //     viewGroupController
-                                                                    //             .controllerList[
-                                                                    //         index],
-                                                                    controller:
-                                                                        _controller,
-
-                                                                    thumbnail: Image
-                                                                        .network(
-                                                                      YoutubePlayer.getThumbnail(
-                                                                          videoId:
-                                                                              YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!),
-                                                                      fit: BoxFit
-                                                                          .fitWidth,
-                                                                      height:
-                                                                          200,
-                                                                      width: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width,
-                                                                    ),
-                                                                  ),
-                                                                  onEnterFullScreen:
-                                                                      () {
-                                                                    Get.to(() =>
-                                                                        FullScreenPage(
-                                                                          youtubeLink:
-                                                                              currentPosts[index].youtubeLink,
-                                                                          name:
-                                                                              currentPosts[index].name,
-                                                                        ));
-                                                                  },
-                                                                  builder:
-                                                                      (context,
-                                                                          player) {
-                                                                    return Column(
-                                                                      children: [
-                                                                        // some widgets
-                                                                        player,
-                                                                        //some other widgets
-                                                                      ],
-                                                                    );
-                                                                  }),
-                                                          viewGroupFunc: () {
-                                                            loadingDialog();
-                                                            FirebaseFirestore
-                                                                .instance
-                                                                .collection(
-                                                                    "groups")
-                                                                .where('name',
-                                                                    isEqualTo: currentPosts[
+                                                        InkWell(
+                                                          onTap: () {
+                                                            Get.to(() =>
+                                                                FullScreenPage(
+                                                                    index: 1,
+                                                                    post: currentPosts[
+                                                                        index]));
+                                                          },
+                                                          child: VideoWidget(
+                                                            post: currentPosts[
+                                                                index],
+                                                            user:
+                                                                landingPagecontroller
+                                                                    .userProfile
+                                                                    .value,
+                                                            thumbnailUrl: YoutubePlayer.getThumbnail(
+                                                                videoId: YoutubePlayer.convertUrlToId(
+                                                                    currentPosts[
                                                                             index]
-                                                                        .groupName)
-                                                                .get()
-                                                                .then((value) {
-                                                              Get.back();
-                                                              if (value.docs
-                                                                  .isNotEmpty) {
-                                                                Get.to(() =>
-                                                                    ViewGroup(
-                                                                      index: widget
-                                                                          .index,
-                                                                      currentGroup: Group.fromJson(value
-                                                                          .docs
-                                                                          .first
-                                                                          .data()),
-                                                                      isFromGroup:
-                                                                          true,
-                                                                    ));
-                                                              }
-                                                            });
-                                                          },
-                                                          isInsideGroup: true,
-                                                          reportFunction: () {
-                                                            _pullRefresh();
-                                                          },
+                                                                        .youtubeLink)!),
+                                                            viewGroupFunc: () {
+                                                              loadingDialog();
+                                                              FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      "groups")
+                                                                  .where('name',
+                                                                      isEqualTo:
+                                                                          currentPosts[index]
+                                                                              .groupName)
+                                                                  .get()
+                                                                  .then(
+                                                                      (value) {
+                                                                Get.back();
+                                                                if (value.docs
+                                                                    .isNotEmpty) {
+                                                                  Get.to(() =>
+                                                                      ViewGroup(
+                                                                        index: widget
+                                                                            .index,
+                                                                        currentGroup: Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                        isFromGroup:
+                                                                            true,
+                                                                      ));
+                                                                }
+                                                              });
+                                                            },
+                                                            isInsideGroup: true,
+                                                            reportFunction: () {
+                                                              _pullRefresh();
+                                                            },
+                                                          ),
                                                         ),
                                                         InkWell(
                                                           onTap: () {
@@ -1736,102 +1585,63 @@ class _ViewGroupState extends State<ViewGroup> {
                                                         )
                                                       ],
                                                     )
-                                                  : VideoWidget(
-                                                      post: currentPosts[index],
-                                                      user:
-                                                          landingPagecontroller
-                                                              .userProfile
-                                                              .value,
-                                                      youtubePlayer:
-                                                          YoutubePlayerBuilder(
-                                                              player:
-                                                                  YoutubePlayer(
-                                                                // controller: viewGroupController
-                                                                //     .controllerList[index],
-                                                                controller:
-                                                                    YoutubePlayerController(
-                                                                  initialVideoId:
-                                                                      YoutubePlayer.convertUrlToId(
-                                                                          currentPosts[index]
-                                                                              .youtubeLink)!,
-                                                                  flags:
-                                                                      const YoutubePlayerFlags(
-                                                                    autoPlay:
-                                                                        false,
-                                                                    mute: false,
-                                                                  ),
-                                                                ),
-                                                                thumbnail: Image
-                                                                    .network(
-                                                                  YoutubePlayer
-                                                                      .getThumbnail(
-                                                                          videoId:
-                                                                              YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!),
-                                                                  fit: BoxFit
-                                                                      .fitWidth,
-                                                                  height: 200,
-                                                                  width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width,
-                                                                ),
-                                                              ),
-                                                              onEnterFullScreen:
-                                                                  () {
-                                                                Get.to(() =>
-                                                                    FullScreenPage(
-                                                                      youtubeLink:
-                                                                          currentPosts[index]
-                                                                              .youtubeLink,
-                                                                      name: currentPosts[
-                                                                              index]
-                                                                          .name,
-                                                                    ));
-                                                              },
-                                                              builder: (context,
-                                                                  player) {
-                                                                return Column(
-                                                                  children: [
-                                                                    // some widgets
-                                                                    player,
-                                                                    //some other widgets
-                                                                  ],
-                                                                );
-                                                              }),
-                                                      viewGroupFunc: () {
-                                                        loadingDialog();
-                                                        FirebaseFirestore
-                                                            .instance
-                                                            .collection(
-                                                                "groups")
-                                                            .where('name',
-                                                                isEqualTo:
+                                                  : InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
+                                                            FullScreenPage(
+                                                                index: 1,
+                                                                post:
+                                                                    currentPosts[
+                                                                        index]));
+                                                      },
+                                                      child: VideoWidget(
+                                                        post:
+                                                            currentPosts[index],
+                                                        user:
+                                                            landingPagecontroller
+                                                                .userProfile
+                                                                .value,
+                                                        thumbnailUrl: YoutubePlayer.getThumbnail(
+                                                            videoId: YoutubePlayer
+                                                                .convertUrlToId(
                                                                     currentPosts[
                                                                             index]
-                                                                        .groupName)
-                                                            .get()
-                                                            .then((value) {
-                                                          Get.back();
-                                                          if (value.docs
-                                                              .isNotEmpty) {
-                                                            Get.to(
-                                                                () => ViewGroup(
-                                                                      index: widget
-                                                                          .index,
-                                                                      currentGroup: Group.fromJson(value
-                                                                          .docs
-                                                                          .first
-                                                                          .data()),
-                                                                      isFromGroup:
-                                                                          true,
-                                                                    ));
-                                                          }
-                                                        });
-                                                      },
-                                                      isInsideGroup: true,
-                                                      reportFunction: () {
-                                                        _pullRefresh();
-                                                      },
+                                                                        .youtubeLink)!),
+                                                        viewGroupFunc: () {
+                                                          loadingDialog();
+                                                          FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  "groups")
+                                                              .where('name',
+                                                                  isEqualTo: currentPosts[
+                                                                          index]
+                                                                      .groupName)
+                                                              .get()
+                                                              .then((value) {
+                                                            Get.back();
+                                                            if (value.docs
+                                                                .isNotEmpty) {
+                                                              Get.to(() =>
+                                                                  ViewGroup(
+                                                                    index: widget
+                                                                        .index,
+                                                                    currentGroup:
+                                                                        Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                    isFromGroup:
+                                                                        true,
+                                                                  ));
+                                                            }
+                                                          });
+                                                        },
+                                                        isInsideGroup: true,
+                                                        reportFunction: () {
+                                                          _pullRefresh();
+                                                        },
+                                                      ),
                                                     );
                                             })
                                     // Filtered
@@ -1878,92 +1688,61 @@ class _ViewGroupState extends State<ViewGroup> {
                                                       widget.currentGroup.owner
                                                   ? Stack(
                                                       children: [
-                                                        VideoWidget(
-                                                          post: currentPosts[
-                                                              index],
-                                                          user:
-                                                              landingPagecontroller
-                                                                  .userProfile
-                                                                  .value,
-                                                          youtubePlayer:
-                                                              YoutubePlayerBuilder(
-                                                                  player:
-                                                                      YoutubePlayer(
-                                                                    // controller:
-                                                                    //     viewGroupController
-                                                                    //             .controllerList[
-                                                                    //         index],
-                                                                    controller:
-                                                                        _controller,
-                                                                    thumbnail: Image
-                                                                        .network(
-                                                                      YoutubePlayer.getThumbnail(
-                                                                          videoId:
-                                                                              YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!),
-                                                                      fit: BoxFit
-                                                                          .fitWidth,
-                                                                      height:
-                                                                          200,
-                                                                      width: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width,
-                                                                    ),
-                                                                  ),
-                                                                  onEnterFullScreen:
-                                                                      () {
-                                                                    Get.to(() =>
-                                                                        FullScreenPage(
-                                                                          youtubeLink:
-                                                                              currentPosts[index].youtubeLink,
-                                                                          name:
-                                                                              currentPosts[index].name,
-                                                                        ));
-                                                                  },
-                                                                  builder:
-                                                                      (context,
-                                                                          player) {
-                                                                    return Column(
-                                                                      children: [
-                                                                        // some widgets
-                                                                        player,
-                                                                        //some other widgets
-                                                                      ],
-                                                                    );
-                                                                  }),
-                                                          viewGroupFunc: () {
-                                                            loadingDialog();
-                                                            FirebaseFirestore
-                                                                .instance
-                                                                .collection(
-                                                                    "groups")
-                                                                .where('name',
-                                                                    isEqualTo: currentPosts[
+                                                        InkWell(
+                                                          onTap: () {
+                                                            Get.to(() =>
+                                                                FullScreenPage(
+                                                                    index: 1,
+                                                                    post: currentPosts[
+                                                                        index]));
+                                                          },
+                                                          child: VideoWidget(
+                                                            post: currentPosts[
+                                                                index],
+                                                            user:
+                                                                landingPagecontroller
+                                                                    .userProfile
+                                                                    .value,
+                                                            thumbnailUrl: YoutubePlayer.getThumbnail(
+                                                                videoId: YoutubePlayer.convertUrlToId(
+                                                                    currentPosts[
                                                                             index]
-                                                                        .groupName)
-                                                                .get()
-                                                                .then((value) {
-                                                              Get.back();
-                                                              if (value.docs
-                                                                  .isNotEmpty) {
-                                                                Get.to(() =>
-                                                                    ViewGroup(
-                                                                      index: widget
-                                                                          .index,
-                                                                      currentGroup: Group.fromJson(value
-                                                                          .docs
-                                                                          .first
-                                                                          .data()),
-                                                                      isFromGroup:
-                                                                          true,
-                                                                    ));
-                                                              }
-                                                            });
-                                                          },
-                                                          isInsideGroup: true,
-                                                          reportFunction: () {
-                                                            _pullRefresh();
-                                                          },
+                                                                        .youtubeLink)!),
+                                                            viewGroupFunc: () {
+                                                              loadingDialog();
+                                                              FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      "groups")
+                                                                  .where('name',
+                                                                      isEqualTo:
+                                                                          currentPosts[index]
+                                                                              .groupName)
+                                                                  .get()
+                                                                  .then(
+                                                                      (value) {
+                                                                Get.back();
+                                                                if (value.docs
+                                                                    .isNotEmpty) {
+                                                                  Get.to(() =>
+                                                                      ViewGroup(
+                                                                        index: widget
+                                                                            .index,
+                                                                        currentGroup: Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                        isFromGroup:
+                                                                            true,
+                                                                      ));
+                                                                }
+                                                              });
+                                                            },
+                                                            isInsideGroup: true,
+                                                            reportFunction: () {
+                                                              _pullRefresh();
+                                                            },
+                                                          ),
                                                         ),
                                                         InkWell(
                                                           onTap: () {
@@ -1994,91 +1773,63 @@ class _ViewGroupState extends State<ViewGroup> {
                                                         )
                                                       ],
                                                     )
-                                                  : VideoWidget(
-                                                      post: currentPosts[index],
-                                                      user:
-                                                          landingPagecontroller
-                                                              .userProfile
-                                                              .value,
-                                                      youtubePlayer:
-                                                          YoutubePlayerBuilder(
-                                                              player:
-                                                                  YoutubePlayer(
-                                                                // controller: viewGroupController
-                                                                //     .controllerList[index],
-                                                                controller:
-                                                                    _controller,
-                                                                thumbnail: Image
-                                                                    .network(
-                                                                  YoutubePlayer
-                                                                      .getThumbnail(
-                                                                          videoId:
-                                                                              YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!),
-                                                                  fit: BoxFit
-                                                                      .fitWidth,
-                                                                  height: 200,
-                                                                  width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width,
-                                                                ),
-                                                              ),
-                                                              onEnterFullScreen:
-                                                                  () {
-                                                                Get.to(() =>
-                                                                    FullScreenPage(
-                                                                      youtubeLink:
-                                                                          currentPosts[index]
-                                                                              .youtubeLink,
-                                                                      name: currentPosts[
-                                                                              index]
-                                                                          .name,
-                                                                    ));
-                                                              },
-                                                              builder: (context,
-                                                                  player) {
-                                                                return Column(
-                                                                  children: [
-                                                                    // some widgets
-                                                                    player,
-                                                                    //some other widgets
-                                                                  ],
-                                                                );
-                                                              }),
-                                                      viewGroupFunc: () {
-                                                        loadingDialog();
-                                                        FirebaseFirestore
-                                                            .instance
-                                                            .collection(
-                                                                "groups")
-                                                            .where('name',
-                                                                isEqualTo:
+                                                  : InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
+                                                            FullScreenPage(
+                                                                index: 1,
+                                                                post:
+                                                                    currentPosts[
+                                                                        index]));
+                                                      },
+                                                      child: VideoWidget(
+                                                        post:
+                                                            currentPosts[index],
+                                                        user:
+                                                            landingPagecontroller
+                                                                .userProfile
+                                                                .value,
+                                                        thumbnailUrl: YoutubePlayer.getThumbnail(
+                                                            videoId: YoutubePlayer
+                                                                .convertUrlToId(
                                                                     currentPosts[
                                                                             index]
-                                                                        .groupName)
-                                                            .get()
-                                                            .then((value) {
-                                                          Get.back();
-                                                          if (value.docs
-                                                              .isNotEmpty) {
-                                                            Get.to(
-                                                                () => ViewGroup(
-                                                                      index: widget
-                                                                          .index,
-                                                                      currentGroup: Group.fromJson(value
-                                                                          .docs
-                                                                          .first
-                                                                          .data()),
-                                                                      isFromGroup:
-                                                                          true,
-                                                                    ));
-                                                          }
-                                                        });
-                                                      },
-                                                      isInsideGroup: true,
-                                                      reportFunction: () {
-                                                        _pullRefresh();
-                                                      },
+                                                                        .youtubeLink)!),
+                                                        viewGroupFunc: () {
+                                                          loadingDialog();
+                                                          FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  "groups")
+                                                              .where('name',
+                                                                  isEqualTo: currentPosts[
+                                                                          index]
+                                                                      .groupName)
+                                                              .get()
+                                                              .then((value) {
+                                                            Get.back();
+                                                            if (value.docs
+                                                                .isNotEmpty) {
+                                                              Get.to(() =>
+                                                                  ViewGroup(
+                                                                    index: widget
+                                                                        .index,
+                                                                    currentGroup:
+                                                                        Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                    isFromGroup:
+                                                                        true,
+                                                                  ));
+                                                            }
+                                                          });
+                                                        },
+                                                        isInsideGroup: true,
+                                                        reportFunction: () {
+                                                          _pullRefresh();
+                                                        },
+                                                      ),
                                                     );
                                             })),
                           ],

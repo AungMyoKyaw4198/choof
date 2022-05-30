@@ -1,7 +1,6 @@
 import 'package:choof_app/models/group.dart';
 import 'package:choof_app/screens/favourite_page.dart';
 import 'package:choof_app/screens/settings_page.dart';
-import 'package:choof_app/screens/view_group.dart';
 import 'package:choof_app/screens/widgets/shared_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,11 +26,16 @@ class _EditGroupPageState extends State<EditGroupPage> {
   @override
   void initState() {
     List<String> tags = [];
-
+    editGroupController.setInitialGroupName(widget.currentGroup.name);
     widget.currentGroup.tags.forEach((element) {
       tags.add(element.trim());
     });
-    editGroupController.setInitialValue(widget.currentGroup.name, tags);
+    editGroupController.setInitialValue(
+        widget.currentGroup.name.contains('#')
+            ? widget.currentGroup.name
+                .substring(0, widget.currentGroup.name.indexOf('#'))
+            : widget.currentGroup.name,
+        tags);
     super.initState();
   }
 

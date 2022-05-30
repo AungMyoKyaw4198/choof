@@ -15,15 +15,15 @@ import '../../utils/datetime_ext.dart';
 class VideoWidget extends StatefulWidget {
   final Post post;
   final Profile user;
-  final Widget youtubePlayer;
   final Function viewGroupFunc;
+  final String thumbnailUrl;
   final bool isInsideGroup;
   final Function reportFunction;
   const VideoWidget(
       {Key? key,
       required this.post,
       required this.user,
-      required this.youtubePlayer,
+      required this.thumbnailUrl,
       required this.viewGroupFunc,
       required this.isInsideGroup,
       required this.reportFunction})
@@ -592,7 +592,12 @@ class _VideoWidgetState extends State<VideoWidget> {
                         children: [
                           Container(
                             height: 200,
-                            child: widget.youtubePlayer,
+                            child: Image.network(
+                              widget.thumbnailUrl,
+                              fit: BoxFit.fitWidth,
+                              height: 200,
+                              width: MediaQuery.of(context).size.width,
+                            ),
                           ),
                           isHide
                               ? Align(
@@ -662,11 +667,21 @@ class _VideoWidgetState extends State<VideoWidget> {
                       )
                     : Container(
                         height: 200,
-                        child: widget.youtubePlayer,
+                        child: Image.network(
+                          widget.thumbnailUrl,
+                          fit: BoxFit.fitWidth,
+                          height: 200,
+                          width: MediaQuery.of(context).size.width,
+                        ),
                       )
                 : Container(
                     height: 200,
-                    child: widget.youtubePlayer,
+                    child: Image.network(
+                      widget.thumbnailUrl,
+                      fit: BoxFit.fitWidth,
+                      height: 200,
+                      width: MediaQuery.of(context).size.width,
+                    ),
                   ),
 
             const SizedBox(
@@ -785,7 +800,10 @@ class _VideoWidgetState extends State<VideoWidget> {
                           },
                           child: Center(
                             child: Text(
-                              widget.post.groupName,
+                              widget.post.groupName.contains('#')
+                                  ? widget.post.groupName.substring(
+                                      0, widget.post.groupName.indexOf('#'))
+                                  : widget.post.groupName,
                               textAlign: TextAlign.start,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -833,7 +851,9 @@ class GroupWidget extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      group.name,
+                      group.name.contains('#')
+                          ? group.name.substring(0, group.name.indexOf('#'))
+                          : group.name,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                           color: Colors.white,
