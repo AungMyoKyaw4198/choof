@@ -1,3 +1,5 @@
+import 'package:choof_app/models/comment.dart';
+
 class Post {
   String? docId;
   String name;
@@ -10,6 +12,7 @@ class Post {
   DateTime addedTime;
   int? controllerIndex;
   bool? isReported;
+  List<Comment>? comments;
 
   Post(
       {this.docId,
@@ -22,7 +25,8 @@ class Post {
       required this.creatorImageUrl,
       required this.addedTime,
       this.controllerIndex,
-      this.isReported});
+      this.isReported,
+      this.comments});
 
   factory Post.fromJson(Map<String, dynamic> json) => Post(
         docId: json['docId'] ?? '',

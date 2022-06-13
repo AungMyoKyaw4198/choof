@@ -1,11 +1,12 @@
 import 'package:choof_app/controllers/landing_page_controller.dart';
 import 'package:choof_app/models/notification.dart';
+import 'package:choof_app/screens/widgets/shared_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+import '../models/comment.dart';
 import '../models/group.dart';
 import '../models/post.dart';
 import '../models/profile.dart';
@@ -21,8 +22,9 @@ class HomePageController extends GetxController {
       FirebaseFirestore.instance.collection("posts");
   final CollectionReference _notifications =
       FirebaseFirestore.instance.collection("notifications");
+  final CollectionReference _allComments =
+      FirebaseFirestore.instance.collection("comments");
 
-  // final controllerList = <YoutubePlayerController>[].obs;
   final allpost = <Post>[].obs;
   final posts = <Post>[].obs;
   final creators = <Profile>[].obs;
@@ -30,6 +32,7 @@ class HomePageController extends GetxController {
   final loaded = false.obs;
   final selectedFriend = 'all'.obs;
 
+  final isFilterOn = false.obs;
   final isFilter = false.obs;
   final filteredTags = <String>[].obs;
   final filteredTagResult = <Post>[].obs;
@@ -37,6 +40,11 @@ class HomePageController extends GetxController {
   final sortByRecent = true.obs;
 
   final postLimit = 15.obs;
+
+  setFilterOn() {
+    bool value = !isFilterOn.value;
+    isFilterOn(value);
+  }
 
   setPostLimit(int value) {
     postLimit(value);
@@ -46,20 +54,6 @@ class HomePageController extends GetxController {
     int value = postLimit.value + 15;
     postLimit(value);
   }
-
-  // reloadControllerList(List<Post> postlist) {
-  //   for (int i = 0; i < postlist.length; i++) {
-  //     controllerList[i]
-  //         .load(YoutubePlayer.convertUrlToId(postlist[i].youtubeLink)!);
-  //     controllerList[i].pause();
-  //   }
-  // }
-
-  // disposeControllerList() {
-  //   for (var element in controllerList) {
-  //     element.dispose();
-  //   }
-  // }
 
   // Get groups which user is member of
   Future<List<Group>> getMemberedGroup() async {
@@ -72,6 +66,10 @@ class HomePageController extends GetxController {
         final Group meta =
             Group.fromJson(element.data() as Map<String, dynamic>);
         meta.docId = element.id;
+
+        meta.tags.forEach((tag) {
+          landingPagecontroller.addAutoTags(tag);
+        });
 
         meta.members.forEach((element) {
           if (element.trim() ==
@@ -128,28 +126,24 @@ class HomePageController extends GetxController {
                     Post.fromJson(element.data() as Map<String, dynamic>);
                 currentPost.docId = element.id;
                 currentPost.controllerIndex = index;
-                currentPost.tags.forEach((tag) {
-                  landingPagecontroller.addAutoTags(tag);
-                });
 
-                // Get Thumbnail URL
-                // String videID =
-                //     currentPost.youtubeLink.replaceAll('https://youtu.be/', '');
-                // YoutubeVideoResponse resposne =
-                //     await YouTubeService.instance.fetchVideoInfo(id: videID);
-                // currentPost.thumbnailUrl =
-                //     resposne.items!.first.snippet!.thumbnails!.defaultQ!.url;
-                // --------------------------
-                YoutubePlayerController _controller = YoutubePlayerController(
-                  initialVideoId:
-                      YoutubePlayer.convertUrlToId(currentPost.youtubeLink)!,
-                  flags: const YoutubePlayerFlags(
-                    autoPlay: false,
-                    mute: false,
-                  ),
-                );
-                // controllerList.add(_controller);
-
+                // Add Comments
+                List<Comment> metaCmts = [];
+                QuerySnapshot<Object?> postComments = await _allComments
+                    .where('postName', isEqualTo: currentPost.name)
+                    .where('postLink', isEqualTo: currentPost.youtubeLink)
+                    .where('postCreator', isEqualTo: currentPost.creator)
+                    .where('postGroup', isEqualTo: currentPost.groupName)
+                    .get();
+                if (postComments.docs.isNotEmpty) {
+                  postComments.docs.forEach((element) {
+                    Comment currentComment = Comment.fromJson(
+                        element.data() as Map<String, dynamic>);
+                    metaCmts.add(currentComment);
+                  });
+                }
+                currentPost.comments = metaCmts;
+                //  ----
                 posts.add(currentPost);
                 allpost.add(currentPost);
                 currentPost.tags.forEach((tag) {
@@ -185,12 +179,12 @@ class HomePageController extends GetxController {
   // Refresh all posts
   refreshPosts() {
     loaded(false);
-    // controllerList([]);
     allpost([]);
     posts([]);
     creators([]);
     allTags([]);
     selectedFriend('all');
+    isFilterOn(false);
     isFilter(false);
     filteredTags([]);
     filteredTagResult([]);
@@ -208,7 +202,6 @@ class HomePageController extends GetxController {
     if (name == 'all') {
       posts(allpost);
       sort(sortByRecent.value);
-      // reloadControllerList(pos);
       loaded(true);
     } else {
       posts([]);
@@ -275,12 +268,10 @@ class HomePageController extends GetxController {
     sortByRecent(value);
     if (value) {
       posts.sort((a, b) => b.addedTime.compareTo(a.addedTime));
-      // reloadControllerList(posts);
       loaded(true);
     } else {
       posts
           .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-      // reloadControllerList(posts);
       loaded(true);
     }
   }
@@ -303,7 +294,7 @@ class HomePageController extends GetxController {
             if (snapshot.docs[i]['groupMembers']
                     .toString()
                     .contains(landingPagecontroller.userProfile.value.name) &&
-                snapshot.docs[i]['sender'].trim() !=
+                snapshot.docs[i]['sender'] !=
                     landingPagecontroller.userProfile.value.name) {
               final currentNotis = Noti.fromJson(
                   snapshot.docs[i].data() as Map<String, dynamic>);
@@ -358,8 +349,23 @@ class HomePageController extends GetxController {
           }
         }
       });
-    } else {
-      print('user name is null');
+    }
+  }
+
+  // Add Comment
+  addComment(Comment commet) async {
+    try {
+      loadingDialog();
+      await _allComments.add(commet.toJson());
+      Get.back();
+    } catch (e) {
+      Get.back();
+      Get.snackbar(
+        "Something went wrong!",
+        "Please try again later.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+import '../models/comment.dart';
 import '../models/group.dart';
 import '../models/post.dart';
 
@@ -14,6 +15,8 @@ class ViewGroupController extends GetxController {
       FirebaseFirestore.instance.collection("groups");
   final CollectionReference _postsInsideGroup =
       FirebaseFirestore.instance.collection("posts");
+  final CollectionReference _allComments =
+      FirebaseFirestore.instance.collection("comments");
 
   final groupName = ''.obs;
   final controllerList = <YoutubePlayerController>[].obs;
@@ -26,6 +29,12 @@ class ViewGroupController extends GetxController {
   final sortByRecent = true.obs;
   final loaded = false.obs;
   final postLimit = 15.obs;
+  final isFilterOn = false.obs;
+
+  setFilterOn() {
+    bool value = !isFilterOn.value;
+    isFilterOn(value);
+  }
 
   setPostLimit(int value) {
     postLimit(value);
@@ -39,14 +48,6 @@ class ViewGroupController extends GetxController {
   setGroupName(String name) {
     groupName(name);
   }
-
-  // reloadControllerList() {
-  //   for (int i = 0; i < posts.length; i++) {
-  //     controllerList[i]
-  //         .load(YoutubePlayer.convertUrlToId(posts[i].youtubeLink)!);
-  //     controllerList[i].pause();
-  //   }
-  // }
 
   addToControllerList(YoutubePlayerController controller) {
     controllerList.add(controller);
@@ -73,15 +74,23 @@ class ViewGroupController extends GetxController {
               Post.fromJson(element.data() as Map<String, dynamic>);
           currentPost.docId = element.id;
 
-          // YoutubePlayerController _controller = YoutubePlayerController(
-          //   initialVideoId:
-          //       YoutubePlayer.convertUrlToId(currentPost.youtubeLink)!,
-          //   flags: const YoutubePlayerFlags(
-          //     autoPlay: false,
-          //     mute: false,
-          //   ),
-          // );
-          // controllerList.add(_controller);
+          // Add Comments
+          List<Comment> metaCmts = [];
+          QuerySnapshot<Object?> postComments = await _allComments
+              .where('postName', isEqualTo: currentPost.name)
+              .where('postLink', isEqualTo: currentPost.youtubeLink)
+              .where('postCreator', isEqualTo: currentPost.creator)
+              .where('postGroup', isEqualTo: currentPost.groupName)
+              .get();
+          if (postComments.docs.isNotEmpty) {
+            postComments.docs.forEach((element) {
+              Comment currentComment =
+                  Comment.fromJson(element.data() as Map<String, dynamic>);
+              metaCmts.add(currentComment);
+            });
+          }
+          currentPost.comments = metaCmts;
+          //  ----
 
           posts.add(currentPost);
           allpost.add(currentPost);
@@ -100,6 +109,7 @@ class ViewGroupController extends GetxController {
 
       loaded(true);
     } catch (e) {
+      // ignore: avoid_print
       print(e);
       loaded(true);
       Get.snackbar(
@@ -114,50 +124,16 @@ class ViewGroupController extends GetxController {
   // Refresh all posts
   refreshPosts(Group group) {
     loaded(false);
-    // controllerList([]);
     allpost([]);
     posts([]);
     allTags([]);
+    isFilterOn(false);
     isFilter(false);
     filteredTags([]);
     filteredTagResult([]);
     sortByRecent(true);
     getAllPost(group);
     update();
-  }
-
-  // Delete Posts
-  deletePost(Group group, Post post) async {
-    infoDialog(
-        title: 'Are you sure you want to delete this post?',
-        content: '${post.name} will be deleted.',
-        actions: [
-          TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: const Text('Cancel')),
-          TextButton(
-              onPressed: () async {
-                Get.back();
-                try {
-                  await _postsInsideGroup.doc(post.docId).delete();
-                  refreshPosts(group);
-                } catch (e) {
-                  print(e);
-                  Get.snackbar(
-                    "Something went wrong!",
-                    "Please try again later.",
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.red,
-                  );
-                }
-              },
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              )),
-        ]);
   }
 
   // Delete Current Group
@@ -185,6 +161,7 @@ class ViewGroupController extends GetxController {
                             .delete()
                             .then((value) {
                           Get.back();
+                          Get.back();
                         });
                       } else {
                         index++;
@@ -193,9 +170,11 @@ class ViewGroupController extends GetxController {
                   } else {
                     await _allGroups.doc(group.docId).delete().then((value) {
                       Get.back();
+                      Get.back();
                     });
                   }
                 } catch (e) {
+                  // ignore: avoid_print
                   print(e);
                   Get.snackbar(
                     "Something went wrong!",
@@ -265,6 +244,23 @@ class ViewGroupController extends GetxController {
           .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
       // reloadControllerList();
       loaded(true);
+    }
+  }
+
+  // Add Comment
+  addComment(Comment commet) async {
+    try {
+      loadingDialog();
+      await _allComments.add(commet.toJson());
+      Get.back();
+    } catch (e) {
+      Get.back();
+      Get.snackbar(
+        "Something went wrong!",
+        "Please try again later.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
     }
   }
 }

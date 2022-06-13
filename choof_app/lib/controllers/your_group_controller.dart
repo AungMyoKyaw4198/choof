@@ -30,6 +30,12 @@ class YourGroupController extends GetxController {
   final sortByRecent = true.obs;
 
   final groupLimit = 15.obs;
+  final isFilterOn = false.obs;
+
+  setFilterOn() {
+    bool value = !isFilterOn.value;
+    isFilterOn(value);
+  }
 
   setGroupLimit(int value) {
     groupLimit(value);
@@ -119,13 +125,14 @@ class YourGroupController extends GetxController {
     owners([]);
     allTags([]);
     selectedFriend('all');
+    isFilterOn(false);
     isFilter(false);
     filteredTags([]);
     filteredTagResult([]);
     sortByRecent(true);
     loaded(false);
     getGroupsData();
-    update();
+    // update();
   }
 
   // Sort by Profiles

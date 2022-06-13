@@ -28,6 +28,7 @@ class LandingPageController extends GetxController {
   final CollectionReference _notis =
       FirebaseFirestore.instance.collection("notifications");
 
+  final isDeviceTablet = false.obs;
   var tabIndex = 0.obs;
   final userProfile = Profile(
           name: 'test',
@@ -47,6 +48,10 @@ class LandingPageController extends GetxController {
   final filteredUsersResult = <Profile>[].obs;
 
   final autoTags = <String>[].obs;
+
+  setIsDeviceTablet(bool value) {
+    isDeviceTablet(value);
+  }
 
   resetData() {
     loadingDialog();

@@ -38,7 +38,6 @@ class UserAuthService {
   Future signInWithFacebook() async {
     try {
       final LoginResult result = await FacebookAuth.instance.login();
-      print(result.status);
       switch (result.status) {
         case LoginStatus.success:
           final AuthCredential facebookCredential =
@@ -88,10 +87,12 @@ class UserAuthService {
           return userCredential;
 
         case AuthorizationStatus.error:
+          // ignore: avoid_print
           print("Sign in failed: ${appleResult.error!.localizedDescription}");
           return null;
 
         case AuthorizationStatus.cancelled:
+          // ignore: avoid_print
           print('User cancelled');
           return null;
       }

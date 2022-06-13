@@ -34,9 +34,10 @@ class SearchVideoController extends GetxController {
     videoList([]);
   }
 
-  viewVideoDetail(String videoId) async {
+  viewVideoDetail(String videoId, bool isFromAddVideo) async {
     YoutubeVideoResponse resposne =
         await YouTubeService.instance.fetchVideoInfo(id: videoId);
-    Get.to(() => SearchVideoDetailPage(video: resposne));
+    Get.to(() =>
+        SearchVideoDetailPage(video: resposne, isFromAddVideo: isFromAddVideo));
   }
 }

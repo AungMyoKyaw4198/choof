@@ -8,7 +8,11 @@ import '../controllers/search_video_controller.dart';
 import '../utils/app_constant.dart';
 
 class SearchVideoPage extends StatefulWidget {
-  const SearchVideoPage({Key? key}) : super(key: key);
+  final String? searchedWord;
+  final bool isFromAddVideo;
+  const SearchVideoPage(
+      {Key? key, this.searchedWord, required this.isFromAddVideo})
+      : super(key: key);
 
   @override
   State<SearchVideoPage> createState() => _SearchVideoPageState();
@@ -18,6 +22,15 @@ class _SearchVideoPageState extends State<SearchVideoPage> {
   final controller = Get.put(SearchVideoController());
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
+
+  @override
+  void initState() {
+    if (widget.searchedWord != null) {
+      controller.searchController.text = widget.searchedWord!;
+      controller.searchVideos();
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,30 +57,37 @@ class _SearchVideoPageState extends State<SearchVideoPage> {
             Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    controller: controller.searchController,
-                    enableInteractiveSelection: true,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                        filled: true,
-                        hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "Search Videos here",
-                        fillColor: Colors.white70,
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            controller.searchController.clear();
-                          },
-                          icon: const Icon(Icons.close_rounded),
-                        )),
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: TextFormField(
+                      controller: controller.searchController,
+                      enableInteractiveSelection: true,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          filled: true,
+                          hintStyle: TextStyle(color: Colors.grey[800]),
+                          hintText: "Search Videos here",
+                          fillColor: Colors.white70,
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              controller.searchController.clear();
+                            },
+                            icon: const Icon(Icons.close_rounded),
+                          )),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                      onFieldSubmitted: (value) {
+                        controller.clearResults();
+                        controller.searchVideos();
+                      },
+                    ),
                   ),
                 ),
                 IconButton(
@@ -76,7 +96,7 @@ class _SearchVideoPageState extends State<SearchVideoPage> {
                       controller.searchVideos();
                     },
                     icon: const FaIcon(
-                      FontAwesomeIcons.searchengin,
+                      FontAwesomeIcons.magnifyingGlass,
                       color: Colors.white,
                       size: 30,
                     ))
@@ -120,7 +140,8 @@ class _SearchVideoPageState extends State<SearchVideoPage> {
                             return InkWell(
                               onTap: () {
                                 controller.viewVideoDetail(
-                                    controller.videoList[index].id!.videoId!);
+                                    controller.videoList[index].id!.videoId!,
+                                    widget.isFromAddVideo);
                               },
                               child: Card(
                                 child: Container(

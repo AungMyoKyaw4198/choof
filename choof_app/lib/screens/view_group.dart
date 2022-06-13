@@ -1,6 +1,5 @@
 import 'package:choof_app/screens/add_video.dart';
 import 'package:choof_app/screens/favourite_page.dart';
-import 'package:choof_app/screens/home_page.dart';
 import 'package:choof_app/screens/settings_page.dart';
 import 'package:choof_app/screens/widgets/shared_widgets.dart';
 import 'package:choof_app/screens/your_groups_page.dart';
@@ -13,6 +12,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../controllers/landing_page_controller.dart';
 import '../controllers/view_group_controller.dart';
+import '../models/comment.dart';
 import '../models/profile.dart';
 
 import '../models/group.dart';
@@ -50,13 +50,8 @@ class _ViewGroupState extends State<ViewGroup> {
   void initState() {
     landingPagecontroller.getAllUsers(widget.currentGroup);
     viewGroupController.getAllPost(widget.currentGroup);
+    viewGroupController.setGroupName(widget.currentGroup.name);
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    viewGroupController.disposeControllerList();
-    super.dispose();
   }
 
   Future<void> _pullRefresh() async {
@@ -69,114 +64,220 @@ class _ViewGroupState extends State<ViewGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size(60, 60),
-        child: Obx(() => widget.index == landingPagecontroller.tabIndex.value
-            ? AppBar(
-                backgroundColor: const Color(bgColor),
-                centerTitle: true,
-                leading: IconButton(
-                  onPressed: () {
-                    if (widget.isFromGroup) {
-                      landingPagecontroller.changeTabIndex(1);
-                      Get.offAll(() => const HomePage());
-                    } else {
-                      landingPagecontroller.changeTabIndex(0);
-                      Get.offAll(() => const HomePage());
-                    }
-                  },
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                title: Row(
-                  children: [
-                    Obx(
-                      () => Expanded(
-                        child: Text(
-                          viewGroupController.groupName.value.isEmpty
-                              ? widget.currentGroup.name.contains('#')
-                                  ? widget.currentGroup.name.substring(
-                                      0, widget.currentGroup.name.indexOf('#'))
-                                  : widget.currentGroup.name
-                              : viewGroupController.groupName.value
-                                      .contains('#')
+          preferredSize: const Size(60, 60),
+          child: Obx(() => landingPagecontroller.isDeviceTablet.value
+              ? AppBar(
+                  backgroundColor: const Color(bgColor),
+                  leadingWidth: MediaQuery.of(context).size.width / 4.5,
+                  leading: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Image.asset(
+                      'assets/logos/logo.png',
+                    ),
+                  ),
+                  titleSpacing: 0.0,
+                  flexibleSpace: Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width / 4, top: 25),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width / 4.5,
+                          child: IconButton(
+                            icon: Row(
+                              children: [
+                                Text(
+                                  'Favorites',
+                                  style: TextStyle(
+                                      color: landingPagecontroller
+                                                  .tabIndex.value ==
+                                              0
+                                          ? const Color(mainColor)
+                                          : Colors.white),
+                                ),
+                                Image.asset(
+                                  'assets/icons/Favorite.png',
+                                  width: 50,
+                                  height: 50,
+                                  color:
+                                      landingPagecontroller.tabIndex.value == 0
+                                          ? const Color(mainColor)
+                                          : Colors.white,
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              landingPagecontroller.changeTabIndex(0);
+                            },
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width / 4.5,
+                          child: IconButton(
+                            icon: Row(
+                              children: [
+                                Text(
+                                  'Groups',
+                                  style: TextStyle(
+                                      color: landingPagecontroller
+                                                  .tabIndex.value ==
+                                              1
+                                          ? const Color(mainColor)
+                                          : Colors.white),
+                                ),
+                                Image.asset(
+                                  'assets/icons/Users.png',
+                                  width: 50,
+                                  height: 50,
+                                  color:
+                                      landingPagecontroller.tabIndex.value == 1
+                                          ? const Color(mainColor)
+                                          : Colors.white,
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              landingPagecontroller.changeTabIndex(1);
+                            },
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width / 4.5,
+                          child: IconButton(
+                            icon: Row(
+                              children: [
+                                Text(
+                                  'Settings',
+                                  style: TextStyle(
+                                      color: landingPagecontroller
+                                                  .tabIndex.value ==
+                                              2
+                                          ? const Color(mainColor)
+                                          : Colors.white),
+                                ),
+                                Image.asset(
+                                  'assets/icons/Settings.png',
+                                  width: 50,
+                                  height: 50,
+                                  color:
+                                      landingPagecontroller.tabIndex.value == 2
+                                          ? const Color(mainColor)
+                                          : Colors.white,
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              landingPagecontroller.changeTabIndex(2);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : widget.index == landingPagecontroller.tabIndex.value
+                  ? AppBar(
+                      backgroundColor: const Color(bgColor),
+                      centerTitle: true,
+                      leading: IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          if (widget.isFromGroup) {
+                            landingPagecontroller.changeTabIndex(1);
+                            Get.back();
+                            Get.back();
+                          } else {
+                            landingPagecontroller.changeTabIndex(0);
+                            Get.back();
+                            Get.back();
+                          }
+                        },
+                      ),
+                      title: Row(
+                        children: [
+                          Obx(
+                            () => Text(
+                              viewGroupController.groupName.value.contains('#')
                                   ? viewGroupController.groupName.value
                                       .substring(
                                           0,
                                           viewGroupController.groupName.value
                                               .indexOf('#'))
                                   : viewGroupController.groupName.value,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              overflow: TextOverflow.ellipsis),
-                        ),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                          ),
+                          landingPagecontroller.userProfile.value.name ==
+                                  widget.currentGroup.owner
+                              ? Row(
+                                  children: [
+                                    IconButton(
+                                        onPressed: () {
+                                          if (widget.isFromGroup) {
+                                            Get.to(() => EditGroupPage(
+                                                      currentGroup:
+                                                          widget.currentGroup,
+                                                      index: 1,
+                                                    ))!
+                                                .then(
+                                                    (value) => _pullRefresh());
+                                          } else {
+                                            Get.to(() => EditGroupPage(
+                                                      currentGroup:
+                                                          widget.currentGroup,
+                                                      index: 0,
+                                                    ))!
+                                                .then(
+                                                    (value) => _pullRefresh());
+                                          }
+                                        },
+                                        icon: const Icon(
+                                          Icons.edit,
+                                          size: 20,
+                                        ))
+                                  ],
+                                )
+                              : const SizedBox.shrink(),
+                        ],
                       ),
-                    ),
-                    landingPagecontroller.userProfile.value.name ==
-                            widget.currentGroup.owner
-                        ? Row(
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  viewGroupController
-                                      .deleteGroup(widget.currentGroup);
+                      actions: [
+                        // Only owner can add video to group
+                        landingPagecontroller.userProfile.value.name ==
+                                widget.currentGroup.owner
+                            ? IconButton(
+                                onPressed: () {
+                                  Get.to(() => AddVideoPage(
+                                            index: widget.isFromGroup ? 1 : 0,
+                                            group: widget.currentGroup,
+                                            isFromFavPage: !widget.isFromGroup,
+                                            isFromViewGroup: true,
+                                          ))!
+                                      .then((value) => _pullRefresh());
                                 },
-                                child: const Align(
-                                    alignment: Alignment.topLeft,
-                                    child: CircleAvatar(
-                                      radius: 10,
-                                      backgroundColor: Colors.white70,
-                                      child: Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    )),
-                              ),
-                              IconButton(
-                                  onPressed: () {
-                                    Get.to(() => EditGroupPage(
-                                              currentGroup: widget.currentGroup,
-                                            ))!
-                                        .then((value) => _pullRefresh());
-                                  },
-                                  icon: const Icon(
-                                    Icons.edit,
-                                    size: 20,
-                                  ))
-                            ],
-                          )
-                        : const SizedBox.shrink(),
-                  ],
-                ),
-                actions: [
-                  // Only owner can add video to group
-                  landingPagecontroller.userProfile.value.name ==
-                          widget.currentGroup.owner
-                      ? IconButton(
-                          onPressed: () {
-                            Get.to(() => AddVideoPage(
-                                      index: 1,
-                                      group: widget.currentGroup,
-                                      isFromFavPage: !widget.isFromGroup,
-                                      isFromViewGroup: true,
-                                    ))!
-                                .then((value) => _pullRefresh());
-                          },
-                          icon: Image.asset(
-                            'assets/icons/FavAdd.png',
-                            width: 60,
-                            height: 60,
-                          ))
-                      : const SizedBox.shrink(),
-                ],
-                elevation: 0.0,
-              )
-            : Container(
-                height: MediaQuery.of(context).padding.top,
-                color: const Color(mainBgColor),
-              )),
+                                icon: Image.asset(
+                                  'assets/icons/FavAdd.png',
+                                  width: 60,
+                                  height: 60,
+                                ))
+                            : const SizedBox.shrink(),
+                      ],
+                      elevation: 0.0,
+                    )
+                  : Container(
+                      height: MediaQuery.of(context).padding.top,
+                      color: const Color(mainBgColor),
+                    ))),
+      // Bottom Navigation
+      bottomNavigationBar: Obx(
+        () => landingPagecontroller.isDeviceTablet.value
+            ? const SizedBox.shrink()
+            : BottomMenu(),
       ),
-      bottomNavigationBar: BottomMenu(),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -232,11 +333,134 @@ class _ViewGroupState extends State<ViewGroup> {
                 index: landingPagecontroller.tabIndex.value,
                 children: [
                   widget.isFromGroup
-                      ? const FavouritePage()
+                      ? const FavouritePage(isFirstTime: false)
                       : ListView(
                           children: [
-                            const SizedBox(
-                              height: 10,
+                            // Title
+                            Obx(
+                              () => landingPagecontroller.isDeviceTablet.value
+                                  ? Row(
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.arrow_back,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: () {
+                                            if (widget.isFromGroup) {
+                                              landingPagecontroller
+                                                  .changeTabIndex(1);
+                                              Get.back();
+                                              Get.back();
+                                            } else {
+                                              landingPagecontroller
+                                                  .changeTabIndex(0);
+                                              Get.back();
+                                              Get.back();
+                                            }
+                                          },
+                                        ),
+                                        Expanded(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Obx(
+                                                () => Text(
+                                                  viewGroupController
+                                                          .groupName.value
+                                                          .contains('#')
+                                                      ? viewGroupController
+                                                          .groupName.value
+                                                          .substring(
+                                                              0,
+                                                              viewGroupController
+                                                                  .groupName
+                                                                  .value
+                                                                  .indexOf('#'))
+                                                      : viewGroupController
+                                                          .groupName.value,
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      overflow: TextOverflow
+                                                          .ellipsis),
+                                                ),
+                                              ),
+                                              landingPagecontroller.userProfile
+                                                          .value.name ==
+                                                      widget.currentGroup.owner
+                                                  ? Row(
+                                                      children: [
+                                                        IconButton(
+                                                            onPressed: () {
+                                                              if (widget
+                                                                  .isFromGroup) {
+                                                                Get.to(() =>
+                                                                        EditGroupPage(
+                                                                          currentGroup:
+                                                                              widget.currentGroup,
+                                                                          index:
+                                                                              1,
+                                                                        ))!
+                                                                    .then((value) =>
+                                                                        _pullRefresh());
+                                                              } else {
+                                                                Get.to(() =>
+                                                                        EditGroupPage(
+                                                                          currentGroup:
+                                                                              widget.currentGroup,
+                                                                          index:
+                                                                              0,
+                                                                        ))!
+                                                                    .then((value) =>
+                                                                        _pullRefresh());
+                                                              }
+                                                            },
+                                                            icon: const Icon(
+                                                              Icons.edit,
+                                                              color:
+                                                                  Colors.white,
+                                                              size: 20,
+                                                            ))
+                                                      ],
+                                                    )
+                                                  : const SizedBox.shrink(),
+                                            ],
+                                          ),
+                                        ),
+                                        // Only owner can add video to group
+                                        landingPagecontroller
+                                                    .userProfile.value.name ==
+                                                widget.currentGroup.owner
+                                            ? IconButton(
+                                                onPressed: () {
+                                                  Get.to(() => AddVideoPage(
+                                                            index: widget
+                                                                    .isFromGroup
+                                                                ? 1
+                                                                : 0,
+                                                            group: widget
+                                                                .currentGroup,
+                                                            isFromFavPage:
+                                                                !widget
+                                                                    .isFromGroup,
+                                                            isFromViewGroup:
+                                                                true,
+                                                          ))!
+                                                      .then((value) =>
+                                                          _pullRefresh());
+                                                },
+                                                icon: Image.asset(
+                                                  'assets/icons/FavAdd.png',
+                                                  width: 60,
+                                                  height: 60,
+                                                ))
+                                            : const SizedBox.shrink(),
+                                      ],
+                                    )
+                                  : const SizedBox.shrink(),
                             ),
                             // Friends area
                             Row(
@@ -397,66 +621,112 @@ class _ViewGroupState extends State<ViewGroup> {
                                 shrinkWrap: true,
                                 scrollDirection: Axis.horizontal,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    height:
-                                        MediaQuery.of(context).size.height / 15,
-                                    width:
-                                        MediaQuery.of(context).size.width / 1.8,
-                                    child: InputDecorator(
-                                        decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
+                                  Obx(
+                                    () => !viewGroupController.isFilterOn.value
+                                        ? IconButton(
+                                            onPressed: () {
+                                              viewGroupController.setFilterOn();
+                                            },
+                                            icon: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 5),
+                                              child: CircleAvatar(
+                                                radius: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    30,
+                                                backgroundColor: Colors.white,
+                                                child: Icon(
+                                                  Icons.search,
+                                                  size: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      50,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ))
+                                        : Container(
+                                            padding:
+                                                const EdgeInsets.only(left: 10),
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                15,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                1.8,
+                                            child: InputDecorator(
+                                                decoration: InputDecoration(
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30.0),
+                                                  ),
+                                                  contentPadding:
+                                                      const EdgeInsets.all(10),
+                                                  filled: true,
+                                                  fillColor: Colors.white70,
+                                                  prefixIcon: InkWell(
+                                                    onTap: () {
+                                                      viewGroupController
+                                                          .setFilterOn();
+                                                    },
+                                                    child: const Icon(
+                                                      Icons.search,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Stack(
+                                                  children: [
+                                                    Autocomplete<String>(
+                                                      displayStringForOption:
+                                                          (c) => c.toString(),
+                                                      optionsBuilder:
+                                                          (TextEditingValue
+                                                              textEditingValue) {
+                                                        if (textEditingValue
+                                                                .text ==
+                                                            '') {
+                                                          return const Iterable<
+                                                              String>.empty();
+                                                        }
+                                                        return viewGroupController
+                                                            .allTags
+                                                            .where((String
+                                                                option) {
+                                                          return option
+                                                              .trim()
+                                                              .toLowerCase()
+                                                              .contains(
+                                                                  textEditingValue
+                                                                      .text
+                                                                      .trim()
+                                                                      .toLowerCase());
+                                                        });
+                                                      },
+                                                      onSelected:
+                                                          (String selection) {
+                                                        viewGroupController
+                                                            .addTags(selection);
+                                                        tagName.clear();
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                      },
+                                                    ),
+                                                    const Text(
+                                                      'Filter by tag',
+                                                      style: TextStyle(
+                                                          fontSize: 10),
+                                                    ),
+                                                  ],
+                                                )),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.all(10),
-                                          filled: true,
-                                          fillColor: Colors.white70,
-                                          prefixIcon: const Icon(
-                                            Icons.search,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            Autocomplete<String>(
-                                              displayStringForOption: (c) =>
-                                                  c.toString(),
-                                              optionsBuilder: (TextEditingValue
-                                                  textEditingValue) {
-                                                if (textEditingValue.text ==
-                                                    '') {
-                                                  return const Iterable<
-                                                      String>.empty();
-                                                }
-                                                return viewGroupController
-                                                    .allTags
-                                                    .where((String option) {
-                                                  return option
-                                                      .trim()
-                                                      .toLowerCase()
-                                                      .contains(textEditingValue
-                                                          .text
-                                                          .trim()
-                                                          .toLowerCase());
-                                                });
-                                              },
-                                              onSelected: (String selection) {
-                                                viewGroupController
-                                                    .addTags(selection);
-                                                tagName.clear();
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                              },
-                                            ),
-                                            const Text(
-                                              'Filter by tag',
-                                              style: TextStyle(fontSize: 10),
-                                            ),
-                                          ],
-                                        )),
                                   ),
+
                                   const SizedBox(
                                     width: 10,
                                   ),
@@ -473,7 +743,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                               return Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                        horizontal: 5),
+                                                        horizontal: 5,
+                                                        vertical: 10),
                                                 child: Stack(
                                                   alignment: Alignment.topLeft,
                                                   children: [
@@ -621,6 +892,12 @@ class _ViewGroupState extends State<ViewGroup> {
                                                             5,
                                                   ),
                                                   const Text(
+                                                    'Your group is empty...',
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  const Text(
                                                     'Add a favorite',
                                                     style: TextStyle(
                                                         color: Colors.white),
@@ -628,7 +905,10 @@ class _ViewGroupState extends State<ViewGroup> {
                                                   InkWell(
                                                     onTap: () {
                                                       Get.to(() => AddVideoPage(
-                                                                index: 1,
+                                                                index: widget
+                                                                        .isFromGroup
+                                                                    ? 1
+                                                                    : 0,
                                                                 group: widget
                                                                     .currentGroup,
                                                                 isFromFavPage:
@@ -691,107 +971,58 @@ class _ViewGroupState extends State<ViewGroup> {
                                               viewGroupController
                                                   .addToControllerList(
                                                       _controller);
+                                              TextEditingController
+                                                  commentController =
+                                                  TextEditingController();
 
                                               return landingPagecontroller
                                                           .userProfile
                                                           .value
                                                           .name ==
                                                       widget.currentGroup.owner
-                                                  ? Stack(
-                                                      children: [
-                                                        InkWell(
-                                                          onTap: () {
-                                                            Get.to(() =>
+                                                  ? InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
                                                                 FullScreenPage(
                                                                     index: 1,
                                                                     post: currentPosts[
-                                                                        index]));
-                                                          },
-                                                          child: VideoWidget(
-                                                            post: currentPosts[
-                                                                index],
-                                                            user:
-                                                                landingPagecontroller
-                                                                    .userProfile
-                                                                    .value,
-                                                            thumbnailUrl: YoutubePlayer.getThumbnail(
-                                                                videoId: YoutubePlayer.convertUrlToId(
-                                                                    currentPosts[
-                                                                            index]
-                                                                        .youtubeLink)!),
-                                                            viewGroupFunc: () {
-                                                              loadingDialog();
-                                                              FirebaseFirestore
-                                                                  .instance
-                                                                  .collection(
-                                                                      "groups")
-                                                                  .where('name',
-                                                                      isEqualTo:
-                                                                          currentPosts[index]
-                                                                              .groupName)
-                                                                  .get()
-                                                                  .then(
-                                                                      (value) {
-                                                                Get.back();
-                                                                if (value.docs
-                                                                    .isNotEmpty) {
-                                                                  Get.to(() =>
-                                                                      ViewGroup(
-                                                                        index: widget
-                                                                            .index,
-                                                                        currentGroup: Group.fromJson(value
-                                                                            .docs
-                                                                            .first
-                                                                            .data()),
-                                                                        isFromGroup:
-                                                                            true,
-                                                                      ));
-                                                                }
-                                                              });
-                                                            },
-                                                            isInsideGroup: true,
-                                                            reportFunction: () {
-                                                              _pullRefresh();
-                                                            },
-                                                          ),
-                                                        ),
-                                                        InkWell(
-                                                          onTap: () {
-                                                            viewGroupController
-                                                                .deletePost(
-                                                                    widget
-                                                                        .currentGroup,
-                                                                    currentPosts[
-                                                                        index]);
-                                                          },
-                                                          child: const Align(
-                                                              alignment:
-                                                                  Alignment
-                                                                      .topRight,
-                                                              child:
-                                                                  CircleAvatar(
-                                                                radius: 10,
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white70,
-                                                                child: Icon(
-                                                                  Icons.close,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 8,
-                                                                ),
-                                                              )),
-                                                        )
-                                                      ],
-                                                    )
-                                                  : InkWell(
-                                                      onTap: () {
-                                                        Get.to(() =>
-                                                            FullScreenPage(
-                                                                index: 1,
-                                                                post:
-                                                                    currentPosts[
-                                                                        index]));
+                                                                        index],
+                                                                    isOwner: currentPosts[index]
+                                                                            .creator ==
+                                                                        landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .name,
+                                                                    commentController:
+                                                                        commentController,
+                                                                    addCommentFunction:
+                                                                        () {
+                                                                      viewGroupController.addComment(Comment(
+                                                                          postName: currentPosts[index]
+                                                                              .name,
+                                                                          postLink: currentPosts[index]
+                                                                              .youtubeLink,
+                                                                          postCreator: currentPosts[index]
+                                                                              .creator,
+                                                                          postGroup: currentPosts[index]
+                                                                              .groupName,
+                                                                          commenter: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                          commenterUrl: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .imageUrl,
+                                                                          commentText: commentController
+                                                                              .text,
+                                                                          addedTime:
+                                                                              DateTime.now()));
+                                                                      commentController
+                                                                          .clear();
+                                                                    }))!
+                                                            .then((value) =>
+                                                                _pullRefresh());
                                                       },
                                                       child: VideoWidget(
                                                         post:
@@ -800,12 +1031,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                             landingPagecontroller
                                                                 .userProfile
                                                                 .value,
-                                                        thumbnailUrl: YoutubePlayer.getThumbnail(
-                                                            videoId: YoutubePlayer
-                                                                .convertUrlToId(
-                                                                    currentPosts[
-                                                                            index]
-                                                                        .youtubeLink)!),
+                                                        thumbnailUrl:
+                                                            "https://img.youtube.com/vi/${YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!}/hqdefault.jpg",
                                                         viewGroupFunc: () {
                                                           loadingDialog();
                                                           FirebaseFirestore
@@ -838,6 +1065,237 @@ class _ViewGroupState extends State<ViewGroup> {
                                                         },
                                                         isInsideGroup: true,
                                                         reportFunction: () {
+                                                          _pullRefresh();
+                                                        },
+                                                        commentList:
+                                                            currentPosts[index]
+                                                                    .comments ??
+                                                                [],
+                                                        textController:
+                                                            commentController,
+                                                        commentFunction: () {
+                                                          viewGroupController.addComment(Comment(
+                                                              postName: currentPosts[index]
+                                                                  .name,
+                                                              postLink: currentPosts[
+                                                                      index]
+                                                                  .youtubeLink,
+                                                              postCreator:
+                                                                  currentPosts[index]
+                                                                      .creator,
+                                                              postGroup: currentPosts[
+                                                                      index]
+                                                                  .groupName,
+                                                              commenter:
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
+                                                                      .name,
+                                                              commenterUrl:
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
+                                                                      .imageUrl,
+                                                              commentText:
+                                                                  commentController
+                                                                      .text,
+                                                              addedTime:
+                                                                  DateTime.now()));
+                                                          commentController
+                                                              .clear();
+                                                          _pullRefresh();
+                                                        },
+                                                        viewCommentFunction:
+                                                            () {
+                                                          Get.to(() =>
+                                                                  FullScreenPage(
+                                                                      index: 1,
+                                                                      post: currentPosts[
+                                                                          index],
+                                                                      isOwner: currentPosts[index]
+                                                                              .creator ==
+                                                                          landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                      commentController:
+                                                                          commentController,
+                                                                      addCommentFunction:
+                                                                          () {
+                                                                        viewGroupController.addComment(Comment(
+                                                                            postName:
+                                                                                currentPosts[index].name,
+                                                                            postLink: currentPosts[index].youtubeLink,
+                                                                            postCreator: currentPosts[index].creator,
+                                                                            postGroup: currentPosts[index].groupName,
+                                                                            commenter: landingPagecontroller.userProfile.value.name,
+                                                                            commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                            commentText: commentController.text,
+                                                                            addedTime: DateTime.now()));
+                                                                        commentController
+                                                                            .clear();
+                                                                      }))!
+                                                              .then((value) =>
+                                                                  _pullRefresh());
+                                                        },
+                                                      ),
+                                                    )
+                                                  : InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
+                                                                FullScreenPage(
+                                                                    index: 1,
+                                                                    post: currentPosts[
+                                                                        index],
+                                                                    isOwner: currentPosts[index]
+                                                                            .creator ==
+                                                                        landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .name,
+                                                                    commentController:
+                                                                        commentController,
+                                                                    addCommentFunction:
+                                                                        () {
+                                                                      viewGroupController.addComment(Comment(
+                                                                          postName: currentPosts[index]
+                                                                              .name,
+                                                                          postLink: currentPosts[index]
+                                                                              .youtubeLink,
+                                                                          postCreator: currentPosts[index]
+                                                                              .creator,
+                                                                          postGroup: currentPosts[index]
+                                                                              .groupName,
+                                                                          commenter: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                          commenterUrl: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .imageUrl,
+                                                                          commentText: commentController
+                                                                              .text,
+                                                                          addedTime:
+                                                                              DateTime.now()));
+                                                                      commentController
+                                                                          .clear();
+                                                                    }))!
+                                                            .then((value) =>
+                                                                _pullRefresh());
+                                                      },
+                                                      child: VideoWidget(
+                                                        viewCommentFunction:
+                                                            () {
+                                                          Get.to(() =>
+                                                                  FullScreenPage(
+                                                                      index: 1,
+                                                                      post: currentPosts[
+                                                                          index],
+                                                                      isOwner: currentPosts[index]
+                                                                              .creator ==
+                                                                          landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                      commentController:
+                                                                          commentController,
+                                                                      addCommentFunction:
+                                                                          () {
+                                                                        viewGroupController.addComment(Comment(
+                                                                            postName:
+                                                                                currentPosts[index].name,
+                                                                            postLink: currentPosts[index].youtubeLink,
+                                                                            postCreator: currentPosts[index].creator,
+                                                                            postGroup: currentPosts[index].groupName,
+                                                                            commenter: landingPagecontroller.userProfile.value.name,
+                                                                            commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                            commentText: commentController.text,
+                                                                            addedTime: DateTime.now()));
+                                                                        commentController
+                                                                            .clear();
+                                                                      }))!
+                                                              .then((value) =>
+                                                                  _pullRefresh());
+                                                        },
+                                                        post:
+                                                            currentPosts[index],
+                                                        user:
+                                                            landingPagecontroller
+                                                                .userProfile
+                                                                .value,
+                                                        thumbnailUrl:
+                                                            "https://img.youtube.com/vi/${YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!}/hqdefault.jpg",
+                                                        viewGroupFunc: () {
+                                                          loadingDialog();
+                                                          FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  "groups")
+                                                              .where('name',
+                                                                  isEqualTo: currentPosts[
+                                                                          index]
+                                                                      .groupName)
+                                                              .get()
+                                                              .then((value) {
+                                                            Get.back();
+                                                            if (value.docs
+                                                                .isNotEmpty) {
+                                                              Get.to(() =>
+                                                                  ViewGroup(
+                                                                    index: widget
+                                                                        .index,
+                                                                    currentGroup:
+                                                                        Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                    isFromGroup:
+                                                                        true,
+                                                                  ));
+                                                            }
+                                                          });
+                                                        },
+                                                        isInsideGroup: true,
+                                                        reportFunction: () {
+                                                          _pullRefresh();
+                                                        },
+                                                        commentList:
+                                                            currentPosts[index]
+                                                                    .comments ??
+                                                                [],
+                                                        textController:
+                                                            commentController,
+                                                        commentFunction: () {
+                                                          viewGroupController.addComment(Comment(
+                                                              postName: currentPosts[index]
+                                                                  .name,
+                                                              postLink: currentPosts[
+                                                                      index]
+                                                                  .youtubeLink,
+                                                              postCreator:
+                                                                  currentPosts[index]
+                                                                      .creator,
+                                                              postGroup: currentPosts[
+                                                                      index]
+                                                                  .groupName,
+                                                              commenter:
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
+                                                                      .name,
+                                                              commenterUrl:
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
+                                                                      .imageUrl,
+                                                              commentText:
+                                                                  commentController
+                                                                      .text,
+                                                              addedTime:
+                                                                  DateTime.now()));
+                                                          commentController
+                                                              .clear();
                                                           _pullRefresh();
                                                         },
                                                       ),
@@ -879,121 +1337,101 @@ class _ViewGroupState extends State<ViewGroup> {
                                               viewGroupController
                                                   .addToControllerList(
                                                       _controller);
+                                              TextEditingController
+                                                  commentController =
+                                                  TextEditingController();
 
                                               return landingPagecontroller
                                                           .userProfile
                                                           .value
                                                           .name ==
                                                       widget.currentGroup.owner
-                                                  ? Stack(
-                                                      children: [
-                                                        InkWell(
-                                                          onTap: () {
-                                                            Get.to(() =>
+                                                  ? InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
                                                                 FullScreenPage(
                                                                     index: 1,
                                                                     post: currentPosts[
-                                                                        index]));
-                                                          },
-                                                          child: VideoWidget(
-                                                            post: currentPosts[
-                                                                index],
-                                                            user:
-                                                                landingPagecontroller
-                                                                    .userProfile
-                                                                    .value,
-                                                            thumbnailUrl: YoutubePlayer.getThumbnail(
-                                                                videoId: YoutubePlayer.convertUrlToId(
-                                                                    currentPosts[
-                                                                            index]
-                                                                        .youtubeLink)!),
-                                                            viewGroupFunc: () {
-                                                              loadingDialog();
-                                                              FirebaseFirestore
-                                                                  .instance
-                                                                  .collection(
-                                                                      "groups")
-                                                                  .where('name',
-                                                                      isEqualTo:
-                                                                          currentPosts[index]
-                                                                              .groupName)
-                                                                  .get()
-                                                                  .then(
-                                                                      (value) {
-                                                                Get.back();
-                                                                if (value.docs
-                                                                    .isNotEmpty) {
-                                                                  Get.to(() =>
-                                                                      ViewGroup(
-                                                                        index: widget
-                                                                            .index,
-                                                                        currentGroup: Group.fromJson(value
-                                                                            .docs
-                                                                            .first
-                                                                            .data()),
-                                                                        isFromGroup:
-                                                                            true,
-                                                                      ));
-                                                                }
-                                                              });
-                                                            },
-                                                            isInsideGroup: true,
-                                                            reportFunction: () {
-                                                              _pullRefresh();
-                                                            },
-                                                          ),
-                                                        ),
-                                                        InkWell(
-                                                          onTap: () {
-                                                            viewGroupController
-                                                                .deletePost(
-                                                                    widget
-                                                                        .currentGroup,
-                                                                    currentPosts[
-                                                                        index]);
-                                                          },
-                                                          child: const Align(
-                                                              alignment:
-                                                                  Alignment
-                                                                      .topRight,
-                                                              child:
-                                                                  CircleAvatar(
-                                                                radius: 10,
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white70,
-                                                                child: Icon(
-                                                                  Icons.close,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 8,
-                                                                ),
-                                                              )),
-                                                        )
-                                                      ],
-                                                    )
-                                                  : InkWell(
-                                                      onTap: () {
-                                                        Get.to(() =>
-                                                            FullScreenPage(
-                                                                index: 1,
-                                                                post:
-                                                                    currentPosts[
-                                                                        index]));
+                                                                        index],
+                                                                    isOwner: currentPosts[index]
+                                                                            .creator ==
+                                                                        landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .name,
+                                                                    commentController:
+                                                                        commentController,
+                                                                    addCommentFunction:
+                                                                        () {
+                                                                      viewGroupController.addComment(Comment(
+                                                                          postName: currentPosts[index]
+                                                                              .name,
+                                                                          postLink: currentPosts[index]
+                                                                              .youtubeLink,
+                                                                          postCreator: currentPosts[index]
+                                                                              .creator,
+                                                                          postGroup: currentPosts[index]
+                                                                              .groupName,
+                                                                          commenter: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                          commenterUrl: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .imageUrl,
+                                                                          commentText: commentController
+                                                                              .text,
+                                                                          addedTime:
+                                                                              DateTime.now()));
+                                                                      commentController
+                                                                          .clear();
+                                                                    }))!
+                                                            .then((value) =>
+                                                                _pullRefresh());
                                                       },
                                                       child: VideoWidget(
+                                                        viewCommentFunction:
+                                                            () {
+                                                          Get.to(() =>
+                                                                  FullScreenPage(
+                                                                      index: 1,
+                                                                      post: currentPosts[
+                                                                          index],
+                                                                      isOwner: currentPosts[index]
+                                                                              .creator ==
+                                                                          landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                      commentController:
+                                                                          commentController,
+                                                                      addCommentFunction:
+                                                                          () {
+                                                                        viewGroupController.addComment(Comment(
+                                                                            postName:
+                                                                                currentPosts[index].name,
+                                                                            postLink: currentPosts[index].youtubeLink,
+                                                                            postCreator: currentPosts[index].creator,
+                                                                            postGroup: currentPosts[index].groupName,
+                                                                            commenter: landingPagecontroller.userProfile.value.name,
+                                                                            commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                            commentText: commentController.text,
+                                                                            addedTime: DateTime.now()));
+                                                                        commentController
+                                                                            .clear();
+                                                                      }))!
+                                                              .then((value) =>
+                                                                  _pullRefresh());
+                                                        },
                                                         post:
                                                             currentPosts[index],
                                                         user:
                                                             landingPagecontroller
                                                                 .userProfile
                                                                 .value,
-                                                        thumbnailUrl: YoutubePlayer.getThumbnail(
-                                                            videoId: YoutubePlayer
-                                                                .convertUrlToId(
-                                                                    currentPosts[
-                                                                            index]
-                                                                        .youtubeLink)!),
+                                                        thumbnailUrl:
+                                                            "https://img.youtube.com/vi/${YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!}/hqdefault.jpg",
                                                         viewGroupFunc: () {
                                                           loadingDialog();
                                                           FirebaseFirestore
@@ -1028,16 +1466,343 @@ class _ViewGroupState extends State<ViewGroup> {
                                                         reportFunction: () {
                                                           _pullRefresh();
                                                         },
+                                                        commentList:
+                                                            currentPosts[index]
+                                                                    .comments ??
+                                                                [],
+                                                        textController:
+                                                            commentController,
+                                                        commentFunction: () {
+                                                          viewGroupController.addComment(Comment(
+                                                              postName: currentPosts[index]
+                                                                  .name,
+                                                              postLink: currentPosts[
+                                                                      index]
+                                                                  .youtubeLink,
+                                                              postCreator:
+                                                                  currentPosts[index]
+                                                                      .creator,
+                                                              postGroup: currentPosts[
+                                                                      index]
+                                                                  .groupName,
+                                                              commenter:
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
+                                                                      .name,
+                                                              commenterUrl:
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
+                                                                      .imageUrl,
+                                                              commentText:
+                                                                  commentController
+                                                                      .text,
+                                                              addedTime:
+                                                                  DateTime.now()));
+                                                          commentController
+                                                              .clear();
+                                                          _pullRefresh();
+                                                        },
+                                                      ),
+                                                    )
+                                                  : InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
+                                                                FullScreenPage(
+                                                                    index: 1,
+                                                                    post: currentPosts[
+                                                                        index],
+                                                                    isOwner: currentPosts[index]
+                                                                            .creator ==
+                                                                        landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .name,
+                                                                    commentController:
+                                                                        commentController,
+                                                                    addCommentFunction:
+                                                                        () {
+                                                                      viewGroupController.addComment(Comment(
+                                                                          postName: currentPosts[index]
+                                                                              .name,
+                                                                          postLink: currentPosts[index]
+                                                                              .youtubeLink,
+                                                                          postCreator: currentPosts[index]
+                                                                              .creator,
+                                                                          postGroup: currentPosts[index]
+                                                                              .groupName,
+                                                                          commenter: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                          commenterUrl: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .imageUrl,
+                                                                          commentText: commentController
+                                                                              .text,
+                                                                          addedTime:
+                                                                              DateTime.now()));
+                                                                      commentController
+                                                                          .clear();
+                                                                    }))!
+                                                            .then((value) =>
+                                                                _pullRefresh());
+                                                      },
+                                                      child: VideoWidget(
+                                                        viewCommentFunction:
+                                                            () {
+                                                          Get.to(() =>
+                                                                  FullScreenPage(
+                                                                      index: 1,
+                                                                      post: currentPosts[
+                                                                          index],
+                                                                      isOwner: currentPosts[index]
+                                                                              .creator ==
+                                                                          landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                      commentController:
+                                                                          commentController,
+                                                                      addCommentFunction:
+                                                                          () {
+                                                                        viewGroupController.addComment(Comment(
+                                                                            postName:
+                                                                                currentPosts[index].name,
+                                                                            postLink: currentPosts[index].youtubeLink,
+                                                                            postCreator: currentPosts[index].creator,
+                                                                            postGroup: currentPosts[index].groupName,
+                                                                            commenter: landingPagecontroller.userProfile.value.name,
+                                                                            commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                            commentText: commentController.text,
+                                                                            addedTime: DateTime.now()));
+                                                                        commentController
+                                                                            .clear();
+                                                                      }))!
+                                                              .then((value) =>
+                                                                  _pullRefresh());
+                                                        },
+                                                        post:
+                                                            currentPosts[index],
+                                                        user:
+                                                            landingPagecontroller
+                                                                .userProfile
+                                                                .value,
+                                                        thumbnailUrl:
+                                                            "https://img.youtube.com/vi/${YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!}/hqdefault.jpg",
+                                                        viewGroupFunc: () {
+                                                          loadingDialog();
+                                                          FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  "groups")
+                                                              .where('name',
+                                                                  isEqualTo: currentPosts[
+                                                                          index]
+                                                                      .groupName)
+                                                              .get()
+                                                              .then((value) {
+                                                            Get.back();
+                                                            if (value.docs
+                                                                .isNotEmpty) {
+                                                              Get.to(() =>
+                                                                  ViewGroup(
+                                                                    index: widget
+                                                                        .index,
+                                                                    currentGroup:
+                                                                        Group.fromJson(value
+                                                                            .docs
+                                                                            .first
+                                                                            .data()),
+                                                                    isFromGroup:
+                                                                        true,
+                                                                  ));
+                                                            }
+                                                          });
+                                                        },
+                                                        isInsideGroup: true,
+                                                        reportFunction: () {
+                                                          _pullRefresh();
+                                                        },
+                                                        commentList:
+                                                            currentPosts[index]
+                                                                    .comments ??
+                                                                [],
+                                                        textController:
+                                                            commentController,
+                                                        commentFunction: () {
+                                                          viewGroupController.addComment(Comment(
+                                                              postName: currentPosts[index]
+                                                                  .name,
+                                                              postLink: currentPosts[
+                                                                      index]
+                                                                  .youtubeLink,
+                                                              postCreator:
+                                                                  currentPosts[index]
+                                                                      .creator,
+                                                              postGroup: currentPosts[
+                                                                      index]
+                                                                  .groupName,
+                                                              commenter:
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
+                                                                      .name,
+                                                              commenterUrl:
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
+                                                                      .imageUrl,
+                                                              commentText:
+                                                                  commentController
+                                                                      .text,
+                                                              addedTime:
+                                                                  DateTime.now()));
+                                                          commentController
+                                                              .clear();
+                                                          _pullRefresh();
+                                                        },
                                                       ),
                                                     );
                                             })),
+
+                            const SizedBox(
+                              height: 50,
+                            ),
                           ],
                         ),
+
+                  ///------------------------------------------------//
                   widget.isFromGroup
                       ? ListView(
                           children: [
-                            const SizedBox(
-                              height: 10,
+                            // Title
+                            Obx(
+                              () => landingPagecontroller.isDeviceTablet.value
+                                  ? Row(
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.arrow_back,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: () {
+                                            if (widget.isFromGroup) {
+                                              landingPagecontroller
+                                                  .changeTabIndex(1);
+                                              Get.back();
+                                              Get.back();
+                                            } else {
+                                              landingPagecontroller
+                                                  .changeTabIndex(0);
+                                              Get.back();
+                                              Get.back();
+                                            }
+                                          },
+                                        ),
+                                        Expanded(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Obx(
+                                                () => Text(
+                                                  viewGroupController
+                                                          .groupName.value
+                                                          .contains('#')
+                                                      ? viewGroupController
+                                                          .groupName.value
+                                                          .substring(
+                                                              0,
+                                                              viewGroupController
+                                                                  .groupName
+                                                                  .value
+                                                                  .indexOf('#'))
+                                                      : viewGroupController
+                                                          .groupName.value,
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      overflow: TextOverflow
+                                                          .ellipsis),
+                                                ),
+                                              ),
+                                              landingPagecontroller.userProfile
+                                                          .value.name ==
+                                                      widget.currentGroup.owner
+                                                  ? Row(
+                                                      children: [
+                                                        IconButton(
+                                                            onPressed: () {
+                                                              if (widget
+                                                                  .isFromGroup) {
+                                                                Get.to(() =>
+                                                                        EditGroupPage(
+                                                                          currentGroup:
+                                                                              widget.currentGroup,
+                                                                          index:
+                                                                              1,
+                                                                        ))!
+                                                                    .then((value) =>
+                                                                        _pullRefresh());
+                                                              } else {
+                                                                Get.to(() =>
+                                                                        EditGroupPage(
+                                                                          currentGroup:
+                                                                              widget.currentGroup,
+                                                                          index:
+                                                                              0,
+                                                                        ))!
+                                                                    .then((value) =>
+                                                                        _pullRefresh());
+                                                              }
+                                                            },
+                                                            icon: const Icon(
+                                                              Icons.edit,
+                                                              color:
+                                                                  Colors.white,
+                                                              size: 20,
+                                                            ))
+                                                      ],
+                                                    )
+                                                  : const SizedBox.shrink(),
+                                            ],
+                                          ),
+                                        ),
+                                        // Only owner can add video to group
+                                        landingPagecontroller
+                                                    .userProfile.value.name ==
+                                                widget.currentGroup.owner
+                                            ? IconButton(
+                                                onPressed: () {
+                                                  Get.to(() => AddVideoPage(
+                                                            index: widget
+                                                                    .isFromGroup
+                                                                ? 1
+                                                                : 0,
+                                                            group: widget
+                                                                .currentGroup,
+                                                            isFromFavPage:
+                                                                !widget
+                                                                    .isFromGroup,
+                                                            isFromViewGroup:
+                                                                true,
+                                                          ))!
+                                                      .then((value) =>
+                                                          _pullRefresh());
+                                                },
+                                                icon: Image.asset(
+                                                  'assets/icons/FavAdd.png',
+                                                  width: 60,
+                                                  height: 60,
+                                                ))
+                                            : const SizedBox.shrink(),
+                                      ],
+                                    )
+                                  : const SizedBox.shrink(),
                             ),
                             // Friends area
                             Row(
@@ -1198,66 +1963,112 @@ class _ViewGroupState extends State<ViewGroup> {
                                 shrinkWrap: true,
                                 scrollDirection: Axis.horizontal,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    height:
-                                        MediaQuery.of(context).size.height / 15,
-                                    width:
-                                        MediaQuery.of(context).size.width / 1.8,
-                                    child: InputDecorator(
-                                        decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
+                                  Obx(
+                                    () => !viewGroupController.isFilterOn.value
+                                        ? IconButton(
+                                            onPressed: () {
+                                              viewGroupController.setFilterOn();
+                                            },
+                                            icon: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 5),
+                                              child: CircleAvatar(
+                                                radius: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    30,
+                                                backgroundColor: Colors.white,
+                                                child: Icon(
+                                                  Icons.search,
+                                                  size: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      50,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ))
+                                        : Container(
+                                            padding:
+                                                const EdgeInsets.only(left: 10),
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                15,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                1.8,
+                                            child: InputDecorator(
+                                                decoration: InputDecoration(
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30.0),
+                                                  ),
+                                                  contentPadding:
+                                                      const EdgeInsets.all(10),
+                                                  filled: true,
+                                                  fillColor: Colors.white70,
+                                                  prefixIcon: InkWell(
+                                                    onTap: () {
+                                                      viewGroupController
+                                                          .setFilterOn();
+                                                    },
+                                                    child: const Icon(
+                                                      Icons.search,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Stack(
+                                                  children: [
+                                                    Autocomplete<String>(
+                                                      displayStringForOption:
+                                                          (c) => c.toString(),
+                                                      optionsBuilder:
+                                                          (TextEditingValue
+                                                              textEditingValue) {
+                                                        if (textEditingValue
+                                                                .text ==
+                                                            '') {
+                                                          return const Iterable<
+                                                              String>.empty();
+                                                        }
+                                                        return viewGroupController
+                                                            .allTags
+                                                            .where((String
+                                                                option) {
+                                                          return option
+                                                              .trim()
+                                                              .toLowerCase()
+                                                              .contains(
+                                                                  textEditingValue
+                                                                      .text
+                                                                      .trim()
+                                                                      .toLowerCase());
+                                                        });
+                                                      },
+                                                      onSelected:
+                                                          (String selection) {
+                                                        viewGroupController
+                                                            .addTags(selection);
+                                                        tagName.clear();
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                      },
+                                                    ),
+                                                    const Text(
+                                                      'Filter by tag',
+                                                      style: TextStyle(
+                                                          fontSize: 10),
+                                                    ),
+                                                  ],
+                                                )),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.all(10),
-                                          filled: true,
-                                          fillColor: Colors.white70,
-                                          prefixIcon: const Icon(
-                                            Icons.search,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            Autocomplete<String>(
-                                              displayStringForOption: (c) =>
-                                                  c.toString(),
-                                              optionsBuilder: (TextEditingValue
-                                                  textEditingValue) {
-                                                if (textEditingValue.text ==
-                                                    '') {
-                                                  return const Iterable<
-                                                      String>.empty();
-                                                }
-                                                return viewGroupController
-                                                    .allTags
-                                                    .where((String option) {
-                                                  return option
-                                                      .trim()
-                                                      .toLowerCase()
-                                                      .contains(textEditingValue
-                                                          .text
-                                                          .trim()
-                                                          .toLowerCase());
-                                                });
-                                              },
-                                              onSelected: (String selection) {
-                                                viewGroupController
-                                                    .addTags(selection);
-                                                tagName.clear();
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                              },
-                                            ),
-                                            const Text(
-                                              'Filter by tag',
-                                              style: TextStyle(fontSize: 10),
-                                            ),
-                                          ],
-                                        )),
                                   ),
+
                                   const SizedBox(
                                     width: 10,
                                   ),
@@ -1274,7 +2085,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                               return Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                        horizontal: 5),
+                                                        horizontal: 5,
+                                                        vertical: 10),
                                                 child: Stack(
                                                   alignment: Alignment.topLeft,
                                                   children: [
@@ -1422,6 +2234,12 @@ class _ViewGroupState extends State<ViewGroup> {
                                                             5,
                                                   ),
                                                   const Text(
+                                                    'Your group is empty...',
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  const Text(
                                                     'Add a favorite',
                                                     style: TextStyle(
                                                         color: Colors.white),
@@ -1429,7 +2247,10 @@ class _ViewGroupState extends State<ViewGroup> {
                                                   InkWell(
                                                     onTap: () {
                                                       Get.to(() => AddVideoPage(
-                                                                index: 1,
+                                                                index: widget
+                                                                        .isFromGroup
+                                                                    ? 1
+                                                                    : 0,
                                                                 group: widget
                                                                     .currentGroup,
                                                                 isFromFavPage:
@@ -1492,156 +2313,319 @@ class _ViewGroupState extends State<ViewGroup> {
                                               viewGroupController
                                                   .addToControllerList(
                                                       _controller);
-
+                                              TextEditingController
+                                                  commentController =
+                                                  TextEditingController();
                                               return landingPagecontroller
                                                           .userProfile
                                                           .value
                                                           .name ==
                                                       widget.currentGroup.owner
-                                                  ? Stack(
-                                                      children: [
-                                                        InkWell(
-                                                          onTap: () {
-                                                            Get.to(() =>
+                                                  ? InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
                                                                 FullScreenPage(
                                                                     index: 1,
                                                                     post: currentPosts[
-                                                                        index]));
+                                                                        index],
+                                                                    isOwner: currentPosts[index]
+                                                                            .creator ==
+                                                                        landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .name,
+                                                                    commentController:
+                                                                        commentController,
+                                                                    addCommentFunction:
+                                                                        () {
+                                                                      viewGroupController.addComment(Comment(
+                                                                          postName: currentPosts[index]
+                                                                              .name,
+                                                                          postLink: currentPosts[index]
+                                                                              .youtubeLink,
+                                                                          postCreator: currentPosts[index]
+                                                                              .creator,
+                                                                          postGroup: currentPosts[index]
+                                                                              .groupName,
+                                                                          commenter: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                          commenterUrl: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .imageUrl,
+                                                                          commentText: commentController
+                                                                              .text,
+                                                                          addedTime:
+                                                                              DateTime.now()));
+                                                                      commentController
+                                                                          .clear();
+                                                                    }))!
+                                                            .then((value) =>
+                                                                _pullRefresh());
+                                                      },
+                                                      child: VideoWidget(
+                                                          viewCommentFunction:
+                                                              () {
+                                                            Get.to(() =>
+                                                                    FullScreenPage(
+                                                                        index:
+                                                                            1,
+                                                                        post: currentPosts[
+                                                                            index],
+                                                                        isOwner: currentPosts[index].creator ==
+                                                                            landingPagecontroller
+                                                                                .userProfile.value.name,
+                                                                        commentController:
+                                                                            commentController,
+                                                                        addCommentFunction:
+                                                                            () {
+                                                                          viewGroupController.addComment(Comment(
+                                                                              postName: currentPosts[index].name,
+                                                                              postLink: currentPosts[index].youtubeLink,
+                                                                              postCreator: currentPosts[index].creator,
+                                                                              postGroup: currentPosts[index].groupName,
+                                                                              commenter: landingPagecontroller.userProfile.value.name,
+                                                                              commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                              commentText: commentController.text,
+                                                                              addedTime: DateTime.now()));
+                                                                          commentController
+                                                                              .clear();
+                                                                        }))!
+                                                                .then((value) =>
+                                                                    _pullRefresh());
                                                           },
-                                                          child: VideoWidget(
-                                                            post: currentPosts[
-                                                                index],
-                                                            user:
-                                                                landingPagecontroller
-                                                                    .userProfile
-                                                                    .value,
-                                                            thumbnailUrl: YoutubePlayer.getThumbnail(
-                                                                videoId: YoutubePlayer.convertUrlToId(
-                                                                    currentPosts[
+                                                          post: currentPosts[
+                                                              index],
+                                                          user:
+                                                              landingPagecontroller
+                                                                  .userProfile
+                                                                  .value,
+                                                          thumbnailUrl:
+                                                              "https://img.youtube.com/vi/${YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!}/hqdefault.jpg",
+                                                          viewGroupFunc: () {
+                                                            loadingDialog();
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    "groups")
+                                                                .where('name',
+                                                                    isEqualTo: currentPosts[
                                                                             index]
-                                                                        .youtubeLink)!),
-                                                            viewGroupFunc: () {
-                                                              loadingDialog();
-                                                              FirebaseFirestore
-                                                                  .instance
-                                                                  .collection(
-                                                                      "groups")
-                                                                  .where('name',
-                                                                      isEqualTo:
-                                                                          currentPosts[index]
-                                                                              .groupName)
-                                                                  .get()
-                                                                  .then(
-                                                                      (value) {
-                                                                Get.back();
-                                                                if (value.docs
-                                                                    .isNotEmpty) {
-                                                                  Get.to(() =>
-                                                                      ViewGroup(
-                                                                        index: widget
-                                                                            .index,
-                                                                        currentGroup: Group.fromJson(value
-                                                                            .docs
-                                                                            .first
-                                                                            .data()),
-                                                                        isFromGroup:
-                                                                            true,
-                                                                      ));
-                                                                }
-                                                              });
-                                                            },
-                                                            isInsideGroup: true,
-                                                            reportFunction: () {
-                                                              _pullRefresh();
-                                                            },
-                                                          ),
-                                                        ),
-                                                        InkWell(
-                                                          onTap: () {
-                                                            viewGroupController
-                                                                .deletePost(
-                                                                    widget
-                                                                        .currentGroup,
-                                                                    currentPosts[
-                                                                        index]);
+                                                                        .groupName)
+                                                                .get()
+                                                                .then((value) {
+                                                              Get.back();
+                                                              if (value.docs
+                                                                  .isNotEmpty) {
+                                                                Get.to(() =>
+                                                                    ViewGroup(
+                                                                      index: widget
+                                                                          .index,
+                                                                      currentGroup: Group.fromJson(value
+                                                                          .docs
+                                                                          .first
+                                                                          .data()),
+                                                                      isFromGroup:
+                                                                          true,
+                                                                    ));
+                                                              }
+                                                            });
                                                           },
-                                                          child: const Align(
-                                                              alignment:
-                                                                  Alignment
-                                                                      .topRight,
-                                                              child:
-                                                                  CircleAvatar(
-                                                                radius: 10,
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white70,
-                                                                child: Icon(
-                                                                  Icons.close,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 8,
-                                                                ),
-                                                              )),
-                                                        )
-                                                      ],
+                                                          isInsideGroup: true,
+                                                          reportFunction: () {
+                                                            _pullRefresh();
+                                                          },
+                                                          commentList: const [],
+                                                          textController:
+                                                              commentController,
+                                                          commentFunction: () {
+                                                            viewGroupController.addComment(Comment(
+                                                                postName:
+                                                                    currentPosts[index]
+                                                                        .name,
+                                                                postLink: currentPosts[index]
+                                                                    .youtubeLink,
+                                                                postCreator:
+                                                                    currentPosts[index]
+                                                                        .creator,
+                                                                postGroup:
+                                                                    currentPosts[index]
+                                                                        .groupName,
+                                                                commenter:
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .name,
+                                                                commenterUrl:
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .imageUrl,
+                                                                commentText:
+                                                                    commentController
+                                                                        .text,
+                                                                addedTime:
+                                                                    DateTime
+                                                                        .now()));
+                                                            commentController
+                                                                .clear();
+                                                            _pullRefresh();
+                                                          }),
                                                     )
                                                   : InkWell(
                                                       onTap: () {
                                                         Get.to(() =>
-                                                            FullScreenPage(
-                                                                index: 1,
-                                                                post:
-                                                                    currentPosts[
-                                                                        index]));
+                                                                FullScreenPage(
+                                                                    index: 1,
+                                                                    post: currentPosts[
+                                                                        index],
+                                                                    isOwner: currentPosts[index]
+                                                                            .creator ==
+                                                                        landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .name,
+                                                                    commentController:
+                                                                        commentController,
+                                                                    addCommentFunction:
+                                                                        () {
+                                                                      viewGroupController.addComment(Comment(
+                                                                          postName: currentPosts[index]
+                                                                              .name,
+                                                                          postLink: currentPosts[index]
+                                                                              .youtubeLink,
+                                                                          postCreator: currentPosts[index]
+                                                                              .creator,
+                                                                          postGroup: currentPosts[index]
+                                                                              .groupName,
+                                                                          commenter: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                          commenterUrl: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .imageUrl,
+                                                                          commentText: commentController
+                                                                              .text,
+                                                                          addedTime:
+                                                                              DateTime.now()));
+                                                                      commentController
+                                                                          .clear();
+                                                                    }))!
+                                                            .then((value) =>
+                                                                _pullRefresh());
                                                       },
                                                       child: VideoWidget(
-                                                        post:
-                                                            currentPosts[index],
-                                                        user:
-                                                            landingPagecontroller
-                                                                .userProfile
-                                                                .value,
-                                                        thumbnailUrl: YoutubePlayer.getThumbnail(
-                                                            videoId: YoutubePlayer
-                                                                .convertUrlToId(
-                                                                    currentPosts[
+                                                          viewCommentFunction:
+                                                              () {
+                                                            Get.to(() =>
+                                                                    FullScreenPage(
+                                                                        index:
+                                                                            1,
+                                                                        post: currentPosts[
+                                                                            index],
+                                                                        isOwner: currentPosts[index].creator ==
+                                                                            landingPagecontroller
+                                                                                .userProfile.value.name,
+                                                                        commentController:
+                                                                            commentController,
+                                                                        addCommentFunction:
+                                                                            () {
+                                                                          viewGroupController.addComment(Comment(
+                                                                              postName: currentPosts[index].name,
+                                                                              postLink: currentPosts[index].youtubeLink,
+                                                                              postCreator: currentPosts[index].creator,
+                                                                              postGroup: currentPosts[index].groupName,
+                                                                              commenter: landingPagecontroller.userProfile.value.name,
+                                                                              commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                              commentText: commentController.text,
+                                                                              addedTime: DateTime.now()));
+                                                                          commentController
+                                                                              .clear();
+                                                                        }))!
+                                                                .then((value) =>
+                                                                    _pullRefresh());
+                                                          },
+                                                          post: currentPosts[
+                                                              index],
+                                                          user:
+                                                              landingPagecontroller
+                                                                  .userProfile
+                                                                  .value,
+                                                          thumbnailUrl:
+                                                              "https://img.youtube.com/vi/${YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!}/hqdefault.jpg",
+                                                          viewGroupFunc: () {
+                                                            loadingDialog();
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    "groups")
+                                                                .where('name',
+                                                                    isEqualTo: currentPosts[
                                                                             index]
-                                                                        .youtubeLink)!),
-                                                        viewGroupFunc: () {
-                                                          loadingDialog();
-                                                          FirebaseFirestore
-                                                              .instance
-                                                              .collection(
-                                                                  "groups")
-                                                              .where('name',
-                                                                  isEqualTo: currentPosts[
-                                                                          index]
-                                                                      .groupName)
-                                                              .get()
-                                                              .then((value) {
-                                                            Get.back();
-                                                            if (value.docs
-                                                                .isNotEmpty) {
-                                                              Get.to(() =>
-                                                                  ViewGroup(
-                                                                    index: widget
-                                                                        .index,
-                                                                    currentGroup:
-                                                                        Group.fromJson(value
-                                                                            .docs
-                                                                            .first
-                                                                            .data()),
-                                                                    isFromGroup:
-                                                                        true,
-                                                                  ));
-                                                            }
-                                                          });
-                                                        },
-                                                        isInsideGroup: true,
-                                                        reportFunction: () {
-                                                          _pullRefresh();
-                                                        },
-                                                      ),
+                                                                        .groupName)
+                                                                .get()
+                                                                .then((value) {
+                                                              Get.back();
+                                                              if (value.docs
+                                                                  .isNotEmpty) {
+                                                                Get.to(() =>
+                                                                    ViewGroup(
+                                                                      index: widget
+                                                                          .index,
+                                                                      currentGroup: Group.fromJson(value
+                                                                          .docs
+                                                                          .first
+                                                                          .data()),
+                                                                      isFromGroup:
+                                                                          true,
+                                                                    ));
+                                                              }
+                                                            });
+                                                          },
+                                                          isInsideGroup: true,
+                                                          reportFunction: () {
+                                                            _pullRefresh();
+                                                          },
+                                                          commentList: const [],
+                                                          textController:
+                                                              commentController,
+                                                          commentFunction: () {
+                                                            viewGroupController.addComment(Comment(
+                                                                postName:
+                                                                    currentPosts[index]
+                                                                        .name,
+                                                                postLink: currentPosts[index]
+                                                                    .youtubeLink,
+                                                                postCreator:
+                                                                    currentPosts[index]
+                                                                        .creator,
+                                                                postGroup:
+                                                                    currentPosts[index]
+                                                                        .groupName,
+                                                                commenter:
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .name,
+                                                                commenterUrl:
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .imageUrl,
+                                                                commentText:
+                                                                    commentController
+                                                                        .text,
+                                                                addedTime:
+                                                                    DateTime
+                                                                        .now()));
+                                                            commentController
+                                                                .clear();
+                                                            _pullRefresh();
+                                                          }),
                                                     );
                                             })
                                     // Filtered
@@ -1680,161 +2664,332 @@ class _ViewGroupState extends State<ViewGroup> {
                                               viewGroupController
                                                   .addToControllerList(
                                                       _controller);
-
+                                              TextEditingController
+                                                  commentController =
+                                                  TextEditingController();
                                               return landingPagecontroller
                                                           .userProfile
                                                           .value
                                                           .name ==
                                                       widget.currentGroup.owner
-                                                  ? Stack(
-                                                      children: [
-                                                        InkWell(
-                                                          onTap: () {
-                                                            Get.to(() =>
+                                                  ? InkWell(
+                                                      onTap: () {
+                                                        Get.to(() =>
                                                                 FullScreenPage(
                                                                     index: 1,
                                                                     post: currentPosts[
-                                                                        index]));
+                                                                        index],
+                                                                    isOwner: currentPosts[index]
+                                                                            .creator ==
+                                                                        landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .name,
+                                                                    commentController:
+                                                                        commentController,
+                                                                    addCommentFunction:
+                                                                        () {
+                                                                      viewGroupController.addComment(Comment(
+                                                                          postName: currentPosts[index]
+                                                                              .name,
+                                                                          postLink: currentPosts[index]
+                                                                              .youtubeLink,
+                                                                          postCreator: currentPosts[index]
+                                                                              .creator,
+                                                                          postGroup: currentPosts[index]
+                                                                              .groupName,
+                                                                          commenter: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                          commenterUrl: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .imageUrl,
+                                                                          commentText: commentController
+                                                                              .text,
+                                                                          addedTime:
+                                                                              DateTime.now()));
+                                                                      commentController
+                                                                          .clear();
+                                                                    }))!
+                                                            .then((value) =>
+                                                                _pullRefresh());
+                                                      },
+                                                      child: VideoWidget(
+                                                          viewCommentFunction:
+                                                              () {
+                                                            Get.to(() =>
+                                                                    FullScreenPage(
+                                                                        index:
+                                                                            1,
+                                                                        post: currentPosts[
+                                                                            index],
+                                                                        isOwner: currentPosts[index].creator ==
+                                                                            landingPagecontroller
+                                                                                .userProfile.value.name,
+                                                                        commentController:
+                                                                            commentController,
+                                                                        addCommentFunction:
+                                                                            () {
+                                                                          viewGroupController.addComment(Comment(
+                                                                              postName: currentPosts[index].name,
+                                                                              postLink: currentPosts[index].youtubeLink,
+                                                                              postCreator: currentPosts[index].creator,
+                                                                              postGroup: currentPosts[index].groupName,
+                                                                              commenter: landingPagecontroller.userProfile.value.name,
+                                                                              commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                              commentText: commentController.text,
+                                                                              addedTime: DateTime.now()));
+                                                                          commentController
+                                                                              .clear();
+                                                                        }))!
+                                                                .then((value) =>
+                                                                    _pullRefresh());
                                                           },
-                                                          child: VideoWidget(
-                                                            post: currentPosts[
-                                                                index],
-                                                            user:
-                                                                landingPagecontroller
-                                                                    .userProfile
-                                                                    .value,
-                                                            thumbnailUrl: YoutubePlayer.getThumbnail(
-                                                                videoId: YoutubePlayer.convertUrlToId(
-                                                                    currentPosts[
+                                                          post: currentPosts[
+                                                              index],
+                                                          user:
+                                                              landingPagecontroller
+                                                                  .userProfile
+                                                                  .value,
+                                                          thumbnailUrl:
+                                                              "https://img.youtube.com/vi/${YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!}/hqdefault.jpg",
+                                                          viewGroupFunc: () {
+                                                            loadingDialog();
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    "groups")
+                                                                .where('name',
+                                                                    isEqualTo: currentPosts[
                                                                             index]
-                                                                        .youtubeLink)!),
-                                                            viewGroupFunc: () {
-                                                              loadingDialog();
-                                                              FirebaseFirestore
-                                                                  .instance
-                                                                  .collection(
-                                                                      "groups")
-                                                                  .where('name',
-                                                                      isEqualTo:
-                                                                          currentPosts[index]
-                                                                              .groupName)
-                                                                  .get()
-                                                                  .then(
-                                                                      (value) {
-                                                                Get.back();
-                                                                if (value.docs
-                                                                    .isNotEmpty) {
-                                                                  Get.to(() =>
-                                                                      ViewGroup(
-                                                                        index: widget
-                                                                            .index,
-                                                                        currentGroup: Group.fromJson(value
-                                                                            .docs
-                                                                            .first
-                                                                            .data()),
-                                                                        isFromGroup:
-                                                                            true,
-                                                                      ));
-                                                                }
-                                                              });
-                                                            },
-                                                            isInsideGroup: true,
-                                                            reportFunction: () {
-                                                              _pullRefresh();
-                                                            },
-                                                          ),
-                                                        ),
-                                                        InkWell(
-                                                          onTap: () {
-                                                            viewGroupController
-                                                                .deletePost(
-                                                                    widget
-                                                                        .currentGroup,
-                                                                    currentPosts[
-                                                                        index]);
+                                                                        .groupName)
+                                                                .get()
+                                                                .then((value) {
+                                                              Get.back();
+                                                              if (value.docs
+                                                                  .isNotEmpty) {
+                                                                Get.to(() =>
+                                                                    ViewGroup(
+                                                                      index: widget
+                                                                          .index,
+                                                                      currentGroup: Group.fromJson(value
+                                                                          .docs
+                                                                          .first
+                                                                          .data()),
+                                                                      isFromGroup:
+                                                                          true,
+                                                                    ));
+                                                              }
+                                                            });
                                                           },
-                                                          child: const Align(
-                                                              alignment:
-                                                                  Alignment
-                                                                      .topRight,
-                                                              child:
-                                                                  CircleAvatar(
-                                                                radius: 10,
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white70,
-                                                                child: Icon(
-                                                                  Icons.close,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 8,
-                                                                ),
-                                                              )),
-                                                        )
-                                                      ],
+                                                          isInsideGroup: true,
+                                                          reportFunction: () {
+                                                            _pullRefresh();
+                                                          },
+                                                          commentList: const [],
+                                                          textController:
+                                                              commentController,
+                                                          commentFunction: () {
+                                                            viewGroupController.addComment(Comment(
+                                                                postName:
+                                                                    currentPosts[index]
+                                                                        .name,
+                                                                postLink: currentPosts[index]
+                                                                    .youtubeLink,
+                                                                postCreator:
+                                                                    currentPosts[index]
+                                                                        .creator,
+                                                                postGroup:
+                                                                    currentPosts[index]
+                                                                        .groupName,
+                                                                commenter:
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .name,
+                                                                commenterUrl:
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .imageUrl,
+                                                                commentText:
+                                                                    commentController
+                                                                        .text,
+                                                                addedTime:
+                                                                    DateTime
+                                                                        .now()));
+                                                            commentController
+                                                                .clear();
+                                                            _pullRefresh();
+                                                          }),
                                                     )
                                                   : InkWell(
                                                       onTap: () {
                                                         Get.to(() =>
-                                                            FullScreenPage(
-                                                                index: 1,
-                                                                post:
-                                                                    currentPosts[
-                                                                        index]));
+                                                                FullScreenPage(
+                                                                    index: 1,
+                                                                    post: currentPosts[
+                                                                        index],
+                                                                    isOwner: currentPosts[index]
+                                                                            .creator ==
+                                                                        landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .name,
+                                                                    commentController:
+                                                                        commentController,
+                                                                    addCommentFunction:
+                                                                        () {
+                                                                      viewGroupController.addComment(Comment(
+                                                                          postName: currentPosts[index]
+                                                                              .name,
+                                                                          postLink: currentPosts[index]
+                                                                              .youtubeLink,
+                                                                          postCreator: currentPosts[index]
+                                                                              .creator,
+                                                                          postGroup: currentPosts[index]
+                                                                              .groupName,
+                                                                          commenter: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name,
+                                                                          commenterUrl: landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .imageUrl,
+                                                                          commentText: commentController
+                                                                              .text,
+                                                                          addedTime:
+                                                                              DateTime.now()));
+                                                                      commentController
+                                                                          .clear();
+                                                                    }))!
+                                                            .then((value) =>
+                                                                _pullRefresh());
                                                       },
                                                       child: VideoWidget(
-                                                        post:
-                                                            currentPosts[index],
-                                                        user:
-                                                            landingPagecontroller
-                                                                .userProfile
-                                                                .value,
-                                                        thumbnailUrl: YoutubePlayer.getThumbnail(
-                                                            videoId: YoutubePlayer
-                                                                .convertUrlToId(
-                                                                    currentPosts[
+                                                          viewCommentFunction:
+                                                              () {
+                                                            Get.to(() =>
+                                                                    FullScreenPage(
+                                                                        index:
+                                                                            1,
+                                                                        post: currentPosts[
+                                                                            index],
+                                                                        isOwner: currentPosts[index].creator ==
+                                                                            landingPagecontroller
+                                                                                .userProfile.value.name,
+                                                                        commentController:
+                                                                            commentController,
+                                                                        addCommentFunction:
+                                                                            () {
+                                                                          viewGroupController.addComment(Comment(
+                                                                              postName: currentPosts[index].name,
+                                                                              postLink: currentPosts[index].youtubeLink,
+                                                                              postCreator: currentPosts[index].creator,
+                                                                              postGroup: currentPosts[index].groupName,
+                                                                              commenter: landingPagecontroller.userProfile.value.name,
+                                                                              commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                              commentText: commentController.text,
+                                                                              addedTime: DateTime.now()));
+                                                                          commentController
+                                                                              .clear();
+                                                                        }))!
+                                                                .then((value) =>
+                                                                    _pullRefresh());
+                                                          },
+                                                          post: currentPosts[
+                                                              index],
+                                                          user:
+                                                              landingPagecontroller
+                                                                  .userProfile
+                                                                  .value,
+                                                          thumbnailUrl:
+                                                              "https://img.youtube.com/vi/${YoutubePlayer.convertUrlToId(currentPosts[index].youtubeLink)!}/hqdefault.jpg",
+                                                          viewGroupFunc: () {
+                                                            loadingDialog();
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    "groups")
+                                                                .where('name',
+                                                                    isEqualTo: currentPosts[
                                                                             index]
-                                                                        .youtubeLink)!),
-                                                        viewGroupFunc: () {
-                                                          loadingDialog();
-                                                          FirebaseFirestore
-                                                              .instance
-                                                              .collection(
-                                                                  "groups")
-                                                              .where('name',
-                                                                  isEqualTo: currentPosts[
-                                                                          index]
-                                                                      .groupName)
-                                                              .get()
-                                                              .then((value) {
-                                                            Get.back();
-                                                            if (value.docs
-                                                                .isNotEmpty) {
-                                                              Get.to(() =>
-                                                                  ViewGroup(
-                                                                    index: widget
-                                                                        .index,
-                                                                    currentGroup:
-                                                                        Group.fromJson(value
-                                                                            .docs
-                                                                            .first
-                                                                            .data()),
-                                                                    isFromGroup:
-                                                                        true,
-                                                                  ));
-                                                            }
-                                                          });
-                                                        },
-                                                        isInsideGroup: true,
-                                                        reportFunction: () {
-                                                          _pullRefresh();
-                                                        },
-                                                      ),
+                                                                        .groupName)
+                                                                .get()
+                                                                .then((value) {
+                                                              Get.back();
+                                                              if (value.docs
+                                                                  .isNotEmpty) {
+                                                                Get.to(() =>
+                                                                    ViewGroup(
+                                                                      index: widget
+                                                                          .index,
+                                                                      currentGroup: Group.fromJson(value
+                                                                          .docs
+                                                                          .first
+                                                                          .data()),
+                                                                      isFromGroup:
+                                                                          true,
+                                                                    ));
+                                                              }
+                                                            });
+                                                          },
+                                                          isInsideGroup: true,
+                                                          reportFunction: () {
+                                                            _pullRefresh();
+                                                          },
+                                                          commentList: const [],
+                                                          textController:
+                                                              commentController,
+                                                          commentFunction: () {
+                                                            viewGroupController.addComment(Comment(
+                                                                postName:
+                                                                    currentPosts[index]
+                                                                        .name,
+                                                                postLink: currentPosts[index]
+                                                                    .youtubeLink,
+                                                                postCreator:
+                                                                    currentPosts[index]
+                                                                        .creator,
+                                                                postGroup:
+                                                                    currentPosts[index]
+                                                                        .groupName,
+                                                                commenter:
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .name,
+                                                                commenterUrl:
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .imageUrl,
+                                                                commentText:
+                                                                    commentController
+                                                                        .text,
+                                                                addedTime:
+                                                                    DateTime
+                                                                        .now()));
+                                                            commentController
+                                                                .clear();
+                                                            _pullRefresh();
+                                                          }),
                                                     );
                                             })),
+
+                            const SizedBox(
+                              height: 50,
+                            ),
                           ],
                         )
-                      : const YourGroupsPage(),
+                      : const YourGroupsPage(
+                          isFirstTime: false,
+                        ),
+
+                  ///------------------------------------------------//
                   SettingsPage()
                 ],
               );

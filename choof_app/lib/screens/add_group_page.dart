@@ -29,31 +29,153 @@ class _AddGroupPageState extends State<AddGroupPage> {
   int currentIndex = 0;
 
   @override
+  void initState() {
+    addGroupController.groupName.clear();
+    addGroupController.tagName.clear();
+    addGroupController.clearTags();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size(60, 60),
-        child: Obx(() => widget.index == landingPagecontroller.tabIndex.value
+        child: Obx(() => landingPagecontroller.isDeviceTablet.value
             ? AppBar(
                 backgroundColor: const Color(bgColor),
-                centerTitle: true,
-                elevation: 0.0,
-                title: widget.index == landingPagecontroller.tabIndex.value
-                    ? const Text(
-                        'Add Group',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                leadingWidth: MediaQuery.of(context).size.width / 4.5,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Image.asset(
+                    'assets/logos/logo.png',
+                  ),
+                ),
+                titleSpacing: 0.0,
+                flexibleSpace: Padding(
+                  padding: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.width / 4, top: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width / 4.5,
+                        child: IconButton(
+                          icon: Row(
+                            children: [
+                              Text(
+                                'Favorites',
+                                style: TextStyle(
+                                    color:
+                                        landingPagecontroller.tabIndex.value ==
+                                                0
+                                            ? const Color(mainColor)
+                                            : Colors.white),
+                              ),
+                              Image.asset(
+                                'assets/icons/Favorite.png',
+                                width: 50,
+                                height: 50,
+                                color: landingPagecontroller.tabIndex.value == 0
+                                    ? const Color(mainColor)
+                                    : Colors.white,
+                              ),
+                            ],
+                          ),
+                          onPressed: () {
+                            landingPagecontroller.changeTabIndex(0);
+                          },
                         ),
-                      )
-                    : const SizedBox.shrink(),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width / 4.5,
+                        child: IconButton(
+                          icon: Row(
+                            children: [
+                              Text(
+                                'Groups',
+                                style: TextStyle(
+                                    color:
+                                        landingPagecontroller.tabIndex.value ==
+                                                1
+                                            ? const Color(mainColor)
+                                            : Colors.white),
+                              ),
+                              Image.asset(
+                                'assets/icons/Users.png',
+                                width: 50,
+                                height: 50,
+                                color: landingPagecontroller.tabIndex.value == 1
+                                    ? const Color(mainColor)
+                                    : Colors.white,
+                              ),
+                            ],
+                          ),
+                          onPressed: () {
+                            landingPagecontroller.changeTabIndex(1);
+                          },
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width / 4.5,
+                        child: IconButton(
+                          icon: Row(
+                            children: [
+                              Text(
+                                'Settings',
+                                style: TextStyle(
+                                    color:
+                                        landingPagecontroller.tabIndex.value ==
+                                                2
+                                            ? const Color(mainColor)
+                                            : Colors.white),
+                              ),
+                              Image.asset(
+                                'assets/icons/Settings.png',
+                                width: 50,
+                                height: 50,
+                                color: landingPagecontroller.tabIndex.value == 2
+                                    ? const Color(mainColor)
+                                    : Colors.white,
+                              ),
+                            ],
+                          ),
+                          onPressed: () {
+                            landingPagecontroller.changeTabIndex(2);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               )
-            : Container(
-                height: MediaQuery.of(context).padding.top,
-                color: const Color(mainBgColor),
-              )),
+            : widget.index == landingPagecontroller.tabIndex.value
+                ? AppBar(
+                    backgroundColor: const Color(bgColor),
+                    centerTitle: true,
+                    elevation: 0.0,
+                    title: widget.index == landingPagecontroller.tabIndex.value
+                        ? const Text(
+                            'Add Group',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  )
+                : Container(
+                    height: MediaQuery.of(context).padding.top,
+                    color: const Color(mainBgColor),
+                  )),
       ),
-      bottomNavigationBar: BottomMenu(),
+      // Bottom Navigation
+      bottomNavigationBar: Obx(
+        () => landingPagecontroller.isDeviceTablet.value
+            ? const SizedBox.shrink()
+            : BottomMenu(),
+      ),
       body: Obx(() {
         return IndexedStack(
             index: landingPagecontroller.tabIndex.value,
@@ -68,8 +190,37 @@ class _AddGroupPageState extends State<AddGroupPage> {
                         color: const Color(mainBgColor),
                         child: ListView(
                           children: [
+                            // Title
+                            Obx(
+                              () => landingPagecontroller.isDeviceTablet.value
+                                  ? Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            Get.back();
+                                          },
+                                          icon: const Icon(
+                                            Icons.arrow_back,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              'Add Group',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
                             const SizedBox(
-                              height: 50,
+                              height: 20,
                             ),
                             const Padding(
                               padding: EdgeInsets.only(left: 10),
@@ -354,7 +505,13 @@ class _AddGroupPageState extends State<AddGroupPage> {
                                   onPressed: () {
                                     if (_formKey.currentState!.validate()) {
                                       if (addGroupController.tags.isEmpty) {
-                                        Get.dialog(tagEmptyDialog());
+                                        // Get.dialog(tagEmptyDialog());
+                                        addGroupController.addTags(
+                                            addGroupController.groupName.text);
+                                        addGroupController.addGroup(
+                                            widget.index,
+                                            !widget.isFromFavPage);
+                                        addGroupController.tagName.clear();
                                       } else {
                                         if (addGroupController
                                             .tagName.text.isNotEmpty) {
@@ -374,7 +531,11 @@ class _AddGroupPageState extends State<AddGroupPage> {
                                                     .tagName.text);
                                           }
                                         }
-                                        addGroupController.addGroup();
+
+                                        addGroupController.addGroup(
+                                            widget.index,
+                                            !widget.isFromFavPage);
+                                        addGroupController.tagName.clear();
                                       }
                                     }
                                   },
@@ -397,10 +558,14 @@ class _AddGroupPageState extends State<AddGroupPage> {
                         ),
                       ),
                     )
-                  : const FavouritePage(),
+                  : const FavouritePage(
+                      isFirstTime: false,
+                    ),
               //  Addd Group Page---------------- //
               widget.isFromFavPage
-                  ? const YourGroupsPage()
+                  ? const YourGroupsPage(
+                      isFirstTime: false,
+                    )
                   : Form(
                       key: _formKey,
                       child: Container(
@@ -410,8 +575,37 @@ class _AddGroupPageState extends State<AddGroupPage> {
                         color: const Color(mainBgColor),
                         child: ListView(
                           children: [
+                            // Title
+                            Obx(
+                              () => landingPagecontroller.isDeviceTablet.value
+                                  ? Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            Get.back();
+                                          },
+                                          icon: const Icon(
+                                            Icons.arrow_back,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              'Add Group',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
                             const SizedBox(
-                              height: 50,
+                              height: 20,
                             ),
                             const Padding(
                               padding: EdgeInsets.only(left: 10),
@@ -696,7 +890,13 @@ class _AddGroupPageState extends State<AddGroupPage> {
                                   onPressed: () {
                                     if (_formKey.currentState!.validate()) {
                                       if (addGroupController.tags.isEmpty) {
-                                        Get.dialog(tagEmptyDialog());
+                                        // Get.dialog(tagEmptyDialog());
+                                        addGroupController.addTags(
+                                            addGroupController.groupName.text);
+                                        addGroupController.addGroup(
+                                            widget.index,
+                                            !widget.isFromFavPage);
+                                        addGroupController.tagName.clear();
                                       } else {
                                         if (addGroupController
                                             .tagName.text.isNotEmpty) {
@@ -716,7 +916,10 @@ class _AddGroupPageState extends State<AddGroupPage> {
                                                     .tagName.text);
                                           }
                                         }
-                                        addGroupController.addGroup();
+                                        addGroupController.addGroup(
+                                            widget.index,
+                                            !widget.isFromFavPage);
+                                        addGroupController.tagName.clear();
                                       }
                                     }
                                   },

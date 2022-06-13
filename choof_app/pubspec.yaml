@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+1
+version: 1.0.0+3
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
@@ -40,6 +40,14 @@ dependencies:
   pull_to_refresh: ^2.0.0
   url_launcher: ^6.1.0
   the_apple_sign_in: ^1.1.1
+  flutter_launcher_icons: ^0.9.3
+  
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "assets/logos/ic_launcher.png"
+  # adaptive_icon_foreground: "assets/logos/ic_launcher.png"
+  # adaptive_icon_background: "#000000"
 
 dev_dependencies:
   flutter_test:

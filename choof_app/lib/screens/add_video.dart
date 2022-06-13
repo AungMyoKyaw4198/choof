@@ -1,7 +1,6 @@
 import 'package:choof_app/screens/settings_page.dart';
 import 'package:choof_app/screens/your_groups_page.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../controllers/add_video_controller.dart';
@@ -37,6 +36,7 @@ class _AddVideoPageState extends State<AddVideoPage> {
 
   @override
   void initState() {
+    addVideoController.clearValue();
     if (widget.isFromFavPage) {
       addVideoController.getGroups();
     } else {
@@ -54,25 +54,139 @@ class _AddVideoPageState extends State<AddVideoPage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size(60, 60),
-        child: Obx(() => widget.index == landingPagecontroller.tabIndex.value
+        child: Obx(() => landingPagecontroller.isDeviceTablet.value
             ? AppBar(
                 backgroundColor: const Color(bgColor),
-                centerTitle: true,
-                title: const Text(
-                  'Add Favorite',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                leadingWidth: MediaQuery.of(context).size.width / 4.5,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Image.asset(
+                    'assets/logos/logo.png',
                   ),
                 ),
-                elevation: 0.0,
+                titleSpacing: 0.0,
+                flexibleSpace: Padding(
+                  padding: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.width / 4, top: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width / 4.5,
+                        child: IconButton(
+                          icon: Row(
+                            children: [
+                              Text(
+                                'Favorites',
+                                style: TextStyle(
+                                    color:
+                                        landingPagecontroller.tabIndex.value ==
+                                                0
+                                            ? const Color(mainColor)
+                                            : Colors.white),
+                              ),
+                              Image.asset(
+                                'assets/icons/Favorite.png',
+                                width: 50,
+                                height: 50,
+                                color: landingPagecontroller.tabIndex.value == 0
+                                    ? const Color(mainColor)
+                                    : Colors.white,
+                              ),
+                            ],
+                          ),
+                          onPressed: () {
+                            landingPagecontroller.changeTabIndex(0);
+                          },
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width / 4.5,
+                        child: IconButton(
+                          icon: Row(
+                            children: [
+                              Text(
+                                'Groups',
+                                style: TextStyle(
+                                    color:
+                                        landingPagecontroller.tabIndex.value ==
+                                                1
+                                            ? const Color(mainColor)
+                                            : Colors.white),
+                              ),
+                              Image.asset(
+                                'assets/icons/Users.png',
+                                width: 50,
+                                height: 50,
+                                color: landingPagecontroller.tabIndex.value == 1
+                                    ? const Color(mainColor)
+                                    : Colors.white,
+                              ),
+                            ],
+                          ),
+                          onPressed: () {
+                            landingPagecontroller.changeTabIndex(1);
+                          },
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width / 4.5,
+                        child: IconButton(
+                          icon: Row(
+                            children: [
+                              Text(
+                                'Settings',
+                                style: TextStyle(
+                                    color:
+                                        landingPagecontroller.tabIndex.value ==
+                                                2
+                                            ? const Color(mainColor)
+                                            : Colors.white),
+                              ),
+                              Image.asset(
+                                'assets/icons/Settings.png',
+                                width: 50,
+                                height: 50,
+                                color: landingPagecontroller.tabIndex.value == 2
+                                    ? const Color(mainColor)
+                                    : Colors.white,
+                              ),
+                            ],
+                          ),
+                          onPressed: () {
+                            landingPagecontroller.changeTabIndex(2);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               )
-            : Container(
-                height: MediaQuery.of(context).padding.top,
-                color: const Color(mainBgColor),
-              )),
+            : widget.index == landingPagecontroller.tabIndex.value
+                ? AppBar(
+                    backgroundColor: const Color(bgColor),
+                    centerTitle: true,
+                    title: const Text(
+                      'Add Favorite',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    elevation: 0.0,
+                  )
+                : Container(
+                    height: MediaQuery.of(context).padding.top,
+                    color: const Color(mainBgColor),
+                  )),
       ),
-      bottomNavigationBar: BottomMenu(),
+      // Bottom Navigation
+      bottomNavigationBar: Obx(
+        () => landingPagecontroller.isDeviceTablet.value
+            ? const SizedBox.shrink()
+            : BottomMenu(),
+      ),
       body: Obx(
         () => IndexedStack(
             index: landingPagecontroller.tabIndex.value,
@@ -88,6 +202,37 @@ class _AddVideoPageState extends State<AddVideoPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: ListView(
                               children: [
+                                // Title
+                                Obx(
+                                  () =>
+                                      landingPagecontroller.isDeviceTablet.value
+                                          ? Row(
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {
+                                                    Get.back();
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.arrow_back,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                const Expanded(
+                                                  child: Center(
+                                                    child: Text(
+                                                      'Add Favorites',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox.shrink(),
+                                ),
                                 const SizedBox(
                                   height: 20,
                                 ),
@@ -230,7 +375,8 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                             filled: true,
                                             hintStyle: TextStyle(
                                                 color: Colors.grey[800]),
-                                            hintText: "Paste the link here",
+                                            hintText:
+                                                "Seach title or paste link",
                                             fillColor: Colors.white70,
                                             suffixIcon: IconButton(
                                               onPressed: () {
@@ -244,7 +390,7 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                             AutovalidateMode.onUserInteraction,
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
-                                            return 'Please enter some link';
+                                            return 'Please enter some words or link';
                                           }
                                           return null;
                                         },
@@ -252,22 +398,27 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                     ),
                                     IconButton(
                                         onPressed: () {
-                                          addVideoController
-                                              .verifyYoutubeLink();
+                                          bool isYoutubeLink =
+                                              addVideoController
+                                                  .checkYoutubeLink(
+                                                      addVideoController
+                                                          .youtubeLink.text);
+                                          if (isYoutubeLink) {
+                                            addVideoController
+                                                .verifyYoutubeLink();
+                                          } else {
+                                            Get.to(() => SearchVideoPage(
+                                                  searchedWord:
+                                                      addVideoController
+                                                          .youtubeLink.text,
+                                                  isFromAddVideo: true,
+                                                ));
+                                          }
                                         },
                                         icon: Image.asset(
-                                          'assets/icons/AddLink.png',
+                                          'assets/icons/EmailSend.png',
                                           width: 30,
                                           height: 30,
-                                        )),
-                                    IconButton(
-                                        onPressed: () {
-                                          Get.to(() => const SearchVideoPage());
-                                        },
-                                        icon: const FaIcon(
-                                          FontAwesomeIcons.searchengin,
-                                          color: Colors.white,
-                                          size: 30,
                                         ))
                                   ],
                                 ),
@@ -317,114 +468,44 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                     Container(
                                       width: MediaQuery.of(context).size.width /
                                           1.25,
-                                      child: Autocomplete(
-                                        optionsBuilder: (TextEditingValue
-                                            textEditingValue) {
-                                          if (textEditingValue.text.isEmpty) {
-                                            return const Iterable<
-                                                String>.empty();
-                                          } else {
-                                            return landingPagecontroller
-                                                .autoTags
-                                                .where((String option) {
-                                              return option
-                                                  .trim()
-                                                  .toLowerCase()
-                                                  .contains(textEditingValue
-                                                      .text
-                                                      .trim()
-                                                      .toLowerCase());
-                                            });
+                                      child: TextField(
+                                        controller: addVideoController.tagName,
+                                        onSubmitted: (value) {
+                                          if (value.isNotEmpty) {
+                                            // Split if input contains ,
+                                            if (value.contains(',')) {
+                                              List<String> splitedString =
+                                                  value.split(',');
+                                              splitedString.forEach((element) {
+                                                addVideoController
+                                                    .addTags(element.trim());
+                                              });
+                                            } else {
+                                              addVideoController
+                                                  .addTags(value.trim());
+                                            }
                                           }
-                                        },
-                                        optionsViewBuilder: (context,
-                                            Function(String) onSelected,
-                                            options) {
-                                          return Material(
-                                            elevation: 4,
-                                            child: ListView.separated(
-                                              padding: EdgeInsets.zero,
-                                              itemBuilder: (context, index) {
-                                                final option =
-                                                    options.elementAt(index);
-                                                return ListTile(
-                                                  title:
-                                                      Text(option.toString()),
-                                                  onTap: () {
-                                                    addVideoController.addTags(
-                                                        option
-                                                            .toString()
-                                                            .trim());
-                                                    addVideoController.tagName
-                                                        .clear();
-                                                    FocusScope.of(context)
-                                                        .unfocus();
-                                                  },
-                                                );
-                                              },
-                                              separatorBuilder:
-                                                  (context, index) =>
-                                                      const Divider(),
-                                              itemCount: options.length,
-                                            ),
-                                          );
-                                        },
-                                        onSelected: (selectedString) {
-                                          addVideoController.addTags(
-                                              selectedString.toString().trim());
                                           addVideoController.tagName.clear();
-                                          FocusScope.of(context).unfocus();
                                         },
-                                        fieldViewBuilder: (context, controller,
-                                            focusNode, onEditingComplete) {
-                                          addVideoController.tagName =
-                                              controller;
-
-                                          return TextField(
-                                            controller: controller,
-                                            focusNode: focusNode,
-                                            onEditingComplete:
-                                                onEditingComplete,
-                                            onSubmitted: (value) {
-                                              if (value.isNotEmpty) {
-                                                // Split if input contains ,
-                                                if (value.contains(',')) {
-                                                  List<String> splitedString =
-                                                      value.split(',');
-                                                  splitedString
-                                                      .forEach((element) {
-                                                    addVideoController.addTags(
-                                                        element.trim());
-                                                  });
-                                                } else {
-                                                  addVideoController
-                                                      .addTags(value.trim());
-                                                }
-                                              }
-                                              addVideoController.tagName
-                                                  .clear();
-                                            },
-                                            decoration: InputDecoration(
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          30.0),
-                                                ),
-                                                filled: true,
-                                                hintStyle: TextStyle(
-                                                    color: Colors.grey[800]),
-                                                hintText:
-                                                    ''' “At least one tag (food, music, etc.)”''',
-                                                fillColor: Colors.white70,
-                                                suffixIcon: IconButton(
-                                                  onPressed: () {
-                                                    controller.clear();
-                                                  },
-                                                  icon: const Icon(
-                                                      Icons.close_rounded),
-                                                )),
-                                          );
-                                        },
+                                        decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                            ),
+                                            filled: true,
+                                            hintStyle: TextStyle(
+                                                color: Colors.grey[800]),
+                                            hintText:
+                                                ''' “At least one tag (food, music, etc.)”''',
+                                            fillColor: Colors.white70,
+                                            suffixIcon: IconButton(
+                                              onPressed: () {
+                                                addVideoController.tagName
+                                                    .clear();
+                                              },
+                                              icon: const Icon(
+                                                  Icons.close_rounded),
+                                            )),
                                       ),
                                     ),
                                     IconButton(
@@ -595,11 +676,42 @@ class _AddVideoPageState extends State<AddVideoPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: ListView(
                               children: [
+                                // Title
+                                Obx(
+                                  () =>
+                                      landingPagecontroller.isDeviceTablet.value
+                                          ? Row(
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {
+                                                    Get.back();
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.arrow_back,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                const Expanded(
+                                                  child: Center(
+                                                    child: Text(
+                                                      'Add Favorites',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox.shrink(),
+                                ),
                                 const SizedBox(
                                   height: 20,
                                 ),
                                 Text(
-                                  'Group : ${widget.group.name}',
+                                  'Group : ${widget.group.name.contains('#') ? widget.group.name.substring(0, widget.group.name.indexOf('#')) : widget.group.name}',
                                   style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -693,23 +805,28 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                     ),
                                     IconButton(
                                         onPressed: () {
-                                          addVideoController
-                                              .verifyYoutubeLink();
+                                          bool isYoutubeLink =
+                                              addVideoController
+                                                  .checkYoutubeLink(
+                                                      addVideoController
+                                                          .youtubeLink.text);
+                                          if (isYoutubeLink) {
+                                            addVideoController
+                                                .verifyYoutubeLink();
+                                          } else {
+                                            Get.to(() => SearchVideoPage(
+                                                  searchedWord:
+                                                      addVideoController
+                                                          .youtubeLink.text,
+                                                  isFromAddVideo: true,
+                                                ));
+                                          }
                                         },
                                         icon: Image.asset(
-                                          'assets/icons/AddLink.png',
+                                          'assets/icons/EmailSend.png',
                                           width: 30,
                                           height: 30,
                                         )),
-                                    IconButton(
-                                        onPressed: () {
-                                          Get.to(() => const SearchVideoPage());
-                                        },
-                                        icon: const FaIcon(
-                                          FontAwesomeIcons.searchengin,
-                                          color: Colors.white,
-                                          size: 30,
-                                        ))
                                   ],
                                 ),
                                 const SizedBox(
@@ -957,7 +1074,7 @@ class _AddVideoPageState extends State<AddVideoPage> {
                             ),
                           ),
                         )
-                  : const FavouritePage(),
+                  : const FavouritePage(isFirstTime: false),
               // Add Favorite Page -------------//
               !widget.isFromFavPage
                   ? Form(
@@ -969,11 +1086,40 @@ class _AddVideoPageState extends State<AddVideoPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: ListView(
                           children: [
+                            // Title
+                            Obx(
+                              () => landingPagecontroller.isDeviceTablet.value
+                                  ? Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            Get.back();
+                                          },
+                                          icon: const Icon(
+                                            Icons.arrow_back,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              'Add Favorites',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
                             const SizedBox(
                               height: 20,
                             ),
                             Text(
-                              'Group : ${widget.group.name}',
+                              'Group : ${widget.group.name.contains('#') ? widget.group.name.substring(0, widget.group.name.indexOf('#')) : widget.group.name}',
                               style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -1065,22 +1211,24 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                 ),
                                 IconButton(
                                     onPressed: () {
-                                      addVideoController.verifyYoutubeLink();
+                                      bool isYoutubeLink = addVideoController
+                                          .checkYoutubeLink(addVideoController
+                                              .youtubeLink.text);
+                                      if (isYoutubeLink) {
+                                        addVideoController.verifyYoutubeLink();
+                                      } else {
+                                        Get.to(() => SearchVideoPage(
+                                              searchedWord: addVideoController
+                                                  .youtubeLink.text,
+                                              isFromAddVideo: true,
+                                            ));
+                                      }
                                     },
                                     icon: Image.asset(
-                                      'assets/icons/AddLink.png',
+                                      'assets/icons/EmailSend.png',
                                       width: 30,
                                       height: 30,
                                     )),
-                                IconButton(
-                                    onPressed: () {
-                                      Get.to(() => const SearchVideoPage());
-                                    },
-                                    icon: const FaIcon(
-                                      FontAwesomeIcons.searchengin,
-                                      color: Colors.white,
-                                      size: 30,
-                                    ))
                               ],
                             ),
                             const SizedBox(
@@ -1339,7 +1487,9 @@ class _AddVideoPageState extends State<AddVideoPage> {
                         ),
                       ),
                     )
-                  : const YourGroupsPage(),
+                  : const YourGroupsPage(
+                      isFirstTime: false,
+                    ),
               //--------//
               SettingsPage(),
             ]),

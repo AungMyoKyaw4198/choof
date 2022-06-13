@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
+import '../controllers/edit_video_controller.dart';
 import '../models/youtubeVideoResponse.dart';
 import '../utils/app_constant.dart';
 
 class SearchVideoDetailPage extends StatefulWidget {
   final YoutubeVideoResponse video;
-  const SearchVideoDetailPage({Key? key, required this.video})
+  final bool isFromAddVideo;
+  const SearchVideoDetailPage(
+      {Key? key, required this.video, required this.isFromAddVideo})
       : super(key: key);
 
   @override
@@ -16,7 +19,18 @@ class SearchVideoDetailPage extends StatefulWidget {
 }
 
 class _SearchVideoDetailPageState extends State<SearchVideoDetailPage> {
-  final addVideocontroller = Get.find<AddVideoContoller>();
+  late var addVideocontroller;
+  late var editVideocontroller;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isFromAddVideo) {
+      addVideocontroller = Get.find<AddVideoContoller>();
+    } else {
+      editVideocontroller = Get.find<EditVideoController>();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +51,21 @@ class _SearchVideoDetailPageState extends State<SearchVideoDetailPage> {
             padding: const EdgeInsets.only(right: 10),
             child: InkWell(
               onTap: () {
-                addVideocontroller.youtubeLink.text =
-                    'https://youtu.be/${widget.video.items![0].id}';
-                addVideocontroller.verifyYoutubeLink();
-                addVideocontroller
-                    .setTags(widget.video.items![0].snippet!.tags!);
+                if (widget.isFromAddVideo) {
+                  addVideocontroller.youtubeLink.text =
+                      'https://youtu.be/${widget.video.items![0].id}';
+                  addVideocontroller.verifyYoutubeLink();
+                  addVideocontroller
+                      .setTags(widget.video.items![0].snippet!.tags!);
+                } else {
+                  editVideocontroller.postName.text =
+                      widget.video.items![0].snippet!.title;
+                  editVideocontroller.youtubeLink.text =
+                      'https://youtu.be/${widget.video.items![0].id}';
+                  editVideocontroller.verifyYoutubeLink();
+                  editVideocontroller
+                      .setTags(widget.video.items![0].snippet!.tags!);
+                }
 
                 Get.back();
                 Get.back();

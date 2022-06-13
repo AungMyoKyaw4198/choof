@@ -51,7 +51,7 @@ class _FriendsPageState extends State<FriendsPage> {
               height: 20,
             ),
             Text(
-              'Group : ${widget.group.name}',
+              'Group : ${widget.group.name.contains('#') ? widget.group.name.substring(0, widget.group.name.indexOf('#')) : widget.group.name}',
               style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -213,7 +213,6 @@ class _FriendsPageState extends State<FriendsPage> {
                             : const SizedBox.shrink(),
                   ),
                   // Friends horixontal view
-                  // GROUP
                   Obx(
                     () => landingPagecontroller.groupedUsers.length > 1
                         ? ListView(
@@ -372,7 +371,8 @@ class _FriendsPageState extends State<FriendsPage> {
               height: 30,
             ),
 
-            landingPagecontroller.userProfile.value.name == widget.group.owner
+            landingPagecontroller.userProfile.value.name.trim() ==
+                    widget.group.owner.trim()
                 ? const Text(
                     'Add a friend',
                     style: TextStyle(
@@ -389,43 +389,45 @@ class _FriendsPageState extends State<FriendsPage> {
             landingPagecontroller.userProfile.value.name == widget.group.owner
                 ? Row(
                     children: [
-                      Container(
-                        height: 35,
-                        width: MediaQuery.of(context).size.width / 1.22,
-                        child: TextFormField(
-                          controller: _filter,
-                          onChanged: (value) {
-                            if (value.isEmpty) {
-                              landingPagecontroller.updateIsFilter(false);
-                            } else {
-                              landingPagecontroller.updateIsFilter(true);
-                              landingPagecontroller.filterUsers(value);
-                            }
-                          },
-                          decoration: InputDecoration(
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 2),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                            filled: true,
-                            hintStyle: TextStyle(
-                              color: Colors.grey[800],
-                              fontStyle: FontStyle.italic,
-                            ),
-                            hintText:
-                                "Search a member or type an email to invite",
-                            fillColor: Colors.white70,
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                _filter.clear();
+                      Expanded(
+                        child: Container(
+                          height: 35,
+                          width: MediaQuery.of(context).size.width / 1.22,
+                          child: TextFormField(
+                            controller: _filter,
+                            onChanged: (value) {
+                              if (value.isEmpty) {
                                 landingPagecontroller.updateIsFilter(false);
-                              },
-                              icon: const Icon(Icons.close_rounded),
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.search,
-                              color: Colors.black,
+                              } else {
+                                landingPagecontroller.updateIsFilter(true);
+                                landingPagecontroller.filterUsers(value);
+                              }
+                            },
+                            decoration: InputDecoration(
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 2),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                              filled: true,
+                              hintStyle: TextStyle(
+                                color: Colors.grey[800],
+                                fontStyle: FontStyle.italic,
+                              ),
+                              hintText:
+                                  "Search a member or type an email to invite",
+                              fillColor: Colors.white70,
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  _filter.clear();
+                                  landingPagecontroller.updateIsFilter(false);
+                                },
+                                icon: const Icon(Icons.close_rounded),
+                              ),
+                              prefixIcon: const Icon(
+                                Icons.search,
+                                color: Colors.black,
+                              ),
                             ),
                           ),
                         ),
@@ -439,18 +441,25 @@ class _FriendsPageState extends State<FriendsPage> {
                                 final Email email = Email(
                                   subject:
                                       '${widget.group.owner} added you to the Choof group: ${widget.group.name}.',
-                                  body:
-                                      '''${widget.group.owner} has some recommendation for you in the Choof group: ${widget.group.name}.
-
+                                  body: '''
+              ${widget.group.owner} has some recommendation for you in the Choof group: ${widget.group.name}.
+              \n
              Download the Choof app and sign in with this email or a social account linked to this email : ${_filter.text}.
-             <html>
-             <a href="https://play.google.com/store/apps/details?id=com.choof.choof_app&gl=FR"><img src="blob:https://likewise-chat.atlassian.net/89840e4d-6e61-43d6-a47e-4f6c950e096d" /></a>
-             <a href="https://apps.apple.com/us/app/testflight/id899247664?platform=ios"><img src="blob:https://likewise-chat.atlassian.net/9b6e2ab4-4f56-4bea-b923-4180ec41cbf7" /></a>
-             </html>''',
+             \n
+             Download from PlayStore : https://play.google.com/store/apps/details?id=com.choof.choof_app
+             \n
+             Download from AppleStore : https://appstoreconnect.apple.com/apps/1621921507/appstore/info
+              
+             ''',
                                   recipients: [_filter.text],
                                   isHTML: true,
                                 );
-
+//        <a href="https://play.google.com/store/apps/details?id=com.choof.choof_app"><p>Hello</p></a>
+                                //        <a href="https://appstoreconnect.apple.com/apps/1621921507/appstore/info"><img src="https://media.istockphoto.com/photos/group-multiracial-people-having-fun-outdoor-happy-mixed-race-friends-picture-id1211345565?k=20&m=1211345565&s=612x612&w=0&h=Gg65DvzedP7YDo6XFbB-8-f7U7m5zHm1OPO3uIiVFgo=" /></a>
+                                //        <a href="https://www.qries.com/">
+                                //    <img alt="Qries" src="https://www.qries.com/images/banner_logo.png"
+                                //    width=150" height="70">
+                                // </a>
                                 await FlutterEmailSender.send(email)
                                     .then((value) {
                                   landingPagecontroller.addInvitedUserToGroup(
@@ -508,10 +517,6 @@ class _FriendsPageState extends State<FriendsPage> {
                               if (landingPagecontroller
                                       .userProfile.value.blockedUsers !=
                                   null) {
-                                // if (landingPagecontroller
-                                //     .userProfile.value.blockedUsers!
-                                //     .contains(landingPagecontroller
-                                //         .filteredUsersResult[index].name))
                                 if (landingPagecontroller.checkUserBlockState(
                                     landingPagecontroller
                                         .userProfile.value.blockedUsers!,
@@ -564,12 +569,6 @@ class _FriendsPageState extends State<FriendsPage> {
                                                     .filteredUsersResult[index]
                                                     .name
                                                     .trim()))
-
-                                        // landingPagecontroller
-                                        //         .userProfile.value.blockedUsers!
-                                        //         .contains(landingPagecontroller
-                                        //             .filteredUsersResult[index]
-                                        //             .name)
                                         ? Image.asset(
                                             'assets/icons/block.png',
                                             width: 30,
@@ -602,13 +601,60 @@ class _FriendsPageState extends State<FriendsPage> {
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                Text(
-                                  landingPagecontroller
-                                      .filteredUsersResult[index].name,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                ),
+                                landingPagecontroller
+                                        .filteredUsersResult[index].isInvited
+                                    ? Text(
+                                        landingPagecontroller
+                                                    .filteredUsersResult[index]
+                                                    .name
+                                                    .length >
+                                                10
+                                            ? landingPagecontroller
+                                                    .filteredUsersResult[index]
+                                                    .name
+                                                    .replaceRange(
+                                                        2,
+                                                        landingPagecontroller
+                                                            .filteredUsersResult[
+                                                                index]
+                                                            .name
+                                                            .indexOf("@"),
+                                                        "*" *
+                                                            (landingPagecontroller
+                                                                    .filteredUsersResult[
+                                                                        index]
+                                                                    .name
+                                                                    .length -
+                                                                12))
+                                                    .substring(0, 10) +
+                                                '...'
+                                            : landingPagecontroller
+                                                .filteredUsersResult[index].name
+                                                .replaceRange(
+                                                    2,
+                                                    landingPagecontroller
+                                                        .filteredUsersResult[
+                                                            index]
+                                                        .name
+                                                        .indexOf("@"),
+                                                    "*" *
+                                                        (landingPagecontroller
+                                                                .filteredUsersResult[
+                                                                    index]
+                                                                .name
+                                                                .length -
+                                                            12)),
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    : Text(
+                                        landingPagecontroller
+                                            .filteredUsersResult[index].name,
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
                               ],
                             ),
                           ),
@@ -688,14 +734,6 @@ class _FriendsPageState extends State<FriendsPage> {
                                                       landingPagecontroller
                                                           .freeUsers[index].name
                                                           .trim()))
-
-                                              // landingPagecontroller.userProfile
-                                              //         .value.blockedUsers!
-                                              //         .contains(
-                                              //             landingPagecontroller
-                                              //                 .freeUsers[index]
-                                              //                 .name)
-
                                               ? Image.asset(
                                                   'assets/icons/block.png',
                                                   width: 30,
@@ -728,13 +766,58 @@ class _FriendsPageState extends State<FriendsPage> {
                                       const SizedBox(
                                         width: 10,
                                       ),
-                                      Text(
-                                        landingPagecontroller
-                                            .freeUsers[index].name,
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold),
-                                      ),
+                                      landingPagecontroller
+                                              .freeUsers[index].isInvited
+                                          ? Text(
+                                              landingPagecontroller
+                                                          .freeUsers[index]
+                                                          .name
+                                                          .length >
+                                                      10
+                                                  ? landingPagecontroller
+                                                          .freeUsers[index].name
+                                                          .replaceRange(
+                                                              2,
+                                                              landingPagecontroller
+                                                                  .freeUsers[
+                                                                      index]
+                                                                  .name
+                                                                  .indexOf("@"),
+                                                              "*" *
+                                                                  (landingPagecontroller
+                                                                          .freeUsers[
+                                                                              index]
+                                                                          .name
+                                                                          .length -
+                                                                      12))
+                                                          .substring(0, 10) +
+                                                      '...'
+                                                  : landingPagecontroller
+                                                      .freeUsers[index].name
+                                                      .replaceRange(
+                                                          2,
+                                                          landingPagecontroller
+                                                              .freeUsers[index]
+                                                              .name
+                                                              .indexOf("@"),
+                                                          "*" *
+                                                              (landingPagecontroller
+                                                                      .freeUsers[
+                                                                          index]
+                                                                      .name
+                                                                      .length -
+                                                                  12)),
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          : Text(
+                                              landingPagecontroller
+                                                  .freeUsers[index].name,
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                     ],
                                   ),
                                 ),

@@ -13,10 +13,14 @@ import '../models/notification.dart';
 import '../models/post.dart';
 import '../models/youtubeVideoResponse.dart';
 import '../services/youtube_service.dart';
+import 'home_page_controller.dart';
+import 'your_group_controller.dart';
 
 class AddVideoContoller extends GetxController {
   static AddVideoContoller get to => Get.find();
   final landingPagecontroller = Get.find<LandingPageController>();
+  final favController = Get.find<HomePageController>();
+  final yourGroupsController = Get.find<YourGroupController>();
 
   final CollectionReference _allPosts =
       FirebaseFirestore.instance.collection("posts");
@@ -25,7 +29,7 @@ class AddVideoContoller extends GetxController {
   final CollectionReference _notifications =
       FirebaseFirestore.instance.collection("notifications");
 
-  final youtubeLink = TextEditingController();
+  TextEditingController youtubeLink = TextEditingController();
   final youtubeThumbnail = ''.obs;
   final isVerify = false.obs;
   TextEditingController tagName = TextEditingController();
@@ -43,8 +47,27 @@ class AddVideoContoller extends GetxController {
           createdTime: DateTime.now())
       .obs;
 
+  clearValue() {
+    youtubeLink.clear();
+    youtubeThumbnail('');
+    isVerify(false);
+    tagName.clear();
+    tagList([]);
+    groupName('');
+    groupMembers([]);
+    usergroupList([]);
+  }
+
   setCurrentGroup(Group group) {
     currentGroup(group);
+  }
+
+  bool checkYoutubeLink(String link) {
+    if (link.contains('https://youtu.be/')) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   verifyYoutubeLink() {
@@ -79,6 +102,7 @@ class AddVideoContoller extends GetxController {
         return null;
       }
     } on FormatException catch (e) {
+      // ignore: avoid_print
       print('invalid JSON' + e.toString());
       return null;
     }
@@ -140,6 +164,7 @@ class AddVideoContoller extends GetxController {
           .where('docId', isEqualTo: currentGroup.value.docId)
           .get();
       if (groupSnapshot.docs.isNotEmpty) {
+        // ignore: avoid_function_literals_in_foreach_calls
         groupSnapshot.docs.forEach((element) {
           Group thisGroup =
               Group.fromJson(element.data() as Map<String, dynamic>);
@@ -149,7 +174,6 @@ class AddVideoContoller extends GetxController {
           _groups.doc(thisGroup.docId).update(thisGroup.toJson());
         });
       }
-
       await _notifications.add(Noti(
               sender: landingPagecontroller.userProfile.value.name,
               groupName: groupName.value,
@@ -159,10 +183,10 @@ class AddVideoContoller extends GetxController {
       Get.back();
       if (isFromFavPage) {
         setCurrentGroup(usergroupList.first);
-        Get.back();
-      } else {
-        Get.back();
       }
+      Get.back();
+      favController.refreshPosts();
+      yourGroupsController.refreshGroups();
 
       return true;
     } catch (e) {

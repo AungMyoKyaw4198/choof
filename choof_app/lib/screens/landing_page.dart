@@ -8,7 +8,7 @@ import '../services/user_auth.dart';
 import '../utils/app_constant.dart';
 
 class LandingPage extends StatefulWidget {
-  LandingPage({Key? key}) : super(key: key);
+  const LandingPage({Key? key}) : super(key: key);
 
   @override
   State<LandingPage> createState() => _LandingPageState();

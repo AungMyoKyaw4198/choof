@@ -7,28 +7,39 @@ import '../utils/app_constant.dart';
 class SettingsPage extends StatelessWidget {
   SettingsPage({Key? key}) : super(key: key);
 
-  final controller = Get.find<LandingPageController>();
+  final landingPagecontroller = Get.find<LandingPageController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(bgColor),
-        title: const Text(
-          'Settings',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: Image.asset(
-              'assets/logos/logo.png',
-              width: MediaQuery.of(context).size.width / 4.5,
-            ),
-          ),
-        ],
-        elevation: 0.0,
+      appBar: PreferredSize(
+        preferredSize: const Size(60, 60),
+        child: Obx(() => landingPagecontroller.isDeviceTablet.value
+            ? const SizedBox.shrink()
+            : landingPagecontroller.tabIndex.value == 2
+                ? AppBar(
+                    centerTitle: false,
+                    automaticallyImplyLeading: false,
+                    backgroundColor: const Color(bgColor),
+                    title: const Text(
+                      'Settings',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    actions: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Image.asset(
+                          'assets/logos/logo.png',
+                          width: MediaQuery.of(context).size.width / 4.5,
+                        ),
+                      ),
+                    ],
+                    elevation: 0.0,
+                  )
+                : Container(
+                    height: MediaQuery.of(context).padding.top,
+                    color: const Color(mainBgColor),
+                  )),
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,
@@ -50,13 +61,13 @@ class SettingsPage extends StatelessWidget {
                               shape: BoxShape.circle,
                               image: DecorationImage(
                                   fit: BoxFit.fill,
-                                  image: NetworkImage(
-                                      controller.userProfile.value.imageUrl)))),
+                                  image: NetworkImage(landingPagecontroller
+                                      .userProfile.value.imageUrl)))),
                       const SizedBox(
                         width: 20,
                       ),
                       Text(
-                        controller.userProfile.value.name,
+                        landingPagecontroller.userProfile.value.name,
                         style: const TextStyle(color: Colors.white),
                       )
                     ],
@@ -71,8 +82,9 @@ class SettingsPage extends StatelessWidget {
                   child: Row(
                     children: [
                       Switch(
-                        onChanged: (val) => controller.toggleSignOut(val),
-                        value: controller.signOut.value,
+                        onChanged: (val) =>
+                            landingPagecontroller.toggleSignOut(val),
+                        value: landingPagecontroller.signOut.value,
                       ),
                       const SizedBox(
                         width: 20,
@@ -94,8 +106,8 @@ class SettingsPage extends StatelessWidget {
                     children: [
                       Switch(
                         onChanged: (val) =>
-                            controller.toggleAllowNotification(val),
-                        value: controller.allowNoti.value,
+                            landingPagecontroller.toggleAllowNotification(val),
+                        value: landingPagecontroller.allowNoti.value,
                       ),
                       const SizedBox(
                         width: 20,
@@ -116,8 +128,9 @@ class SettingsPage extends StatelessWidget {
                   child: Row(
                     children: [
                       Switch(
-                        onChanged: (val) => controller.toggleDeleteUser(val),
-                        value: controller.deleteUser.value,
+                        onChanged: (val) =>
+                            landingPagecontroller.toggleDeleteUser(val),
+                        value: landingPagecontroller.deleteUser.value,
                       ),
                       const SizedBox(
                         width: 20,

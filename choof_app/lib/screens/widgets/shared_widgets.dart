@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 
 import '../../controllers/landing_page_controller.dart';
 import '../../controllers/shared_functions.dart';
+import '../../models/comment.dart';
 import '../../models/group.dart';
 import '../../models/post.dart';
 import '../../models/profile.dart';
@@ -16,9 +17,13 @@ class VideoWidget extends StatefulWidget {
   final Post post;
   final Profile user;
   final Function viewGroupFunc;
-  final String thumbnailUrl;
+  final String? thumbnailUrl;
   final bool isInsideGroup;
   final Function reportFunction;
+  final List<Comment> commentList;
+  final TextEditingController textController;
+  final Function commentFunction;
+  final Function viewCommentFunction;
   const VideoWidget(
       {Key? key,
       required this.post,
@@ -26,7 +31,11 @@ class VideoWidget extends StatefulWidget {
       required this.thumbnailUrl,
       required this.viewGroupFunc,
       required this.isInsideGroup,
-      required this.reportFunction})
+      required this.reportFunction,
+      required this.commentList,
+      required this.textController,
+      required this.commentFunction,
+      required this.viewCommentFunction})
       : super(key: key);
 
   @override
@@ -56,19 +65,22 @@ class _VideoWidgetState extends State<VideoWidget> {
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 20),
+                        fontSize: 18),
                   ),
                 ),
                 // Report Button
                 widget.post.creator.trim() == widget.user.name.trim()
-                    ? const SizedBox.shrink()
+                    ? const SizedBox(
+                        width: 30,
+                      )
                     : IconButton(
                         onPressed: () {
                           Get.defaultDialog(
+                              backgroundColor: const Color(bgColor),
                               title: '',
                               content: Container(
                                 height: 200,
-                                color: Colors.white,
+                                color: const Color(bgColor),
                                 child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
@@ -83,6 +95,8 @@ class _VideoWidgetState extends State<VideoWidget> {
                                           Get.back();
                                           // Choose report reasons
                                           Get.defaultDialog(
+                                              backgroundColor:
+                                                  const Color(bgColor),
                                               title: '',
                                               content: Container(
                                                 height: 300,
@@ -90,7 +104,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                         .size
                                                         .width -
                                                     100,
-                                                color: Colors.white,
+                                                color: const Color(bgColor),
                                                 child: ListView(
                                                   shrinkWrap: true,
                                                   children: [
@@ -114,7 +128,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Sexual content',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
@@ -136,7 +150,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Violent or Repulsive content',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
@@ -158,7 +172,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Hateful or abusive content',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
@@ -180,7 +194,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Harmful or dangerous acts',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
@@ -202,7 +216,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Spam',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
@@ -224,20 +238,31 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             ' False or misleading',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
                                                           Get.back();
                                                           Get.defaultDialog(
+                                                              backgroundColor:
+                                                                  const Color(
+                                                                      mainBgColor),
                                                               title:
                                                                   'Please specify reason',
+                                                              titleStyle: const TextStyle(
+                                                                  color: Colors
+                                                                      .white),
                                                               titlePadding:
                                                                   const EdgeInsets
                                                                           .symmetric(
                                                                       horizontal:
                                                                           10),
                                                               textConfirm: 'OK',
+                                                              confirmTextColor:
+                                                                  const Color(
+                                                                      mainColor),
+                                                              buttonColor:
+                                                                  Colors.white,
                                                               onConfirm:
                                                                   () async {
                                                                 Get.back();
@@ -268,6 +293,8 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                                       _controller,
                                                                   decoration:
                                                                       InputDecoration(
+                                                                    filled:
+                                                                        true,
                                                                     hintText:
                                                                         "Enter here....",
                                                                     fillColor:
@@ -297,23 +324,27 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Other (please specify)',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                   ],
                                                 ),
                                               ));
                                         },
                                         child: Padding(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 50),
+                                                horizontal: 50, vertical: 5),
                                             child: Row(
-                                              children: const [
-                                                Icon(Icons.flag),
-                                                SizedBox(
+                                              children: [
+                                                Image.asset(
+                                                  'assets/icons/Flag.png',
+                                                  width: 30,
+                                                  height: 30,
+                                                ),
+                                                const SizedBox(
                                                   width: 10,
                                                 ),
-                                                Text('Flag Content',
+                                                const Text('Flag Content',
                                                     style: TextStyle(
-                                                        color: Colors.black))
+                                                        color: Colors.white))
                                               ],
                                             )),
                                       ),
@@ -324,6 +355,8 @@ class _VideoWidgetState extends State<VideoWidget> {
                                           Get.back();
                                           // User reported User
                                           Get.defaultDialog(
+                                              backgroundColor:
+                                                  const Color(bgColor),
                                               title: '',
                                               content: Container(
                                                 height: 300,
@@ -331,7 +364,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                         .size
                                                         .width -
                                                     100,
-                                                color: Colors.white,
+                                                color: const Color(bgColor),
                                                 child: ListView(
                                                   shrinkWrap: true,
                                                   children: [
@@ -355,7 +388,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Pretending to be someone',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
@@ -377,7 +410,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Fake account',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
@@ -399,7 +432,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Fake name',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
@@ -421,7 +454,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Posting inappropriate content',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                     TextButton(
                                                         onPressed: () async {
@@ -431,14 +464,25 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                           Get.back();
 
                                                           Get.defaultDialog(
+                                                              backgroundColor:
+                                                                  const Color(
+                                                                      mainBgColor),
                                                               title:
                                                                   'Please specify reason',
+                                                              titleStyle: const TextStyle(
+                                                                  color: Colors
+                                                                      .white),
                                                               titlePadding:
                                                                   const EdgeInsets
                                                                           .symmetric(
                                                                       horizontal:
                                                                           10),
                                                               textConfirm: 'OK',
+                                                              confirmTextColor:
+                                                                  const Color(
+                                                                      mainColor),
+                                                              buttonColor:
+                                                                  Colors.white,
                                                               onConfirm:
                                                                   () async {
                                                                 Get.back();
@@ -469,8 +513,13 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                                       _controller,
                                                                   decoration:
                                                                       InputDecoration(
+                                                                    filled:
+                                                                        true,
                                                                     hintText:
                                                                         "Enter here....",
+                                                                    hintStyle: const TextStyle(
+                                                                        color: Colors
+                                                                            .black),
                                                                     fillColor:
                                                                         Colors
                                                                             .white,
@@ -478,7 +527,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                                         OutlineInputBorder(
                                                                       borderSide: const BorderSide(
                                                                           color: Colors
-                                                                              .black,
+                                                                              .white,
                                                                           width:
                                                                               1.0),
                                                                       borderRadius:
@@ -498,7 +547,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                                             'Other (please specify)',
                                                             style: TextStyle(
                                                                 color: Colors
-                                                                    .red))),
+                                                                    .white))),
                                                     const Divider(),
                                                   ],
                                                 ),
@@ -506,16 +555,20 @@ class _VideoWidgetState extends State<VideoWidget> {
                                         },
                                         child: Padding(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 50),
+                                                horizontal: 50, vertical: 5),
                                             child: Row(
-                                              children: const [
-                                                Icon(Icons.info),
-                                                SizedBox(
+                                              children: [
+                                                Image.asset(
+                                                  'assets/icons/ReportUser.png',
+                                                  width: 30,
+                                                  height: 30,
+                                                ),
+                                                const SizedBox(
                                                   width: 10,
                                                 ),
-                                                Text('Report User',
+                                                const Text('Report User',
                                                     style: TextStyle(
-                                                        color: Colors.black))
+                                                        color: Colors.white))
                                               ],
                                             )),
                                       ),
@@ -524,22 +577,36 @@ class _VideoWidgetState extends State<VideoWidget> {
                                         onPressed: () async {
                                           Get.back();
                                           Get.defaultDialog(
+                                              backgroundColor:
+                                                  const Color(bgColor),
                                               title: 'Are you sure?',
+                                              titleStyle: const TextStyle(
+                                                  color: Colors.white),
                                               content: Container(
                                                 child: Column(
                                                   children: [
                                                     Text(
-                                                        '1. You will be removed from all groups created by ${widget.post.creator}. '),
+                                                      '1. You will be removed from all groups created by ${widget.post.creator}. ',
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                    ),
                                                     const SizedBox(
                                                       height: 10,
                                                     ),
                                                     Text(
-                                                        '2. ${widget.post.creator} will not be able to add you to any of their groups')
+                                                      '2. ${widget.post.creator} will not be able to add you to any of their groups',
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                    )
                                                   ],
                                                 ),
                                               ),
                                               textCancel: 'Cancel',
                                               textConfirm: 'OK',
+                                              cancelTextColor: Colors.white,
+                                              confirmTextColor:
+                                                  const Color(mainColor),
+                                              buttonColor: Colors.white,
                                               onCancel: () {
                                                 Get.back();
                                               },
@@ -557,16 +624,20 @@ class _VideoWidgetState extends State<VideoWidget> {
                                         },
                                         child: Padding(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 50),
+                                                horizontal: 50, vertical: 5),
                                             child: Row(
-                                              children: const [
-                                                Icon(Icons.block),
-                                                SizedBox(
+                                              children: [
+                                                Image.asset(
+                                                  'assets/icons/BlockUser.png',
+                                                  width: 30,
+                                                  height: 30,
+                                                ),
+                                                const SizedBox(
                                                   width: 10,
                                                 ),
-                                                Text('Block User',
+                                                const Text('Block User',
                                                     style: TextStyle(
-                                                        color: Colors.black))
+                                                        color: Colors.white))
                                               ],
                                             )),
                                       )
@@ -590,15 +661,24 @@ class _VideoWidgetState extends State<VideoWidget> {
                 ? widget.post.isReported!
                     ? Stack(
                         children: [
-                          Container(
-                            height: 200,
-                            child: Image.network(
-                              widget.thumbnailUrl,
-                              fit: BoxFit.fitWidth,
-                              height: 200,
-                              width: MediaQuery.of(context).size.width,
-                            ),
-                          ),
+                          widget.thumbnailUrl != null
+                              ? Container(
+                                  height: 200,
+                                  child: Image.network(
+                                    widget.thumbnailUrl!,
+                                    fit: BoxFit.fitWidth,
+                                    height: 200,
+                                    width: MediaQuery.of(context).size.width,
+                                  ),
+                                )
+                              : Container(
+                                  height: 200,
+                                  color: Colors.black,
+                                  child: const Center(
+                                      child: Text('Unable to get thumnail',
+                                          style:
+                                              TextStyle(color: Colors.white))),
+                                ),
                           isHide
                               ? Align(
                                   alignment: Alignment.center,
@@ -665,31 +745,47 @@ class _VideoWidgetState extends State<VideoWidget> {
                                       ))),
                         ],
                       )
-                    : Container(
+                    : widget.thumbnailUrl != null
+                        ? Container(
+                            height: 200,
+                            child: Image.network(
+                              widget.thumbnailUrl!,
+                              fit: BoxFit.fitWidth,
+                              height: 200,
+                              width: MediaQuery.of(context).size.width,
+                            ),
+                          )
+                        : Container(
+                            height: 200,
+                            color: Colors.black,
+                            child: const Center(
+                                child: Text('Unable to get thumnail',
+                                    style: TextStyle(color: Colors.white))),
+                          )
+                : widget.thumbnailUrl != null
+                    ? Container(
                         height: 200,
                         child: Image.network(
-                          widget.thumbnailUrl,
+                          widget.thumbnailUrl!,
                           fit: BoxFit.fitWidth,
                           height: 200,
                           width: MediaQuery.of(context).size.width,
                         ),
                       )
-                : Container(
-                    height: 200,
-                    child: Image.network(
-                      widget.thumbnailUrl,
-                      fit: BoxFit.fitWidth,
-                      height: 200,
-                      width: MediaQuery.of(context).size.width,
-                    ),
-                  ),
+                    : Container(
+                        height: 200,
+                        color: Colors.black,
+                        child: const Center(
+                            child: Text('Unable to get thumnail',
+                                style: TextStyle(color: Colors.white))),
+                      ),
 
             const SizedBox(
               height: 5,
             ),
 
             Container(
-              height: 20,
+              height: 30,
               child: ListView(scrollDirection: Axis.horizontal, children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -711,13 +807,16 @@ class _VideoWidgetState extends State<VideoWidget> {
                         );
                       },
                       child: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: FaIcon(
-                          FontAwesomeIcons.link,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.white54,
+                            child: FaIcon(
+                              FontAwesomeIcons.link,
+                              color: Colors.white,
+                              size: 15,
+                            ),
+                          )),
                     ),
                     Row(
                       children: List.generate(
@@ -793,29 +892,114 @@ class _VideoWidgetState extends State<VideoWidget> {
                         style: TextStyle(
                             color: Colors.white54, fontWeight: FontWeight.bold),
                       ),
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () {
-                            widget.viewGroupFunc();
-                          },
-                          child: Center(
-                            child: Text(
-                              widget.post.groupName.contains('#')
-                                  ? widget.post.groupName.substring(
-                                      0, widget.post.groupName.indexOf('#'))
-                                  : widget.post.groupName,
-                              textAlign: TextAlign.start,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16),
-                            ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          widget.viewGroupFunc();
+                        },
+                        child: Center(
+                          child: Text(
+                            widget.post.groupName.contains('#')
+                                ? widget.post.groupName.substring(
+                                    0, widget.post.groupName.indexOf('#'))
+                                : widget.post.groupName,
+                            textAlign: TextAlign.start,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
                           ),
                         ),
                       )
                     ],
                   ),
+            const SizedBox(
+              height: 10,
+            ),
+            widget.commentList.isNotEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const SizedBox(
+                            width: 2,
+                          ),
+                          Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                      fit: BoxFit.fill,
+                                      image: NetworkImage(widget
+                                          .commentList.first.commenterUrl)))),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: Text(
+                              widget.commentList.last.commentText,
+                              overflow: TextOverflow.fade,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                      TextButton(
+                          onPressed: () {
+                            widget.viewCommentFunction();
+                          },
+                          child: Text(
+                            'View all ${widget.commentList.length} comments',
+                            style: const TextStyle(color: Colors.white),
+                          ))
+                    ],
+                  )
+                : const SizedBox.shrink(),
+
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  child: Icon(
+                    Icons.comment_outlined,
+                    color: Colors.white,
+                    size: 25,
+                  ),
+                ),
+                Expanded(
+                    child: TextField(
+                  controller: widget.textController,
+                  onSubmitted: (value) {
+                    widget.commentFunction();
+                  },
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      hintText: 'Add a comment...',
+                      hintStyle: const TextStyle(color: Colors.white),
+                      contentPadding: const EdgeInsets.all(10),
+                      filled: true,
+                      fillColor: Colors.white24,
+                      suffixIcon: IconButton(
+                        icon: Image.asset(
+                          'assets/icons/EmailSend.png',
+                          width: 30,
+                          height: 30,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          widget.commentFunction();
+                        },
+                      )),
+                )),
+              ],
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -997,9 +1181,6 @@ class ProfileVerticalWidget extends StatelessWidget {
                       : Border.all(color: Colors.white),
                   image: DecorationImage(
                       fit: BoxFit.fill, image: NetworkImage(imageUrl)))),
-          const SizedBox(
-            height: 5,
-          ),
           Text(
             name,
             style: TextStyle(
@@ -1093,11 +1274,12 @@ infoDialog(
     required String content,
     required List<Widget>? actions}) {
   Get.defaultDialog(
+    backgroundColor: const Color(mainBgColor),
     title: title,
-    titleStyle: const TextStyle(fontSize: 15),
+    titleStyle: const TextStyle(fontSize: 15, color: Colors.white),
     content: Text(
       content,
-      style: const TextStyle(fontSize: 12),
+      style: const TextStyle(fontSize: 12, color: Colors.white),
     ),
     actions: actions,
   );
