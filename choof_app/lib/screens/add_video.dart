@@ -783,7 +783,8 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                             filled: true,
                                             hintStyle: TextStyle(
                                                 color: Colors.grey[800]),
-                                            hintText: "Paste the link here",
+                                            hintText:
+                                                "Search a title or paste a link",
                                             fillColor: Colors.white70,
                                             suffixIcon: IconButton(
                                               onPressed: () {
@@ -1190,7 +1191,8 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                         filled: true,
                                         hintStyle:
                                             TextStyle(color: Colors.grey[800]),
-                                        hintText: "Paste the link here",
+                                        hintText:
+                                            "Search a title or paste a link",
                                         fillColor: Colors.white70,
                                         suffixIcon: IconButton(
                                           onPressed: () {

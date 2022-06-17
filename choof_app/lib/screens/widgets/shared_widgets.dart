@@ -1,8 +1,10 @@
 import 'package:choof_app/utils/app_constant.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../controllers/landing_page_controller.dart';
 import '../../controllers/shared_functions.dart';
@@ -941,11 +943,39 @@ class _VideoWidgetState extends State<VideoWidget> {
                             width: 10,
                           ),
                           Expanded(
-                            child: Text(
-                              widget.commentList.last.commentText,
-                              overflow: TextOverflow.fade,
-                              style: const TextStyle(color: Colors.white),
-                            ),
+                            child: widget.commentList.first.commentText.length <
+                                    80
+                                ? Text(
+                                    widget.commentList.first.commentText,
+                                    overflow: TextOverflow.fade,
+                                    style: const TextStyle(color: Colors.white),
+                                  )
+                                : Stack(children: [
+                                    Text(
+                                      widget.commentList.first.commentText
+                                              .substring(0, 80) +
+                                          '...',
+                                      overflow: TextOverflow.fade,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        widget.viewCommentFunction();
+                                      },
+                                      child: const Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Padding(
+                                            padding: EdgeInsets.only(
+                                                top: 17, right: 10),
+                                            child: Text(
+                                              'more',
+                                              style: TextStyle(
+                                                  color: Colors.white70),
+                                            ),
+                                          )),
+                                    ),
+                                  ]),
                           ),
                         ],
                       ),
@@ -1023,7 +1053,7 @@ class GroupWidget extends StatelessWidget {
       decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(200))),
       child: Card(
-        color: Colors.grey.shade800,
+        color: const Color(bgColor),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           child: Column(
@@ -1294,7 +1324,7 @@ class BottomMenu extends StatelessWidget {
     return Obx(() => MediaQuery(
         data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
         child: SizedBox(
-          height: 95,
+          height: MediaQuery.of(context).size.height / 8.88,
           child: BottomNavigationBar(
             showUnselectedLabels: true,
             showSelectedLabels: true,
@@ -1351,3 +1381,217 @@ class BottomMenu extends StatelessWidget {
         )));
   }
 }
+
+class RefresherWidget extends StatelessWidget {
+  final RefreshController controller;
+  final Function pullrefreshFunction;
+  final Function onLoadingFunction;
+  final Widget child;
+  const RefresherWidget({
+    Key? key,
+    required this.controller,
+    required this.pullrefreshFunction,
+    required this.onLoadingFunction,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SmartRefresher(
+      controller: controller,
+      onRefresh: () {
+        pullrefreshFunction();
+      },
+      enablePullUp: true,
+      enablePullDown: true,
+      footer: CustomFooter(
+        builder: (BuildContext context, LoadStatus? mode) {
+          Widget body;
+          if (mode == LoadStatus.idle) {
+            body = const Text("Pull up to load more");
+          } else if (mode == LoadStatus.loading) {
+            body = const CupertinoActivityIndicator();
+          } else if (mode == LoadStatus.failed) {
+            body = const Text("Load Failed!Click retry!");
+          } else if (mode == LoadStatus.canLoading) {
+            body = const Text("Release to load more");
+          } else {
+            body = const Text("");
+          }
+          return mode == LoadStatus.noMore
+              ? const SizedBox.shrink()
+              : Container(
+                  height: 30.0,
+                  child: Center(child: body),
+                );
+        },
+      ),
+      onLoading: () {
+        onLoadingFunction();
+      },
+      child: child,
+    );
+  }
+}
+
+// class filterWidget extends StatelessWidget {
+//   const filterWidget({
+//     Key? key,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: MediaQuery.of(context).size.width / 1.25,
+//       child: Autocomplete(
+//         optionsBuilder: (TextEditingValue textEditingValue) {
+//           if (textEditingValue.text.isEmpty) {
+//             return const Iterable<String>.empty();
+//           } else {
+//             return homePageController.allTags.where((String option) {
+//               return option
+//                   .trim()
+//                   .toLowerCase()
+//                   .contains(textEditingValue.text.trim().toLowerCase());
+//             });
+//           }
+//         },
+//         optionsViewBuilder: (context, Function(String) onSelected, options) {
+//           return Material(
+//             elevation: 4,
+//             child: ListView.separated(
+//               padding: EdgeInsets.zero,
+//               itemBuilder: (context, index) {
+//                 final option = options.elementAt(index);
+//                 return ListTile(
+//                   title: Text(option.toString()),
+//                   onTap: () {
+//                     homePageController.addTags(option.toString().trim());
+//                     homePageController.tagName.clear();
+//                     FocusScope.of(context).unfocus();
+//                   },
+//                 );
+//               },
+//               separatorBuilder: (context, index) => const Divider(),
+//               itemCount: options.length,
+//             ),
+//           );
+//         },
+//         onSelected: (selectedString) {
+//           homePageController.addTags(selectedString.toString().trim());
+//           homePageController.tagName.clear();
+//           FocusScope.of(context).unfocus();
+//         },
+//         fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+//           homePageController.tagName = controller;
+
+//           return TextField(
+//             controller: controller,
+//             focusNode: focusNode,
+//             onEditingComplete: onEditingComplete,
+//             onSubmitted: (value) {
+//               if (value.isNotEmpty) {
+//                 // Split if input contains ,
+//                 if (value.contains(',')) {
+//                   List<String> splitedString = value.split(',');
+//                   splitedString.forEach((element) {
+//                     homePageController.addTags(element.trim());
+//                   });
+//                 } else {
+//                   homePageController.addTags(value.trim());
+//                 }
+//               }
+//               homePageController.tagName.clear();
+//             },
+//             decoration: InputDecoration(
+//                 border: OutlineInputBorder(
+//                   borderRadius: BorderRadius.circular(30.0),
+//                 ),
+//                 filled: true,
+//                 hintStyle: TextStyle(color: Colors.grey[800]),
+//                 hintText: ''' “At least one tag (food, music, etc.)”''',
+//                 fillColor: Colors.white70,
+//                 suffixIcon: IconButton(
+//                   onPressed: () {
+//                     controller.clear();
+//                   },
+//                   icon: const Icon(Icons.close_rounded),
+//                 )),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+
+
+
+// Container(
+//                                       padding: const EdgeInsets.only(left: 10),
+//                                       height: double.infinity,
+//                                       // MediaQuery.of(context).size.height /
+//                                       //     16,
+//                                       width: MediaQuery.of(context).size.width /
+//                                           1.8,
+//                                       child: InputDecorator(
+//                                           decoration: InputDecoration(
+//                                             border: OutlineInputBorder(
+//                                               borderRadius:
+//                                                   BorderRadius.circular(30.0),
+//                                             ),
+//                                             contentPadding:
+//                                                 const EdgeInsets.all(10),
+//                                             filled: true,
+//                                             fillColor: Colors.white70,
+//                                             prefixIcon: InkWell(
+//                                               onTap: () {
+//                                                 homePageController
+//                                                     .setFilterOn();
+//                                               },
+//                                               child: const Icon(
+//                                                 Icons.search,
+//                                                 color: Colors.black,
+//                                               ),
+//                                             ),
+//                                           ),
+//                                           child: Stack(
+//                                             children: [
+//                                               Autocomplete<String>(
+//                                                 displayStringForOption: (c) =>
+//                                                     c.toString(),
+//                                                 optionsBuilder:
+//                                                     (TextEditingValue
+//                                                         textEditingValue) {
+//                                                   if (textEditingValue.text ==
+//                                                       '') {
+//                                                     return const Iterable<
+//                                                         String>.empty();
+//                                                   }
+//                                                   return homePageController
+//                                                       .allTags
+//                                                       .where((String option) {
+//                                                     return option
+//                                                         .trim()
+//                                                         .toLowerCase()
+//                                                         .contains(
+//                                                             textEditingValue
+//                                                                 .text
+//                                                                 .trim()
+//                                                                 .toLowerCase());
+//                                                   });
+//                                                 },
+//                                                 onSelected: (String selection) {
+//                                                   homePageController
+//                                                       .addTags(selection);
+//                                                   tagName.clear();
+//                                                   FocusScope.of(context)
+//                                                       .unfocus();
+//                                                 },
+//                                               ),
+//                                               const Text(
+//                                                 'Filter by tag',
+//                                                 style: TextStyle(fontSize: 10),
+//                                               ),
+//                                             ],
+//                                           )),
+//                                     ),

@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:choof_app/models/comment.dart';
 import 'package:choof_app/screens/view_group.dart';
 import 'package:choof_app/screens/widgets/shared_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -65,7 +62,7 @@ class _FavouritePageState extends State<FavouritePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size(60, 60),
+        preferredSize: const Size(50, 50),
         child: Obx(() => landingPagecontroller.isDeviceTablet.value
             ? const SizedBox.shrink()
             : Obx(() => landingPagecontroller.tabIndex.value == 0
@@ -130,69 +127,45 @@ class _FavouritePageState extends State<FavouritePage> {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           color: const Color(mainBgColor),
-          child: SmartRefresher(
-            controller: _refreshController,
-            onRefresh: _pullRefresh,
-            enablePullUp: true,
-            enablePullDown: true,
-            footer: CustomFooter(
-              builder: (BuildContext context, LoadStatus? mode) {
-                Widget body;
-                if (mode == LoadStatus.idle) {
-                  body = const Text("Pull up to load more");
-                } else if (mode == LoadStatus.loading) {
-                  body = const CupertinoActivityIndicator();
-                } else if (mode == LoadStatus.failed) {
-                  body = const Text("Load Failed!Click retry!");
-                } else if (mode == LoadStatus.canLoading) {
-                  body = const Text("Release to load more");
-                } else {
-                  body = const Text("");
-                }
-                return mode == LoadStatus.noMore
-                    ? const SizedBox.shrink()
-                    : Container(
-                        height: 30.0,
-                        child: Center(child: body),
-                      );
-              },
-            ),
-            onLoading: () {
-              if (homePageController.allpost.length -
-                      homePageController.postLimit.value >
-                  0) {
-                if (homePageController.allpost.length -
-                        homePageController.postLimit.value <=
-                    15) {
-                  homePageController
-                      .setPostLimit(homePageController.allpost.length);
-                } else {
-                  homePageController.addPostLimit();
-                }
-                _refreshController.loadComplete();
-              } else {
-                homePageController
-                    .setPostLimit(homePageController.allpost.length);
-                _refreshController.loadNoData();
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                // Tablet View
-                Obx(
-                  () => landingPagecontroller.isDeviceTablet.value
-                      ? Container(
-                          width: MediaQuery.of(context).size.width / 3,
-                          height: MediaQuery.of(context).size.height,
-                          decoration: const BoxDecoration(
-                              color: Color(bgColor),
-                              border: Border(
-                                right: BorderSide(
-                                  width: 5.0,
-                                  color: Color(mainBgColor),
-                                ),
-                              )),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // Tablet View
+              Obx(
+                () => landingPagecontroller.isDeviceTablet.value
+                    ? Container(
+                        width: MediaQuery.of(context).size.width / 3,
+                        height: MediaQuery.of(context).size.height,
+                        decoration: const BoxDecoration(
+                            color: Color(bgColor),
+                            border: Border(
+                              right: BorderSide(
+                                width: 5.0,
+                                color: Color(mainBgColor),
+                              ),
+                            )),
+                        child: RefresherWidget(
+                          controller: _refreshController,
+                          pullrefreshFunction: _pullRefresh,
+                          onLoadingFunction: () {
+                            if (homePageController.allpost.length -
+                                    homePageController.postLimit.value >
+                                0) {
+                              if (homePageController.allpost.length -
+                                      homePageController.postLimit.value <=
+                                  15) {
+                                homePageController.setPostLimit(
+                                    homePageController.allpost.length);
+                              } else {
+                                homePageController.addPostLimit();
+                              }
+                              _refreshController.loadComplete();
+                            } else {
+                              homePageController.setPostLimit(
+                                  homePageController.allpost.length);
+                              _refreshController.loadNoData();
+                            }
+                          },
                           child: ListView(
                               shrinkWrap: true,
                               physics: const ClampingScrollPhysics(),
@@ -426,16 +399,39 @@ class _FavouritePageState extends State<FavouritePage> {
                                       : const SizedBox.shrink();
                                 }),
                               ]),
-                        )
-                      : const SizedBox.shrink(),
-                ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
 
-                // Main View
-                Container(
-                  width: landingPagecontroller.isDeviceTablet.value
-                      ? MediaQuery.of(context).size.width * 2 / 3
-                      : MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
+              // Main View
+              Container(
+                width: landingPagecontroller.isDeviceTablet.value
+                    ? MediaQuery.of(context).size.width * 2 / 3
+                    : MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: RefresherWidget(
+                  controller: _refreshController,
+                  pullrefreshFunction: _pullRefresh,
+                  onLoadingFunction: () {
+                    if (homePageController.allpost.length -
+                            homePageController.postLimit.value >
+                        0) {
+                      if (homePageController.allpost.length -
+                              homePageController.postLimit.value <=
+                          15) {
+                        homePageController
+                            .setPostLimit(homePageController.allpost.length);
+                      } else {
+                        homePageController.addPostLimit();
+                      }
+                      _refreshController.loadComplete();
+                    } else {
+                      homePageController
+                          .setPostLimit(homePageController.allpost.length);
+                      _refreshController.loadNoData();
+                    }
+                  },
                   child: ListView(
                     children: [
                       // Title
@@ -620,113 +616,149 @@ class _FavouritePageState extends State<FavouritePage> {
 
                       // Filter tag
                       Container(
-                        height: MediaQuery.of(context).size.height / 16,
+                        padding: const EdgeInsets.only(left: 10),
+                        height: MediaQuery.of(context).size.height / 13,
                         child: ListView(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           children: [
-                            Obx(
-                              () => !homePageController.isFilterOn.value
-                                  ? IconButton(
-                                      onPressed: () {
-                                        homePageController.setFilterOn();
-                                      },
-                                      icon: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 5),
-                                        child: CircleAvatar(
-                                          radius: MediaQuery.of(context)
+                            Obx(() => homePageController
+                                        .filteredTags.isNotEmpty &&
+                                    homePageController.isFilterOn.value
+                                ? IconButton(
+                                    onPressed: () {
+                                      homePageController.setFilterOn();
+                                    },
+                                    icon: Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 10),
+                                      child: CircleAvatar(
+                                        // radius: MediaQuery.of(context)
+                                        //         .size
+                                        //         .height /
+                                        //     13,
+                                        radius: double.infinity,
+                                        backgroundColor: const Color(bgColor),
+                                        child: Icon(
+                                          Icons.search,
+                                          size: MediaQuery.of(context)
                                                   .size
                                                   .height /
                                               30,
-                                          backgroundColor: Colors.white,
-                                          child: Icon(
-                                            Icons.search,
-                                            size: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                50,
-                                            color: Colors.black,
-                                          ),
+                                          color: Colors.white,
                                         ),
-                                      ))
-                                  : Container(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      height:
-                                          MediaQuery.of(context).size.height /
-                                              15,
-                                      width: MediaQuery.of(context).size.width /
-                                          1.8,
-                                      child: InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.all(10),
-                                            filled: true,
-                                            fillColor: Colors.white70,
-                                            prefixIcon: InkWell(
-                                              onTap: () {
-                                                homePageController
-                                                    .setFilterOn();
-                                              },
-                                              child: const Icon(
-                                                Icons.search,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Stack(
-                                            children: [
-                                              Autocomplete<String>(
-                                                displayStringForOption: (c) =>
-                                                    c.toString(),
-                                                optionsBuilder:
-                                                    (TextEditingValue
-                                                        textEditingValue) {
-                                                  if (textEditingValue.text ==
-                                                      '') {
-                                                    return const Iterable<
-                                                        String>.empty();
-                                                  }
-                                                  return homePageController
-                                                      .allTags
-                                                      .where((String option) {
-                                                    return option
-                                                        .trim()
-                                                        .toLowerCase()
-                                                        .contains(
-                                                            textEditingValue
-                                                                .text
-                                                                .trim()
-                                                                .toLowerCase());
-                                                  });
-                                                },
-                                                onSelected: (String selection) {
-                                                  homePageController
-                                                      .addTags(selection);
-                                                  tagName.clear();
+                                      ),
+                                    ))
+                                : Container(
+                                    width: MediaQuery.of(context).size.width /
+                                        1.25,
+                                    child: Autocomplete(
+                                      optionsBuilder:
+                                          (TextEditingValue textEditingValue) {
+                                        if (textEditingValue.text.isEmpty) {
+                                          return const Iterable<String>.empty();
+                                        } else {
+                                          return homePageController.allTags
+                                              .where((String option) {
+                                            return option
+                                                .trim()
+                                                .toLowerCase()
+                                                .contains(textEditingValue.text
+                                                    .trim()
+                                                    .toLowerCase());
+                                          });
+                                        }
+                                      },
+                                      optionsViewBuilder: (context,
+                                          Function(String) onSelected,
+                                          options) {
+                                        return Material(
+                                          elevation: 4,
+                                          child: ListView.separated(
+                                            padding: EdgeInsets.zero,
+                                            itemBuilder: (context, index) {
+                                              final option =
+                                                  options.elementAt(index);
+                                              return ListTile(
+                                                title: Text(option.toString()),
+                                                onTap: () {
+                                                  homePageController.addTags(
+                                                      option.toString().trim());
+                                                  homePageController.tagName
+                                                      .clear();
                                                   FocusScope.of(context)
                                                       .unfocus();
                                                 },
+                                              );
+                                            },
+                                            separatorBuilder:
+                                                (context, index) =>
+                                                    const Divider(),
+                                            itemCount: options.length,
+                                          ),
+                                        );
+                                      },
+                                      onSelected: (selectedString) {
+                                        homePageController.addTags(
+                                            selectedString.toString().trim());
+                                        homePageController.tagName.clear();
+                                        FocusScope.of(context).unfocus();
+                                      },
+                                      fieldViewBuilder: (context, controller,
+                                          focusNode, onEditingComplete) {
+                                        homePageController.tagName = controller;
+
+                                        return TextField(
+                                          controller: controller,
+                                          focusNode: focusNode,
+                                          onEditingComplete: onEditingComplete,
+                                          onSubmitted: (value) {
+                                            if (value.isNotEmpty) {
+                                              // Split if input contains ,
+                                              if (value.contains(',')) {
+                                                List<String> splitedString =
+                                                    value.split(',');
+                                                splitedString
+                                                    .forEach((element) {
+                                                  homePageController
+                                                      .addTags(element.trim());
+                                                });
+                                              } else {
+                                                homePageController
+                                                    .addTags(value.trim());
+                                              }
+                                            }
+                                            homePageController.tagName.clear();
+                                          },
+                                          decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(30.0),
                                               ),
-                                              const Text(
-                                                'Filter by tag',
-                                                style: TextStyle(fontSize: 10),
-                                              ),
-                                            ],
-                                          )),
+                                              filled: true,
+                                              hintStyle: TextStyle(
+                                                  color: Colors.grey[800]),
+                                              hintText:
+                                                  ''' “At least one tag (food, music, etc.)”''',
+                                              fillColor: Colors.white70,
+                                              suffixIcon: IconButton(
+                                                onPressed: () {
+                                                  controller.clear();
+                                                },
+                                                icon: const Icon(
+                                                    Icons.close_rounded),
+                                              )),
+                                        );
+                                      },
                                     ),
-                            ),
+                                  )),
 
                             const SizedBox(
                               width: 10,
                             ),
                             // Show Filtered tags
-                            Obx(
-                              () => homePageController.filteredTags.isNotEmpty
+                            Obx(() {
+                              return homePageController.filteredTags.isNotEmpty
                                   ? ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
@@ -735,7 +767,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                       itemBuilder: (context, index) {
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 5, vertical: 10),
+                                              horizontal: 5, vertical: 5),
                                           child: Stack(
                                             alignment: Alignment.topLeft,
                                             children: [
@@ -784,8 +816,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                           ),
                                         );
                                       })
-                                  : const SizedBox.shrink(),
-                            ),
+                                  : const SizedBox.shrink();
+                            }),
                           ],
                         ),
                       ),
@@ -926,50 +958,54 @@ class _FavouritePageState extends State<FavouritePage> {
                                                     onTap: () {
                                                       Get.to(() =>
                                                               FullScreenPage(
-                                                                  index: 0,
-                                                                  post:
-                                                                      currentPosts[
-                                                                          index],
-                                                                  isOwner: currentPosts[
-                                                                              index]
-                                                                          .creator ==
-                                                                      landingPagecontroller
+                                                                index: 0,
+                                                                post:
+                                                                    currentPosts[
+                                                                        index],
+                                                                isOwner: currentPosts[
+                                                                            index]
+                                                                        .creator ==
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .name,
+                                                                commentController:
+                                                                    commentController,
+                                                                addCommentFunction:
+                                                                    () {
+                                                                  homePageController.addComment(Comment(
+                                                                      postName:
+                                                                          currentPosts[index]
+                                                                              .name,
+                                                                      postLink:
+                                                                          currentPosts[index]
+                                                                              .youtubeLink,
+                                                                      postCreator:
+                                                                          currentPosts[index]
+                                                                              .creator,
+                                                                      postGroup:
+                                                                          currentPosts[index]
+                                                                              .groupName,
+                                                                      commenter: landingPagecontroller
                                                                           .userProfile
                                                                           .value
                                                                           .name,
-                                                                  commentController:
-                                                                      commentController,
-                                                                  addCommentFunction:
-                                                                      () {
-                                                                    homePageController.addComment(Comment(
-                                                                        postName:
-                                                                            currentPosts[index]
-                                                                                .name,
-                                                                        postLink:
-                                                                            currentPosts[index]
-                                                                                .youtubeLink,
-                                                                        postCreator:
-                                                                            currentPosts[index]
-                                                                                .creator,
-                                                                        postGroup:
-                                                                            currentPosts[index]
-                                                                                .groupName,
-                                                                        commenter: landingPagecontroller
-                                                                            .userProfile
-                                                                            .value
-                                                                            .name,
-                                                                        commenterUrl: landingPagecontroller
-                                                                            .userProfile
-                                                                            .value
-                                                                            .imageUrl,
-                                                                        commentText:
-                                                                            commentController
-                                                                                .text,
-                                                                        addedTime:
-                                                                            DateTime.now()));
-                                                                    commentController
-                                                                        .clear();
-                                                                  }))!
+                                                                      commenterUrl: landingPagecontroller
+                                                                          .userProfile
+                                                                          .value
+                                                                          .imageUrl,
+                                                                      commentText:
+                                                                          commentController
+                                                                              .text,
+                                                                      addedTime:
+                                                                          DateTime
+                                                                              .now()));
+                                                                  commentController
+                                                                      .clear();
+                                                                },
+                                                                isViewComment:
+                                                                    false,
+                                                              ))!
                                                           .then((value) =>
                                                               _pullRefresh());
                                                     },
@@ -1005,6 +1041,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                           .first
                                                                           .data()),
                                                                       isFromGroup:
+                                                                          false,
+                                                                      isFromFullScreenPage:
                                                                           false,
                                                                     ))!
                                                                 .then((value) =>
@@ -1059,43 +1097,53 @@ class _FavouritePageState extends State<FavouritePage> {
                                                       viewCommentFunction: () {
                                                         Get.to(() =>
                                                                 FullScreenPage(
-                                                                    index: 0,
-                                                                    post: currentPosts[
-                                                                        index],
-                                                                    isOwner: currentPosts[index]
-                                                                            .creator ==
-                                                                        landingPagecontroller
+                                                                  index: 0,
+                                                                  post:
+                                                                      currentPosts[
+                                                                          index],
+                                                                  isOwner: currentPosts[
+                                                                              index]
+                                                                          .creator ==
+                                                                      landingPagecontroller
+                                                                          .userProfile
+                                                                          .value
+                                                                          .name,
+                                                                  commentController:
+                                                                      commentController,
+                                                                  addCommentFunction:
+                                                                      () {
+                                                                    homePageController.addComment(Comment(
+                                                                        postName:
+                                                                            currentPosts[index]
+                                                                                .name,
+                                                                        postLink:
+                                                                            currentPosts[index]
+                                                                                .youtubeLink,
+                                                                        postCreator:
+                                                                            currentPosts[index]
+                                                                                .creator,
+                                                                        postGroup:
+                                                                            currentPosts[index]
+                                                                                .groupName,
+                                                                        commenter: landingPagecontroller
                                                                             .userProfile
                                                                             .value
                                                                             .name,
-                                                                    commentController:
-                                                                        commentController,
-                                                                    addCommentFunction:
-                                                                        () {
-                                                                      homePageController.addComment(Comment(
-                                                                          postName: currentPosts[index]
-                                                                              .name,
-                                                                          postLink: currentPosts[index]
-                                                                              .youtubeLink,
-                                                                          postCreator: currentPosts[index]
-                                                                              .creator,
-                                                                          postGroup: currentPosts[index]
-                                                                              .groupName,
-                                                                          commenter: landingPagecontroller
-                                                                              .userProfile
-                                                                              .value
-                                                                              .name,
-                                                                          commenterUrl: landingPagecontroller
-                                                                              .userProfile
-                                                                              .value
-                                                                              .imageUrl,
-                                                                          commentText: commentController
-                                                                              .text,
-                                                                          addedTime:
-                                                                              DateTime.now()));
-                                                                      commentController
-                                                                          .clear();
-                                                                    }))!
+                                                                        commenterUrl: landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .imageUrl,
+                                                                        commentText:
+                                                                            commentController
+                                                                                .text,
+                                                                        addedTime:
+                                                                            DateTime.now()));
+                                                                    commentController
+                                                                        .clear();
+                                                                  },
+                                                                  isViewComment:
+                                                                      true,
+                                                                ))!
                                                             .then((value) =>
                                                                 _pullRefresh());
                                                       },
@@ -1104,51 +1152,55 @@ class _FavouritePageState extends State<FavouritePage> {
                                             : InkWell(
                                                 onTap: () {
                                                   Get.to(() => FullScreenPage(
-                                                          index: 0,
-                                                          post: currentPosts[
-                                                              index],
-                                                          isOwner: currentPosts[
-                                                                      index]
-                                                                  .creator ==
-                                                              landingPagecontroller
-                                                                  .userProfile
-                                                                  .value
-                                                                  .name,
-                                                          commentController:
-                                                              commentController,
-                                                          addCommentFunction:
-                                                              () {
-                                                            homePageController.addComment(Comment(
-                                                                postName:
-                                                                    currentPosts[index]
-                                                                        .name,
-                                                                postLink: currentPosts[index]
-                                                                    .youtubeLink,
-                                                                postCreator:
-                                                                    currentPosts[index]
-                                                                        .creator,
-                                                                postGroup:
-                                                                    currentPosts[index]
-                                                                        .groupName,
-                                                                commenter:
-                                                                    landingPagecontroller
-                                                                        .userProfile
-                                                                        .value
-                                                                        .name,
-                                                                commenterUrl:
-                                                                    landingPagecontroller
-                                                                        .userProfile
-                                                                        .value
-                                                                        .imageUrl,
-                                                                commentText:
-                                                                    commentController
-                                                                        .text,
-                                                                addedTime:
-                                                                    DateTime
-                                                                        .now()));
-                                                            commentController
-                                                                .clear();
-                                                          }))!
+                                                            index: 0,
+                                                            post: currentPosts[
+                                                                index],
+                                                            isOwner: currentPosts[
+                                                                        index]
+                                                                    .creator ==
+                                                                landingPagecontroller
+                                                                    .userProfile
+                                                                    .value
+                                                                    .name,
+                                                            commentController:
+                                                                commentController,
+                                                            addCommentFunction:
+                                                                () {
+                                                              homePageController.addComment(Comment(
+                                                                  postName: currentPosts[
+                                                                          index]
+                                                                      .name,
+                                                                  postLink:
+                                                                      currentPosts[index]
+                                                                          .youtubeLink,
+                                                                  postCreator:
+                                                                      currentPosts[index]
+                                                                          .creator,
+                                                                  postGroup:
+                                                                      currentPosts[index]
+                                                                          .groupName,
+                                                                  commenter:
+                                                                      landingPagecontroller
+                                                                          .userProfile
+                                                                          .value
+                                                                          .name,
+                                                                  commenterUrl:
+                                                                      landingPagecontroller
+                                                                          .userProfile
+                                                                          .value
+                                                                          .imageUrl,
+                                                                  commentText:
+                                                                      commentController
+                                                                          .text,
+                                                                  addedTime:
+                                                                      DateTime
+                                                                          .now()));
+                                                              commentController
+                                                                  .clear();
+                                                            },
+                                                            isViewComment:
+                                                                false,
+                                                          ))!
                                                       .then((value) =>
                                                           _pullRefresh());
                                                 },
@@ -1180,6 +1232,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                           .first
                                                                           .data()),
                                                                   isFromGroup:
+                                                                      false,
+                                                                  isFromFullScreenPage:
                                                                       false,
                                                                 ))!
                                                             .then((value) =>
@@ -1232,52 +1286,53 @@ class _FavouritePageState extends State<FavouritePage> {
                                                   },
                                                   viewCommentFunction: () {
                                                     Get.to(() => FullScreenPage(
-                                                            index: 0,
-                                                            post: currentPosts[
-                                                                index],
-                                                            isOwner: currentPosts[
-                                                                        index]
-                                                                    .creator ==
-                                                                landingPagecontroller
-                                                                    .userProfile
-                                                                    .value
-                                                                    .name,
-                                                            commentController:
-                                                                commentController,
-                                                            addCommentFunction:
-                                                                () {
-                                                              homePageController.addComment(Comment(
-                                                                  postName: currentPosts[
+                                                              index: 0,
+                                                              post:
+                                                                  currentPosts[
+                                                                      index],
+                                                              isOwner: currentPosts[
                                                                           index]
+                                                                      .creator ==
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
                                                                       .name,
-                                                                  postLink:
-                                                                      currentPosts[index]
-                                                                          .youtubeLink,
-                                                                  postCreator:
-                                                                      currentPosts[index]
-                                                                          .creator,
-                                                                  postGroup:
-                                                                      currentPosts[index]
-                                                                          .groupName,
-                                                                  commenter:
-                                                                      landingPagecontroller
-                                                                          .userProfile
-                                                                          .value
-                                                                          .name,
-                                                                  commenterUrl:
-                                                                      landingPagecontroller
-                                                                          .userProfile
-                                                                          .value
-                                                                          .imageUrl,
-                                                                  commentText:
-                                                                      commentController
-                                                                          .text,
-                                                                  addedTime:
-                                                                      DateTime
-                                                                          .now()));
-                                                              commentController
-                                                                  .clear();
-                                                            }))!
+                                                              commentController:
+                                                                  commentController,
+                                                              addCommentFunction:
+                                                                  () {
+                                                                homePageController.addComment(Comment(
+                                                                    postName:
+                                                                        currentPosts[index]
+                                                                            .name,
+                                                                    postLink: currentPosts[index]
+                                                                        .youtubeLink,
+                                                                    postCreator:
+                                                                        currentPosts[index]
+                                                                            .creator,
+                                                                    postGroup:
+                                                                        currentPosts[index]
+                                                                            .groupName,
+                                                                    commenter: landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .name,
+                                                                    commenterUrl: landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .imageUrl,
+                                                                    commentText:
+                                                                        commentController
+                                                                            .text,
+                                                                    addedTime:
+                                                                        DateTime
+                                                                            .now()));
+                                                                commentController
+                                                                    .clear();
+                                                              },
+                                                              isViewComment:
+                                                                  true,
+                                                            ))!
                                                         .then((value) =>
                                                             _pullRefresh());
                                                   },
@@ -1317,50 +1372,54 @@ class _FavouritePageState extends State<FavouritePage> {
                                                     onTap: () {
                                                       Get.to(() =>
                                                               FullScreenPage(
-                                                                  index: 0,
-                                                                  post:
-                                                                      currentPosts[
-                                                                          index],
-                                                                  isOwner: currentPosts[
-                                                                              index]
-                                                                          .creator ==
-                                                                      landingPagecontroller
+                                                                index: 0,
+                                                                post:
+                                                                    currentPosts[
+                                                                        index],
+                                                                isOwner: currentPosts[
+                                                                            index]
+                                                                        .creator ==
+                                                                    landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .name,
+                                                                commentController:
+                                                                    commentController,
+                                                                addCommentFunction:
+                                                                    () {
+                                                                  homePageController.addComment(Comment(
+                                                                      postName:
+                                                                          currentPosts[index]
+                                                                              .name,
+                                                                      postLink:
+                                                                          currentPosts[index]
+                                                                              .youtubeLink,
+                                                                      postCreator:
+                                                                          currentPosts[index]
+                                                                              .creator,
+                                                                      postGroup:
+                                                                          currentPosts[index]
+                                                                              .groupName,
+                                                                      commenter: landingPagecontroller
                                                                           .userProfile
                                                                           .value
                                                                           .name,
-                                                                  commentController:
-                                                                      commentController,
-                                                                  addCommentFunction:
-                                                                      () {
-                                                                    homePageController.addComment(Comment(
-                                                                        postName:
-                                                                            currentPosts[index]
-                                                                                .name,
-                                                                        postLink:
-                                                                            currentPosts[index]
-                                                                                .youtubeLink,
-                                                                        postCreator:
-                                                                            currentPosts[index]
-                                                                                .creator,
-                                                                        postGroup:
-                                                                            currentPosts[index]
-                                                                                .groupName,
-                                                                        commenter: landingPagecontroller
-                                                                            .userProfile
-                                                                            .value
-                                                                            .name,
-                                                                        commenterUrl: landingPagecontroller
-                                                                            .userProfile
-                                                                            .value
-                                                                            .imageUrl,
-                                                                        commentText:
-                                                                            commentController
-                                                                                .text,
-                                                                        addedTime:
-                                                                            DateTime.now()));
-                                                                    commentController
-                                                                        .clear();
-                                                                  }))!
+                                                                      commenterUrl: landingPagecontroller
+                                                                          .userProfile
+                                                                          .value
+                                                                          .imageUrl,
+                                                                      commentText:
+                                                                          commentController
+                                                                              .text,
+                                                                      addedTime:
+                                                                          DateTime
+                                                                              .now()));
+                                                                  commentController
+                                                                      .clear();
+                                                                },
+                                                                isViewComment:
+                                                                    false,
+                                                              ))!
                                                           .then((value) =>
                                                               _pullRefresh());
                                                     },
@@ -1396,6 +1455,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                           .first
                                                                           .data()),
                                                                       isFromGroup:
+                                                                          false,
+                                                                      isFromFullScreenPage:
                                                                           false,
                                                                     ))!
                                                                 .then((value) =>
@@ -1450,43 +1511,53 @@ class _FavouritePageState extends State<FavouritePage> {
                                                       viewCommentFunction: () {
                                                         Get.to(() =>
                                                                 FullScreenPage(
-                                                                    index: 0,
-                                                                    post: currentPosts[
-                                                                        index],
-                                                                    isOwner: currentPosts[index]
-                                                                            .creator ==
-                                                                        landingPagecontroller
+                                                                  index: 0,
+                                                                  post:
+                                                                      currentPosts[
+                                                                          index],
+                                                                  isOwner: currentPosts[
+                                                                              index]
+                                                                          .creator ==
+                                                                      landingPagecontroller
+                                                                          .userProfile
+                                                                          .value
+                                                                          .name,
+                                                                  commentController:
+                                                                      commentController,
+                                                                  addCommentFunction:
+                                                                      () {
+                                                                    homePageController.addComment(Comment(
+                                                                        postName:
+                                                                            currentPosts[index]
+                                                                                .name,
+                                                                        postLink:
+                                                                            currentPosts[index]
+                                                                                .youtubeLink,
+                                                                        postCreator:
+                                                                            currentPosts[index]
+                                                                                .creator,
+                                                                        postGroup:
+                                                                            currentPosts[index]
+                                                                                .groupName,
+                                                                        commenter: landingPagecontroller
                                                                             .userProfile
                                                                             .value
                                                                             .name,
-                                                                    commentController:
-                                                                        commentController,
-                                                                    addCommentFunction:
-                                                                        () {
-                                                                      homePageController.addComment(Comment(
-                                                                          postName: currentPosts[index]
-                                                                              .name,
-                                                                          postLink: currentPosts[index]
-                                                                              .youtubeLink,
-                                                                          postCreator: currentPosts[index]
-                                                                              .creator,
-                                                                          postGroup: currentPosts[index]
-                                                                              .groupName,
-                                                                          commenter: landingPagecontroller
-                                                                              .userProfile
-                                                                              .value
-                                                                              .name,
-                                                                          commenterUrl: landingPagecontroller
-                                                                              .userProfile
-                                                                              .value
-                                                                              .imageUrl,
-                                                                          commentText: commentController
-                                                                              .text,
-                                                                          addedTime:
-                                                                              DateTime.now()));
-                                                                      commentController
-                                                                          .clear();
-                                                                    }))!
+                                                                        commenterUrl: landingPagecontroller
+                                                                            .userProfile
+                                                                            .value
+                                                                            .imageUrl,
+                                                                        commentText:
+                                                                            commentController
+                                                                                .text,
+                                                                        addedTime:
+                                                                            DateTime.now()));
+                                                                    commentController
+                                                                        .clear();
+                                                                  },
+                                                                  isViewComment:
+                                                                      true,
+                                                                ))!
                                                             .then((value) =>
                                                                 _pullRefresh());
                                                       },
@@ -1495,51 +1566,55 @@ class _FavouritePageState extends State<FavouritePage> {
                                             : InkWell(
                                                 onTap: () {
                                                   Get.to(() => FullScreenPage(
-                                                          index: 0,
-                                                          post: currentPosts[
-                                                              index],
-                                                          isOwner: currentPosts[
-                                                                      index]
-                                                                  .creator ==
-                                                              landingPagecontroller
-                                                                  .userProfile
-                                                                  .value
-                                                                  .name,
-                                                          commentController:
-                                                              commentController,
-                                                          addCommentFunction:
-                                                              () {
-                                                            homePageController.addComment(Comment(
-                                                                postName:
-                                                                    currentPosts[index]
-                                                                        .name,
-                                                                postLink: currentPosts[index]
-                                                                    .youtubeLink,
-                                                                postCreator:
-                                                                    currentPosts[index]
-                                                                        .creator,
-                                                                postGroup:
-                                                                    currentPosts[index]
-                                                                        .groupName,
-                                                                commenter:
-                                                                    landingPagecontroller
-                                                                        .userProfile
-                                                                        .value
-                                                                        .name,
-                                                                commenterUrl:
-                                                                    landingPagecontroller
-                                                                        .userProfile
-                                                                        .value
-                                                                        .imageUrl,
-                                                                commentText:
-                                                                    commentController
-                                                                        .text,
-                                                                addedTime:
-                                                                    DateTime
-                                                                        .now()));
-                                                            commentController
-                                                                .clear();
-                                                          }))!
+                                                            index: 0,
+                                                            post: currentPosts[
+                                                                index],
+                                                            isOwner: currentPosts[
+                                                                        index]
+                                                                    .creator ==
+                                                                landingPagecontroller
+                                                                    .userProfile
+                                                                    .value
+                                                                    .name,
+                                                            commentController:
+                                                                commentController,
+                                                            addCommentFunction:
+                                                                () {
+                                                              homePageController.addComment(Comment(
+                                                                  postName: currentPosts[
+                                                                          index]
+                                                                      .name,
+                                                                  postLink:
+                                                                      currentPosts[index]
+                                                                          .youtubeLink,
+                                                                  postCreator:
+                                                                      currentPosts[index]
+                                                                          .creator,
+                                                                  postGroup:
+                                                                      currentPosts[index]
+                                                                          .groupName,
+                                                                  commenter:
+                                                                      landingPagecontroller
+                                                                          .userProfile
+                                                                          .value
+                                                                          .name,
+                                                                  commenterUrl:
+                                                                      landingPagecontroller
+                                                                          .userProfile
+                                                                          .value
+                                                                          .imageUrl,
+                                                                  commentText:
+                                                                      commentController
+                                                                          .text,
+                                                                  addedTime:
+                                                                      DateTime
+                                                                          .now()));
+                                                              commentController
+                                                                  .clear();
+                                                            },
+                                                            isViewComment:
+                                                                false,
+                                                          ))!
                                                       .then((value) =>
                                                           _pullRefresh());
                                                 },
@@ -1571,6 +1646,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                           .first
                                                                           .data()),
                                                                   isFromGroup:
+                                                                      false,
+                                                                  isFromFullScreenPage:
                                                                       false,
                                                                 ))!
                                                             .then((value) =>
@@ -1623,52 +1700,53 @@ class _FavouritePageState extends State<FavouritePage> {
                                                   },
                                                   viewCommentFunction: () {
                                                     Get.to(() => FullScreenPage(
-                                                            index: 0,
-                                                            post: currentPosts[
-                                                                index],
-                                                            isOwner: currentPosts[
-                                                                        index]
-                                                                    .creator ==
-                                                                landingPagecontroller
-                                                                    .userProfile
-                                                                    .value
-                                                                    .name,
-                                                            commentController:
-                                                                commentController,
-                                                            addCommentFunction:
-                                                                () {
-                                                              homePageController.addComment(Comment(
-                                                                  postName: currentPosts[
+                                                              index: 0,
+                                                              post:
+                                                                  currentPosts[
+                                                                      index],
+                                                              isOwner: currentPosts[
                                                                           index]
+                                                                      .creator ==
+                                                                  landingPagecontroller
+                                                                      .userProfile
+                                                                      .value
                                                                       .name,
-                                                                  postLink:
-                                                                      currentPosts[index]
-                                                                          .youtubeLink,
-                                                                  postCreator:
-                                                                      currentPosts[index]
-                                                                          .creator,
-                                                                  postGroup:
-                                                                      currentPosts[index]
-                                                                          .groupName,
-                                                                  commenter:
-                                                                      landingPagecontroller
-                                                                          .userProfile
-                                                                          .value
-                                                                          .name,
-                                                                  commenterUrl:
-                                                                      landingPagecontroller
-                                                                          .userProfile
-                                                                          .value
-                                                                          .imageUrl,
-                                                                  commentText:
-                                                                      commentController
-                                                                          .text,
-                                                                  addedTime:
-                                                                      DateTime
-                                                                          .now()));
-                                                              commentController
-                                                                  .clear();
-                                                            }))!
+                                                              commentController:
+                                                                  commentController,
+                                                              addCommentFunction:
+                                                                  () {
+                                                                homePageController.addComment(Comment(
+                                                                    postName:
+                                                                        currentPosts[index]
+                                                                            .name,
+                                                                    postLink: currentPosts[index]
+                                                                        .youtubeLink,
+                                                                    postCreator:
+                                                                        currentPosts[index]
+                                                                            .creator,
+                                                                    postGroup:
+                                                                        currentPosts[index]
+                                                                            .groupName,
+                                                                    commenter: landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .name,
+                                                                    commenterUrl: landingPagecontroller
+                                                                        .userProfile
+                                                                        .value
+                                                                        .imageUrl,
+                                                                    commentText:
+                                                                        commentController
+                                                                            .text,
+                                                                    addedTime:
+                                                                        DateTime
+                                                                            .now()));
+                                                                commentController
+                                                                    .clear();
+                                                              },
+                                                              isViewComment:
+                                                                  true,
+                                                            ))!
                                                         .then((value) =>
                                                             _pullRefresh());
                                                   },
@@ -1676,14 +1754,14 @@ class _FavouritePageState extends State<FavouritePage> {
                                               );
                                       })),
 
-                      const SizedBox(
-                        height: 50,
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 3,
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           )),
     );
   }

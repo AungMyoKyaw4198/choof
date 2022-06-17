@@ -63,7 +63,11 @@ class AddGroupContoller extends GetxController {
       yourGroupcontroller.refreshGroups();
       favController.refreshPosts();
       Get.to(() => ViewGroup(
-          index: index, currentGroup: _currentGroup, isFromGroup: isFromGroup));
+            index: index,
+            currentGroup: _currentGroup,
+            isFromGroup: isFromGroup,
+            isFromFullScreenPage: false,
+          ));
 
       return true;
     } catch (e) {

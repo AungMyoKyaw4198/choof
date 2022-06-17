@@ -201,7 +201,9 @@ class EditGroupContoller extends GetxController {
     }
   }
 
-  deleteGroup(Group currGroup) {
-    viewGroupcontroller.deleteGroup(currGroup);
+  deleteGroup(Group currGroup, int index) {
+    viewGroupcontroller.deleteGroup(currGroup, index);
+    favController.refreshPosts();
+    yourGroupsController.refreshGroups();
   }
 }

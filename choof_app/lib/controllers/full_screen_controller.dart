@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/comment.dart';
-import '../models/group.dart';
 import '../models/post.dart';
 import '../screens/widgets/shared_widgets.dart';
 
@@ -16,6 +15,20 @@ class FullScreenController extends GetxController {
       FirebaseFirestore.instance.collection("comments");
 
   final tabValue = 0.obs;
+  final sortByRecent = false.obs;
+  final isInEditingMode = false.obs;
+  final editingComment = Comment(
+          postName: '',
+          postCreator: '',
+          postGroup: '',
+          postLink: '',
+          commenter: '',
+          commentText: '',
+          commenterUrl: '',
+          addedTime: DateTime.now())
+      .obs;
+
+  TextEditingController editingController = TextEditingController();
 
   final post = Post(
     name: '',
@@ -29,6 +42,82 @@ class FullScreenController extends GetxController {
 
   setPost(Post newPost) {
     post(newPost);
+  }
+
+  setEditingMode(bool value, Comment cmt) {
+    isInEditingMode(value);
+    editingComment(cmt);
+    editingController.text = cmt.commentText;
+  }
+
+  clearEditingMode() {
+    isInEditingMode(false);
+    editingComment(Comment(
+        postName: '',
+        postCreator: '',
+        postGroup: '',
+        postLink: '',
+        commenter: '',
+        commentText: '',
+        commenterUrl: '',
+        addedTime: DateTime.now()));
+    editingController.clear();
+  }
+
+  editComment() async {
+    try {
+      loadingDialog();
+      // Edit Comment
+      Comment metaComment = editingComment.value;
+      metaComment.commentText = editingController.text;
+      metaComment.addedTime = DateTime.now();
+      await _allComments.doc(metaComment.docId).update(metaComment.toJson());
+      // Modify Post Comments
+      Post currentPost = post.value;
+      currentPost.comments!.forEach((element) {
+        if (element.commentText == editingComment.value.commentText &&
+            element.commenter == editingComment.value.commenter) {
+          element = metaComment;
+        }
+      });
+      post(currentPost);
+      // Edit Finish
+      clearEditingMode();
+      Get.back();
+    } catch (e) {
+      Get.back();
+      Get.snackbar(
+        "Something went wrong!",
+        "Please try again later.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    }
+  }
+
+  deleteComment() async {
+    try {
+      loadingDialog();
+      // Edit Comment
+      Comment metaComment = editingComment.value;
+      await _allComments.doc(metaComment.docId).delete();
+      // Modify Post Comments
+      Post currentPost = post.value;
+      currentPost.comments!
+          .removeWhere((element) => element == editingComment.value);
+      post(currentPost);
+      // Edit Finish
+      clearEditingMode();
+      Get.back();
+    } catch (e) {
+      Get.back();
+      Get.snackbar(
+        "Something went wrong!",
+        "Please try again later.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    }
   }
 
   addCommentToPost(Comment cmt) {
@@ -93,5 +182,15 @@ class FullScreenController extends GetxController {
                 style: TextStyle(color: Colors.red),
               )),
         ]);
+  }
+
+  sortComments(bool value) {
+    if (value) {
+      post.value.comments!.sort((a, b) => a.addedTime.compareTo(b.addedTime));
+      sortByRecent(true);
+    } else {
+      post.value.comments!.sort((a, b) => b.addedTime.compareTo(a.addedTime));
+      sortByRecent(false);
+    }
   }
 }

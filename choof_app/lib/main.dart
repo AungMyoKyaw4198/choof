@@ -28,8 +28,7 @@ class _MyAppState extends State<MyApp> {
   final landingPagecontroller = Get.find<LandingPageController>();
 
   setDevice() {
-    // var shortestSide = MediaQuery.of(context).size.shortestSide;
-    final data = MediaQueryData.fromWindow(WidgetsBinding.instance!.window);
+    final data = MediaQueryData.fromWindow(WidgetsBinding.instance.window);
     final bool useTabletLayout = data.size.shortestSide > 600;
     landingPagecontroller.setIsDeviceTablet(useTabletLayout);
   }

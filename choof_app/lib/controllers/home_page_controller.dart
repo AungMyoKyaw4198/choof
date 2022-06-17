@@ -40,6 +40,7 @@ class HomePageController extends GetxController {
   final sortByRecent = true.obs;
 
   final postLimit = 15.obs;
+  TextEditingController tagName = TextEditingController();
 
   setFilterOn() {
     bool value = !isFilterOn.value;
@@ -113,8 +114,9 @@ class HomePageController extends GetxController {
   // Get posts of membered group
   getAllPost() async {
     try {
+      // final stopwatch = Stopwatch()..start();
+
       loaded(false);
-      int index = 0;
       List<String> metaAllTags = [];
       QuerySnapshot<Object?> allposts = await _allPosts.get();
       await getMemberedGroup().then((userGroups) async {
@@ -125,7 +127,6 @@ class HomePageController extends GetxController {
                 Post currentPost =
                     Post.fromJson(element.data() as Map<String, dynamic>);
                 currentPost.docId = element.id;
-                currentPost.controllerIndex = index;
 
                 // Add Comments
                 List<Comment> metaCmts = [];
@@ -139,9 +140,11 @@ class HomePageController extends GetxController {
                   postComments.docs.forEach((element) {
                     Comment currentComment = Comment.fromJson(
                         element.data() as Map<String, dynamic>);
+                    currentComment.docId = element.id;
                     metaCmts.add(currentComment);
                   });
                 }
+                metaCmts.sort((a, b) => b.addedTime.compareTo(a.addedTime));
                 currentPost.comments = metaCmts;
                 //  ----
                 posts.add(currentPost);
@@ -149,7 +152,6 @@ class HomePageController extends GetxController {
                 currentPost.tags.forEach((tag) {
                   metaAllTags.add(tag);
                 });
-                index++;
               }
             }
           }
@@ -165,6 +167,7 @@ class HomePageController extends GetxController {
           loaded(true);
         }
       });
+      // print('doSomething() executed in ${stopwatch.elapsed}');
     } catch (e) {
       loaded(true);
       Get.snackbar(

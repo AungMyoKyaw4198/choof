@@ -549,8 +549,8 @@ class _EditGroupPageState extends State<EditGroupPage> {
                           ),
                           IconButton(
                               onPressed: () {
-                                editGroupController
-                                    .deleteGroup(widget.currentGroup);
+                                editGroupController.deleteGroup(
+                                    widget.currentGroup, widget.index);
                               },
                               icon: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -938,8 +938,8 @@ class _EditGroupPageState extends State<EditGroupPage> {
                           ),
                           IconButton(
                               onPressed: () {
-                                editGroupController
-                                    .deleteGroup(widget.currentGroup);
+                                editGroupController.deleteGroup(
+                                    widget.currentGroup, widget.index);
                               },
                               icon: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
