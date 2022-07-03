@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../models/comment.dart';
 import '../models/post.dart';
+import '../models/youtubeVideoResponse.dart';
 import '../screens/widgets/shared_widgets.dart';
 
 class FullScreenController extends GetxController {
@@ -17,6 +18,10 @@ class FullScreenController extends GetxController {
   final tabValue = 0.obs;
   final sortByRecent = false.obs;
   final isInEditingMode = false.obs;
+  final videoDetail = YoutubeVideoResponse().obs;
+  final isLoading = false.obs;
+  final textFieldExpanded = false.obs;
+  final editingTextFieldExpanded = false.obs;
   final editingComment = Comment(
           postName: '',
           postCreator: '',
@@ -40,6 +45,22 @@ class FullScreenController extends GetxController {
     addedTime: DateTime.now(),
   ).obs;
 
+  setTextFieldExpanded(bool value) {
+    textFieldExpanded(value);
+  }
+
+  setEditingTextFieldExpanded(bool value) {
+    editingTextFieldExpanded(value);
+  }
+
+  setVideoDetail(YoutubeVideoResponse value) {
+    videoDetail(value);
+  }
+
+  setIsLoading(bool value) {
+    isLoading(value);
+  }
+
   setPost(Post newPost) {
     post(newPost);
   }
@@ -48,6 +69,9 @@ class FullScreenController extends GetxController {
     isInEditingMode(value);
     editingComment(cmt);
     editingController.text = cmt.commentText;
+    if (cmt.commentText.length > 30) {
+      editingTextFieldExpanded(true);
+    }
   }
 
   clearEditingMode() {
@@ -62,6 +86,8 @@ class FullScreenController extends GetxController {
         commenterUrl: '',
         addedTime: DateTime.now()));
     editingController.clear();
+    textFieldExpanded(false);
+    editingTextFieldExpanded(false);
   }
 
   editComment() async {
@@ -82,7 +108,7 @@ class FullScreenController extends GetxController {
       });
       post(currentPost);
       // Edit Finish
-      clearEditingMode();
+      // clearEditingMode();
       Get.back();
     } catch (e) {
       Get.back();
@@ -100,14 +126,26 @@ class FullScreenController extends GetxController {
       loadingDialog();
       // Edit Comment
       Comment metaComment = editingComment.value;
-      await _allComments.doc(metaComment.docId).delete();
+      metaComment.commentText = editingController.text;
+      metaComment.commentText = editingController.text;
       // Modify Post Comments
       Post currentPost = post.value;
-      currentPost.comments!
-          .removeWhere((element) => element == editingComment.value);
-      post(currentPost);
+      List<Comment> currentComments = post.value.comments!;
+
+      for (int i = 0; i < currentPost.comments!.length; i++) {
+        if (currentPost.comments![i].commentText == metaComment.commentText &&
+            currentPost.comments![i].commenter == metaComment.commenter) {
+          currentComments.removeAt(i);
+        }
+        if (i == currentPost.comments!.length - 1) {
+          currentPost.comments = currentComments;
+          post(currentPost);
+          await _allComments.doc(metaComment.docId).delete();
+        }
+      }
+
       // Edit Finish
-      clearEditingMode();
+      // clearEditingMode();
       Get.back();
     } catch (e) {
       Get.back();
@@ -138,7 +176,7 @@ class FullScreenController extends GetxController {
   deletePost(Post post) async {
     infoDialog(
         title: 'Are you sure you want to delete this post?',
-        content: '${post.name} will be deleted.',
+        content: '''"${post.name}" will be deleted.''',
         actions: [
           TextButton(
               onPressed: () {
@@ -165,6 +203,7 @@ class FullScreenController extends GetxController {
                   }
                   //  ----
                   Get.back();
+                  Get.back();
                 } catch (e) {
                   // ignore: avoid_print
                   print(e);
@@ -186,10 +225,11 @@ class FullScreenController extends GetxController {
 
   sortComments(bool value) {
     if (value) {
-      post.value.comments!.sort((a, b) => a.addedTime.compareTo(b.addedTime));
+      post.value.comments!.sort((a, b) => b.addedTime.compareTo(a.addedTime));
       sortByRecent(true);
     } else {
-      post.value.comments!.sort((a, b) => b.addedTime.compareTo(a.addedTime));
+      post.value.comments!
+          .sort((a, b) => a.commentText.compareTo(b.commentText));
       sortByRecent(false);
     }
   }

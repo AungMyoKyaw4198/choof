@@ -3,7 +3,6 @@ import 'package:choof_app/screens/search_video_page.dart';
 import 'package:choof_app/screens/settings_page.dart';
 import 'package:choof_app/screens/your_groups_page.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../controllers/edit_video_controller.dart';
@@ -43,7 +42,7 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: PreferredSize(
-          preferredSize: const Size(60, 60),
+          preferredSize: const Size(50, 50),
           child: Obx(() => landingPagecontroller.isDeviceTablet.value
               ? AppBar(
                   backgroundColor: const Color(bgColor),
@@ -224,85 +223,94 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                       )
                                     : const SizedBox.shrink(),
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Text(
-                                "Group : ${editVideoController.post.value.groupName.contains('#') ? editVideoController.post.value.groupName.substring(0, editVideoController.post.value.groupName.indexOf('#')) : editVideoController.post.value.groupName}",
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18),
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              // Show Group owner
-                              Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Container(
-                                      width: 60,
-                                      height: 60,
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          image: DecorationImage(
-                                              fit: BoxFit.fill,
-                                              image: NetworkImage(
-                                                  editVideoController.post.value
-                                                      .creatorImageUrl)))),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  const Text(
-                                    'By',
-                                    style: TextStyle(
-                                        color: Colors.white54,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    editVideoController.post.value.creator,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Text(
-                                'Post Name',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  "Group : ${editVideoController.post.value.groupName.contains('#') ? editVideoController.post.value.groupName.substring(0, editVideoController.post.value.groupName.indexOf('#')) : editVideoController.post.value.groupName}",
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15),
                                 ),
                               ),
-                              TextField(
-                                controller: editVideoController.postName,
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
+                              // Show Group owner
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                        width: 60,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                                fit: BoxFit.fill,
+                                                image: NetworkImage(
+                                                    editVideoController
+                                                        .post
+                                                        .value
+                                                        .creatorImageUrl)))),
+                                    const SizedBox(
+                                      width: 10,
                                     ),
-                                    filled: true,
-                                    hintStyle:
-                                        TextStyle(color: Colors.grey[800]),
-                                    hintText: ''' “Enter Post Name”''',
-                                    fillColor: Colors.white70,
-                                    suffixIcon: IconButton(
-                                      onPressed: () {
-                                        editVideoController.postName.clear();
-                                      },
-                                      icon: const Icon(Icons.close_rounded),
-                                    )),
+                                    const Text(
+                                      'By',
+                                      style: TextStyle(
+                                          color: Colors.white54,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      editVideoController.post.value.creator,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Text(
+                                  'Post Name',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.height / 20,
+                                child: TextField(
+                                  style: const TextStyle(color: Colors.white),
+                                  controller: editVideoController.postName,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.only(left: 15),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                      ),
+                                      filled: true,
+                                      hintStyle: const TextStyle(
+                                          color: Colors.white70),
+                                      hintText: ''' “Enter Post Name”''',
+                                      fillColor: const Color(bgColor),
+                                      suffixIcon: InkWell(
+                                        onTap: () {
+                                          editVideoController.postName.clear();
+                                        },
+                                        child: const Icon(Icons.close_rounded),
+                                      )),
+                                ),
                               ),
                               const SizedBox(
-                                height: 20,
+                                height: 10,
                               ),
                               const Text(
                                 'Youtube Link',
@@ -314,68 +322,75 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                               const SizedBox(
                                 height: 10,
                               ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextFormField(
-                                      controller:
-                                          editVideoController.youtubeLink,
-                                      enableInteractiveSelection: true,
-                                      decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
-                                          ),
-                                          filled: true,
-                                          hintStyle: TextStyle(
-                                              color: Colors.grey[800]),
-                                          hintText: "Paste the link here",
-                                          fillColor: Colors.white70,
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              editVideoController.youtubeLink
-                                                  .clear();
-                                            },
-                                            icon:
-                                                const Icon(Icons.close_rounded),
-                                          )),
-                                      autovalidateMode:
-                                          AutovalidateMode.onUserInteraction,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter some link';
-                                        }
-                                        return null;
-                                      },
+                              Container(
+                                height: MediaQuery.of(context).size.height / 20,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        controller:
+                                            editVideoController.youtubeLink,
+                                        enableInteractiveSelection: true,
+                                        decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.only(left: 15),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                            ),
+                                            filled: true,
+                                            hintStyle: const TextStyle(
+                                                color: Colors.white70),
+                                            hintText:
+                                                "Seach title or paste link",
+                                            fillColor: const Color(bgColor),
+                                            suffixIcon: InkWell(
+                                              onTap: () {
+                                                editVideoController.youtubeLink
+                                                    .clear();
+                                              },
+                                              child: const Icon(
+                                                  Icons.close_rounded),
+                                            )),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter some words or link';
+                                          }
+                                          return null;
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                      onPressed: () {
-                                        bool isYoutubeLink = editVideoController
-                                            .checkYoutubeLink(
-                                                editVideoController
-                                                    .youtubeLink.text);
-                                        if (isYoutubeLink) {
-                                          editVideoController
-                                              .verifyYoutubeLink();
-                                        } else {
-                                          Get.to(() => SearchVideoPage(
-                                                searchedWord:
-                                                    editVideoController
-                                                        .youtubeLink.text,
-                                                isFromAddVideo: false,
-                                              ));
-                                        }
-                                      },
-                                      icon: Image.asset(
-                                        'assets/icons/EmailSend.png',
-                                        width: 30,
-                                        height: 30,
-                                      )),
-                                ],
+                                    IconButton(
+                                        onPressed: () {
+                                          bool isYoutubeLink =
+                                              editVideoController
+                                                  .checkYoutubeLink(
+                                                      editVideoController
+                                                          .youtubeLink.text);
+                                          if (isYoutubeLink) {
+                                            editVideoController
+                                                .verifyYoutubeLink();
+                                          } else {
+                                            Get.to(() => SearchVideoPage(
+                                                  searchedWord:
+                                                      editVideoController
+                                                          .youtubeLink.text,
+                                                  isFromAddVideo: false,
+                                                ));
+                                          }
+                                        },
+                                        icon: Image.asset(
+                                          'assets/icons/EmailSend.png',
+                                          width: 30,
+                                          height: 30,
+                                        )),
+                                  ],
+                                ),
                               ),
                               const SizedBox(
-                                height: 10,
+                                height: 15,
                               ),
                               // Show Thumbnail
                               Obx(
@@ -401,7 +416,7 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                       ),
                               ),
                               const SizedBox(
-                                height: 20,
+                                height: 15,
                               ),
                               const Text(
                                 'Tags',
@@ -415,89 +430,96 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                               ),
 
                               // Enter tags
-                              Row(
-                                children: [
-                                  Container(
-                                    width: MediaQuery.of(context).size.width /
-                                        1.25,
-                                    child: TextField(
-                                      controller: editVideoController.tagName,
-                                      onSubmitted: (value) {
-                                        if (value.isNotEmpty) {
-                                          // Split if input contains ,
-                                          if (value.contains(',')) {
-                                            List<String> splitedString =
-                                                value.split(',');
-                                            splitedString.forEach((element) {
+                              Container(
+                                height: MediaQuery.of(context).size.height / 20,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: MediaQuery.of(context).size.width /
+                                          1.25,
+                                      child: TextField(
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        controller: editVideoController.tagName,
+                                        onSubmitted: (value) {
+                                          if (value.isNotEmpty) {
+                                            // Split if input contains ,
+                                            if (value.contains(',')) {
+                                              List<String> splitedString =
+                                                  value.split(',');
+                                              splitedString.forEach((element) {
+                                                editVideoController
+                                                    .addTags(element.trim());
+                                              });
+                                            } else {
                                               editVideoController
-                                                  .addTags(element.trim());
-                                            });
-                                          } else {
-                                            editVideoController
-                                                .addTags(value.trim());
+                                                  .addTags(value.trim());
+                                            }
                                           }
-                                        }
-                                        editVideoController.tagName.clear();
-                                      },
-                                      decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
-                                          ),
-                                          filled: true,
-                                          hintStyle: TextStyle(
-                                              color: Colors.grey[800]),
-                                          hintText:
-                                              ''' “At least one tag (food, music, etc.)”''',
-                                          fillColor: Colors.white70,
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              editVideoController.tagName
-                                                  .clear();
-                                            },
-                                            icon:
-                                                const Icon(Icons.close_rounded),
-                                          )),
+                                          editVideoController.tagName.clear();
+                                        },
+                                        decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.only(left: 15),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                            ),
+                                            filled: true,
+                                            hintStyle: const TextStyle(
+                                                color: Colors.white70),
+                                            hintText:
+                                                ''' “At least one tag (food, music, etc.)”''',
+                                            fillColor: const Color(bgColor),
+                                            suffixIcon: InkWell(
+                                              onTap: () {
+                                                editVideoController.tagName
+                                                    .clear();
+                                              },
+                                              child: const Icon(
+                                                  Icons.close_rounded),
+                                            )),
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                      onPressed: () {
-                                        if (editVideoController
-                                            .tagName.text.isNotEmpty) {
-                                          // Split if input contains ,
-                                          if (editVideoController.tagName.text
-                                              .contains(',')) {
-                                            List<String> splitedString =
-                                                editVideoController.tagName.text
-                                                    .split(',');
-                                            splitedString.forEach((element) {
-                                              editVideoController
-                                                  .addTags(element.trim());
-                                            });
-                                          } else {
-                                            editVideoController.addTags(
-                                                editVideoController.tagName.text
-                                                    .trim());
+                                    IconButton(
+                                        onPressed: () {
+                                          if (editVideoController
+                                              .tagName.text.isNotEmpty) {
+                                            // Split if input contains ,
+                                            if (editVideoController.tagName.text
+                                                .contains(',')) {
+                                              List<String> splitedString =
+                                                  editVideoController
+                                                      .tagName.text
+                                                      .split(',');
+                                              splitedString.forEach((element) {
+                                                editVideoController
+                                                    .addTags(element.trim());
+                                              });
+                                            } else {
+                                              editVideoController.addTags(
+                                                  editVideoController
+                                                      .tagName.text
+                                                      .trim());
+                                            }
                                           }
-                                        }
-                                        editVideoController.tagName.clear();
-                                      },
-                                      icon: Image.asset(
-                                        'assets/icons/AddTag.png',
-                                        width: 30,
-                                        height: 30,
-                                      ))
-                                ],
+                                          editVideoController.tagName.clear();
+                                        },
+                                        icon: Image.asset(
+                                          'assets/icons/AddTag.png',
+                                          width: 30,
+                                          height: 30,
+                                        ))
+                                  ],
+                                ),
                               ),
 
                               const SizedBox(
-                                height: 10,
+                                height: 15,
                               ),
                               // Added Tags
                               Container(
-                                height: 50,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
+                                height: MediaQuery.of(context).size.height / 20,
                                 child: Obx(
                                   () => editVideoController.tagList.isNotEmpty
                                       ? ListView.builder(
@@ -511,16 +533,18 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                                   const EdgeInsets.symmetric(
                                                       horizontal: 5),
                                               child: Stack(
-                                                alignment: Alignment.topLeft,
+                                                alignment: Alignment.topRight,
                                                 children: [
                                                   Container(
-                                                    height: 40,
-                                                    decoration: BoxDecoration(
-                                                        color: Colors
-                                                            .grey.shade800,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            20,
+                                                    decoration: const BoxDecoration(
+                                                        color: Color(bgColor),
                                                         borderRadius:
-                                                            const BorderRadius
-                                                                    .all(
+                                                            BorderRadius.all(
                                                                 Radius.circular(
                                                                     30))),
                                                     padding: const EdgeInsets
@@ -529,11 +553,10 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                                         horizontal: 20),
                                                     child: Text(
                                                       editVideoController
-                                                          .tagList[index],
+                                                          .tagList[index]
+                                                          .trim(),
                                                       style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold),
+                                                          color: Colors.white),
                                                     ),
                                                   ),
                                                   InkWell(
@@ -546,15 +569,15 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                                     },
                                                     child: const Align(
                                                         alignment:
-                                                            Alignment.topLeft,
+                                                            Alignment.topRight,
                                                         child: CircleAvatar(
-                                                          radius: 10,
+                                                          radius: 8,
                                                           backgroundColor:
                                                               Colors.white70,
                                                           child: Icon(
                                                             Icons.close,
                                                             color: Colors.black,
-                                                            size: 8,
+                                                            size: 10,
                                                           ),
                                                         )),
                                                   )
@@ -607,7 +630,33 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                     ),
                                   )
                                 ],
-                              )
+                              ),
+
+                              const SizedBox(
+                                height: 50,
+                              ),
+                              IconButton(
+                                  onPressed: () {
+                                    editVideoController
+                                        .deleteVideo(widget.post);
+                                  },
+                                  icon: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        'assets/icons/Remove.png',
+                                        width: 20,
+                                        height: 20,
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      const Text(
+                                        'Delete Favorite',
+                                        style: TextStyle(color: Colors.white),
+                                      )
+                                    ],
+                                  ))
                             ],
                           ),
                         ),
@@ -654,85 +703,93 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                       )
                                     : const SizedBox.shrink(),
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Text(
-                                "Group : ${editVideoController.post.value.groupName.contains('#') ? editVideoController.post.value.groupName.substring(0, editVideoController.post.value.groupName.indexOf('#')) : editVideoController.post.value.groupName}",
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18),
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              // Show Group owner
-                              Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Container(
-                                      width: 60,
-                                      height: 60,
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          image: DecorationImage(
-                                              fit: BoxFit.fill,
-                                              image: NetworkImage(
-                                                  editVideoController.post.value
-                                                      .creatorImageUrl)))),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  const Text(
-                                    'By',
-                                    style: TextStyle(
-                                        color: Colors.white54,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    editVideoController.post.value.creator,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Text(
-                                'Post Name',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  "Group : ${editVideoController.post.value.groupName.contains('#') ? editVideoController.post.value.groupName.substring(0, editVideoController.post.value.groupName.indexOf('#')) : editVideoController.post.value.groupName}",
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15),
                                 ),
                               ),
-                              TextField(
-                                controller: editVideoController.postName,
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
+                              // Show Group owner
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                        width: 60,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                                fit: BoxFit.fill,
+                                                image: NetworkImage(
+                                                    editVideoController
+                                                        .post
+                                                        .value
+                                                        .creatorImageUrl)))),
+                                    const SizedBox(
+                                      width: 10,
                                     ),
-                                    filled: true,
-                                    hintStyle:
-                                        TextStyle(color: Colors.grey[800]),
-                                    hintText: ''' “Enter Post Name”''',
-                                    fillColor: Colors.white70,
-                                    suffixIcon: IconButton(
-                                      onPressed: () {
-                                        editVideoController.postName.clear();
-                                      },
-                                      icon: const Icon(Icons.close_rounded),
-                                    )),
+                                    const Text(
+                                      'By',
+                                      style: TextStyle(
+                                          color: Colors.white54,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      editVideoController.post.value.creator,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Text(
+                                  'Post Name',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.height / 20,
+                                child: TextField(
+                                  style: const TextStyle(color: Colors.white),
+                                  controller: editVideoController.postName,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.only(left: 15),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                      ),
+                                      filled: true,
+                                      hintStyle: const TextStyle(
+                                          color: Colors.white70),
+                                      hintText: ''' “Enter Post Name”''',
+                                      fillColor: const Color(bgColor),
+                                      suffixIcon: IconButton(
+                                        onPressed: () {
+                                          editVideoController.postName.clear();
+                                        },
+                                        icon: const Icon(Icons.close_rounded),
+                                      )),
+                                ),
                               ),
                               const SizedBox(
-                                height: 20,
+                                height: 10,
                               ),
                               const Text(
                                 'Youtube Link',
@@ -744,68 +801,74 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                               const SizedBox(
                                 height: 10,
                               ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextFormField(
-                                      controller:
-                                          editVideoController.youtubeLink,
-                                      enableInteractiveSelection: true,
-                                      decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
-                                          ),
-                                          filled: true,
-                                          hintStyle: TextStyle(
-                                              color: Colors.grey[800]),
-                                          hintText: "Paste the link here",
-                                          fillColor: Colors.white70,
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              editVideoController.youtubeLink
-                                                  .clear();
-                                            },
-                                            icon:
-                                                const Icon(Icons.close_rounded),
-                                          )),
-                                      autovalidateMode:
-                                          AutovalidateMode.onUserInteraction,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter some link';
-                                        }
-                                        return null;
-                                      },
+                              Container(
+                                height: MediaQuery.of(context).size.height / 20,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        controller:
+                                            editVideoController.youtubeLink,
+                                        enableInteractiveSelection: true,
+                                        decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.only(left: 15),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                            ),
+                                            filled: true,
+                                            hintStyle: const TextStyle(
+                                                color: Colors.white70),
+                                            hintText: "Paste the link here",
+                                            fillColor: const Color(bgColor),
+                                            suffixIcon: InkWell(
+                                              onTap: () {
+                                                editVideoController.youtubeLink
+                                                    .clear();
+                                              },
+                                              child: const Icon(
+                                                  Icons.close_rounded),
+                                            )),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter some link';
+                                          }
+                                          return null;
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                      onPressed: () {
-                                        bool isYoutubeLink = editVideoController
-                                            .checkYoutubeLink(
-                                                editVideoController
-                                                    .youtubeLink.text);
-                                        if (isYoutubeLink) {
-                                          editVideoController
-                                              .verifyYoutubeLink();
-                                        } else {
-                                          Get.to(() => SearchVideoPage(
-                                                searchedWord:
-                                                    editVideoController
-                                                        .youtubeLink.text,
-                                                isFromAddVideo: false,
-                                              ));
-                                        }
-                                      },
-                                      icon: Image.asset(
-                                        'assets/icons/EmailSend.png',
-                                        width: 30,
-                                        height: 30,
-                                      )),
-                                ],
+                                    IconButton(
+                                        onPressed: () {
+                                          bool isYoutubeLink =
+                                              editVideoController
+                                                  .checkYoutubeLink(
+                                                      editVideoController
+                                                          .youtubeLink.text);
+                                          if (isYoutubeLink) {
+                                            editVideoController
+                                                .verifyYoutubeLink();
+                                          } else {
+                                            Get.to(() => SearchVideoPage(
+                                                  searchedWord:
+                                                      editVideoController
+                                                          .youtubeLink.text,
+                                                  isFromAddVideo: false,
+                                                ));
+                                          }
+                                        },
+                                        icon: Image.asset(
+                                          'assets/icons/EmailSend.png',
+                                          width: 30,
+                                          height: 30,
+                                        )),
+                                  ],
+                                ),
                               ),
                               const SizedBox(
-                                height: 10,
+                                height: 15,
                               ),
                               // Show Thumbnail
                               Obx(
@@ -831,7 +894,7 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                       ),
                               ),
                               const SizedBox(
-                                height: 20,
+                                height: 15,
                               ),
                               const Text(
                                 'Tags',
@@ -845,89 +908,96 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                               ),
 
                               // Enter tags
-                              Row(
-                                children: [
-                                  Container(
-                                    width: MediaQuery.of(context).size.width /
-                                        1.25,
-                                    child: TextField(
-                                      controller: editVideoController.tagName,
-                                      onSubmitted: (value) {
-                                        if (value.isNotEmpty) {
-                                          // Split if input contains ,
-                                          if (value.contains(',')) {
-                                            List<String> splitedString =
-                                                value.split(',');
-                                            splitedString.forEach((element) {
+                              Container(
+                                height: MediaQuery.of(context).size.height / 20,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: MediaQuery.of(context).size.width /
+                                          1.25,
+                                      child: TextField(
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        controller: editVideoController.tagName,
+                                        onSubmitted: (value) {
+                                          if (value.isNotEmpty) {
+                                            // Split if input contains ,
+                                            if (value.contains(',')) {
+                                              List<String> splitedString =
+                                                  value.split(',');
+                                              splitedString.forEach((element) {
+                                                editVideoController
+                                                    .addTags(element.trim());
+                                              });
+                                            } else {
                                               editVideoController
-                                                  .addTags(element.trim());
-                                            });
-                                          } else {
-                                            editVideoController
-                                                .addTags(value.trim());
+                                                  .addTags(value.trim());
+                                            }
                                           }
-                                        }
-                                        editVideoController.tagName.clear();
-                                      },
-                                      decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
-                                          ),
-                                          filled: true,
-                                          hintStyle: TextStyle(
-                                              color: Colors.grey[800]),
-                                          hintText:
-                                              ''' “At least one tag (food, music, etc.)”''',
-                                          fillColor: Colors.white70,
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              editVideoController.tagName
-                                                  .clear();
-                                            },
-                                            icon:
-                                                const Icon(Icons.close_rounded),
-                                          )),
+                                          editVideoController.tagName.clear();
+                                        },
+                                        decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.only(left: 15),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                            ),
+                                            filled: true,
+                                            hintStyle: const TextStyle(
+                                                color: Colors.white70),
+                                            hintText:
+                                                ''' “At least one tag (food, music, etc.)”''',
+                                            fillColor: const Color(bgColor),
+                                            suffixIcon: InkWell(
+                                              onTap: () {
+                                                editVideoController.tagName
+                                                    .clear();
+                                              },
+                                              child: const Icon(
+                                                  Icons.close_rounded),
+                                            )),
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                      onPressed: () {
-                                        if (editVideoController
-                                            .tagName.text.isNotEmpty) {
-                                          // Split if input contains ,
-                                          if (editVideoController.tagName.text
-                                              .contains(',')) {
-                                            List<String> splitedString =
-                                                editVideoController.tagName.text
-                                                    .split(',');
-                                            splitedString.forEach((element) {
-                                              editVideoController
-                                                  .addTags(element.trim());
-                                            });
-                                          } else {
-                                            editVideoController.addTags(
-                                                editVideoController.tagName.text
-                                                    .trim());
+                                    IconButton(
+                                        onPressed: () {
+                                          if (editVideoController
+                                              .tagName.text.isNotEmpty) {
+                                            // Split if input contains ,
+                                            if (editVideoController.tagName.text
+                                                .contains(',')) {
+                                              List<String> splitedString =
+                                                  editVideoController
+                                                      .tagName.text
+                                                      .split(',');
+                                              splitedString.forEach((element) {
+                                                editVideoController
+                                                    .addTags(element.trim());
+                                              });
+                                            } else {
+                                              editVideoController.addTags(
+                                                  editVideoController
+                                                      .tagName.text
+                                                      .trim());
+                                            }
                                           }
-                                        }
-                                        editVideoController.tagName.clear();
-                                      },
-                                      icon: Image.asset(
-                                        'assets/icons/AddTag.png',
-                                        width: 30,
-                                        height: 30,
-                                      ))
-                                ],
+                                          editVideoController.tagName.clear();
+                                        },
+                                        icon: Image.asset(
+                                          'assets/icons/AddTag.png',
+                                          width: 30,
+                                          height: 30,
+                                        ))
+                                  ],
+                                ),
                               ),
 
                               const SizedBox(
-                                height: 10,
+                                height: 15,
                               ),
                               // Added Tags
                               Container(
-                                height: 50,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
+                                height: MediaQuery.of(context).size.height / 20,
                                 child: Obx(
                                   () => editVideoController.tagList.isNotEmpty
                                       ? ListView.builder(
@@ -941,16 +1011,18 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                                   const EdgeInsets.symmetric(
                                                       horizontal: 5),
                                               child: Stack(
-                                                alignment: Alignment.topLeft,
+                                                alignment: Alignment.topRight,
                                                 children: [
                                                   Container(
-                                                    height: 40,
-                                                    decoration: BoxDecoration(
-                                                        color: Colors
-                                                            .grey.shade800,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            20,
+                                                    decoration: const BoxDecoration(
+                                                        color: Color(bgColor),
                                                         borderRadius:
-                                                            const BorderRadius
-                                                                    .all(
+                                                            BorderRadius.all(
                                                                 Radius.circular(
                                                                     30))),
                                                     padding: const EdgeInsets
@@ -959,11 +1031,11 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                                         horizontal: 20),
                                                     child: Text(
                                                       editVideoController
-                                                          .tagList[index],
+                                                          .tagList[index]
+                                                          .trim(),
                                                       style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold),
+                                                        color: Colors.white,
+                                                      ),
                                                     ),
                                                   ),
                                                   InkWell(
@@ -976,15 +1048,15 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                                     },
                                                     child: const Align(
                                                         alignment:
-                                                            Alignment.topLeft,
+                                                            Alignment.topRight,
                                                         child: CircleAvatar(
-                                                          radius: 10,
+                                                          radius: 8,
                                                           backgroundColor:
                                                               Colors.white70,
                                                           child: Icon(
                                                             Icons.close,
                                                             color: Colors.black,
-                                                            size: 8,
+                                                            size: 10,
                                                           ),
                                                         )),
                                                   )
@@ -1037,7 +1109,32 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                     ),
                                   )
                                 ],
-                              )
+                              ),
+                              const SizedBox(
+                                height: 50,
+                              ),
+                              IconButton(
+                                  onPressed: () {
+                                    editVideoController
+                                        .deleteVideo(widget.post);
+                                  },
+                                  icon: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        'assets/icons/Remove.png',
+                                        width: 20,
+                                        height: 20,
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      const Text(
+                                        'Delete Favorite',
+                                        style: TextStyle(color: Colors.white),
+                                      )
+                                    ],
+                                  ))
                             ],
                           ),
                         ),

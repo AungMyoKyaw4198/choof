@@ -71,10 +71,10 @@ class _SearchVideoDetailPageState extends State<SearchVideoDetailPage> {
                 Get.back();
               },
               child: const Center(
-                child: FaIcon(
-                  FontAwesomeIcons.link,
-                  color: Colors.white,
-                  size: 20,
+                child: Icon(
+                  Icons.check_box_outlined,
+                  size: 30,
+                  color: Color(mainColor),
                 ),
               ),
             ),

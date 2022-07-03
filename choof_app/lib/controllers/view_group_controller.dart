@@ -36,6 +36,7 @@ class ViewGroupController extends GetxController {
   final loaded = false.obs;
   final postLimit = 15.obs;
   final isFilterOn = false.obs;
+  TextEditingController tagName = TextEditingController();
 
   setFilterOn() {
     bool value = !isFilterOn.value;
@@ -73,6 +74,7 @@ class ViewGroupController extends GetxController {
       List<String> metaAllTags = [];
       QuerySnapshot<Object?> allposts = await _postsInsideGroup
           .where('groupName', isEqualTo: group.name)
+          .orderBy('addedTime', descending: true)
           .get();
       if (allposts.docs.isNotEmpty) {
         for (var element in allposts.docs) {
@@ -101,6 +103,7 @@ class ViewGroupController extends GetxController {
           //  ----
 
           posts.add(currentPost);
+          loaded(true);
           allpost.add(currentPost);
           currentPost.tags.forEach((tag) {
             metaAllTags.add(tag);
@@ -111,11 +114,13 @@ class ViewGroupController extends GetxController {
         List<String> uniquelist =
             metaAllTags.where((tag) => set.add(tag.trim())).toList();
         allTags(uniquelist);
-        sort(true);
+        // sort(true);
         // ---------------------
+      } else {
+        loaded(true);
       }
 
-      loaded(true);
+      // loaded(true);
     } catch (e) {
       // ignore: avoid_print
       print(e);
@@ -148,7 +153,7 @@ class ViewGroupController extends GetxController {
   deleteGroup(Group group, int index) async {
     infoDialog(
         title: 'Are you sure you want to delete this group?',
-        content: '${group.name} will be deleted.',
+        content: '''"${group.name}" will be deleted.''',
         actions: [
           TextButton(
               onPressed: () {
@@ -205,6 +210,7 @@ class ViewGroupController extends GetxController {
                   }
                   Get.back();
                   Get.back();
+                  favController.refreshPosts();
                   Get.back();
                 } catch (e) {
                   Get.back();
@@ -245,8 +251,13 @@ class ViewGroupController extends GetxController {
       for (var post in posts) {
         // AND Operation
         List<bool> checker = [];
-        post.tags.forEach((postTag) {
-          if (filteredTags.contains(postTag)) {
+        // Remove Duplicate From Tags
+        var set = Set<String>();
+        List<String> uniquelist =
+            post.tags.where((tag) => set.add(tag.trim())).toList();
+        // ---------------------
+        uniquelist.forEach((postTag) {
+          if (filteredTags.contains(postTag.trim())) {
             checker.add(true);
           } else {
             checker.add(false);

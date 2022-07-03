@@ -58,16 +58,19 @@ class AddGroupContoller extends GetxController {
         _currentGroup.name =
             _currentGroup.name + '#ID${querySnapshot.docs.length + 1}';
       }
-      await _groups.add(_currentGroup.toJson());
-      Get.back();
-      yourGroupcontroller.refreshGroups();
-      favController.refreshPosts();
-      Get.to(() => ViewGroup(
-            index: index,
-            currentGroup: _currentGroup,
-            isFromGroup: isFromGroup,
-            isFromFullScreenPage: false,
-          ));
+
+      await _groups.add(_currentGroup.toJson()).then((value) {
+        Get.back();
+        yourGroupcontroller.refreshGroups();
+        favController.refreshPosts();
+        Get.to(() => ViewGroup(
+              index: index,
+              currentGroup: _currentGroup,
+              isFromGroup: isFromGroup,
+              isFromFullScreenPage: false,
+              isFromAddGroup: true,
+            ));
+      });
 
       return true;
     } catch (e) {

@@ -31,6 +31,7 @@ class YourGroupController extends GetxController {
 
   final groupLimit = 15.obs;
   final isFilterOn = false.obs;
+  TextEditingController tagName = TextEditingController();
 
   setFilterOn() {
     bool value = !isFilterOn.value;
@@ -51,7 +52,8 @@ class YourGroupController extends GetxController {
       loaded(false);
       List<Profile> allOwners = [];
       List<String> metaAllTags = [];
-      QuerySnapshot<Object?> querySnapshot = await _groups.get();
+      QuerySnapshot<Object?> querySnapshot =
+          await _groups.orderBy('lastUpdatedTime', descending: true).get();
       if (querySnapshot.docs.isNotEmpty) {
         for (var element in querySnapshot.docs) {
           final Group meta =
@@ -78,6 +80,7 @@ class YourGroupController extends GetxController {
                 currentGroup.videoNumber = 0;
               }
               groups.add(currentGroup);
+              loaded(true);
               allGroups.add(currentGroup);
 
               for (var tag in currentGroup.tags) {
@@ -100,9 +103,6 @@ class YourGroupController extends GetxController {
         List<Profile> uniquelist =
             allOwners.where((student) => set.add(student.name)).toList();
         owners(uniquelist);
-        //
-        sort(true);
-        loaded(true);
       } else {
         loaded(true);
       }
@@ -174,14 +174,22 @@ class YourGroupController extends GetxController {
       for (var group in groups) {
         // AND Operation
         List<bool> checker = [];
-        for (var postTag in group.tags) {
-          if (filteredTags.contains(postTag)) {
+        // Remove Duplicate From Tags
+        var set = Set<String>();
+        List<String> uniquelist =
+            group.tags.where((tag) => set.add(tag.trim())).toList();
+        // ---------------------
+
+        for (var postTag in uniquelist) {
+          if (filteredTags.contains(postTag.trim())) {
             checker.add(true);
           } else {
             checker.add(false);
           }
+          print(checker);
         }
         final filteredChecker = checker.where((value) => value == true);
+        print(filteredChecker);
         if (filteredChecker.length == filteredTags.length) {
           filteredTagResult.add(group);
         }

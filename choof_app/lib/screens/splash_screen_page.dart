@@ -23,12 +23,14 @@ class _SplashScreenState extends State<SplashScreen> {
     String name = GetStorage().read('name') ?? '';
     if (name == '') {
       Future.delayed(const Duration(seconds: 5)).then((val) {
-        Get.offAll(() => LandingPage());
+        Get.offAll(() => const LandingPage());
       });
     } else {
       landingPagecontroller.setUserFromStorage();
       Future.delayed(const Duration(seconds: 5)).then((val) {
-        Get.offAll(() => const HomePage());
+        Get.offAll(() => const HomePage(
+              isFristTime: true,
+            ));
       });
     }
   }

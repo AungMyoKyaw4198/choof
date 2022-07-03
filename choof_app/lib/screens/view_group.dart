@@ -1,6 +1,5 @@
 import 'package:choof_app/screens/add_video.dart';
 import 'package:choof_app/screens/favourite_page.dart';
-import 'package:choof_app/screens/home_page.dart';
 import 'package:choof_app/screens/settings_page.dart';
 import 'package:choof_app/screens/widgets/shared_widgets.dart';
 import 'package:choof_app/screens/your_groups_page.dart';
@@ -27,11 +26,13 @@ class ViewGroup extends StatefulWidget {
   final Group currentGroup;
   final bool isFromGroup;
   final bool isFromFullScreenPage;
+  final bool isFromAddGroup;
   const ViewGroup(
       {Key? key,
       required this.index,
       required this.currentGroup,
       required this.isFromGroup,
+      required this.isFromAddGroup,
       required this.isFromFullScreenPage})
       : super(key: key);
 
@@ -66,7 +67,7 @@ class _ViewGroupState extends State<ViewGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-          preferredSize: const Size(60, 60),
+          preferredSize: const Size(50, 50),
           child: Obx(() => landingPagecontroller.isDeviceTablet.value
               ? AppBar(
                   backgroundColor: const Color(bgColor),
@@ -186,20 +187,23 @@ class _ViewGroupState extends State<ViewGroup> {
                       leading: IconButton(
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () {
-                          if (widget.isFromGroup) {
+                          if (widget.isFromAddGroup) {
+                            Get.back();
+                            Get.back();
+                          } else if (widget.isFromGroup) {
                             landingPagecontroller.changeTabIndex(1);
                             if (widget.isFromFullScreenPage) {
-                              Get.to(() => const HomePage());
-                            } else {
                               Get.back();
+                              Get.back();
+                            } else {
                               Get.back();
                             }
                           } else {
                             landingPagecontroller.changeTabIndex(0);
                             if (widget.isFromFullScreenPage) {
-                              Get.to(() => const HomePage());
-                            } else {
                               Get.back();
+                              Get.back();
+                            } else {
                               Get.back();
                             }
                           }
@@ -207,19 +211,23 @@ class _ViewGroupState extends State<ViewGroup> {
                       ),
                       title: Row(
                         children: [
-                          Obx(
-                            () => Text(
-                              viewGroupController.groupName.value.contains('#')
-                                  ? viewGroupController.groupName.value
-                                      .substring(
-                                          0,
-                                          viewGroupController.groupName.value
-                                              .indexOf('#'))
-                                  : viewGroupController.groupName.value,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  overflow: TextOverflow.ellipsis),
+                          Expanded(
+                            child: Obx(
+                              () => Text(
+                                viewGroupController.groupName.value
+                                        .contains('#')
+                                    ? viewGroupController.groupName.value
+                                        .substring(
+                                            0,
+                                            viewGroupController.groupName.value
+                                                .indexOf('#'))
+                                    : viewGroupController.groupName.value,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    overflow: TextOverflow.ellipsis),
+                              ),
                             ),
                           ),
                           landingPagecontroller.userProfile.value.name ==
@@ -296,6 +304,7 @@ class _ViewGroupState extends State<ViewGroup> {
           return IndexedStack(
             index: landingPagecontroller.tabIndex.value,
             children: [
+              // Index == 0
               widget.isFromGroup
                   ? const FavouritePage(isFirstTime: false)
                   : RefresherWidget(
@@ -444,272 +453,365 @@ class _ViewGroupState extends State<ViewGroup> {
                                 : const SizedBox.shrink(),
                           ),
                           // Friends area
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          image: DecorationImage(
-                                              fit: BoxFit.fill,
-                                              image: NetworkImage(widget
-                                                  .currentGroup
-                                                  .ownerImageUrl)))),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  const Text(
-                                    'By',
-                                    style: TextStyle(
-                                        color: Colors.white54,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    widget.currentGroup.owner,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Obx(() {
-                                    if (landingPagecontroller
-                                        .groupedUsers.isEmpty) {
-                                      return const SizedBox.shrink();
-                                    } else if (landingPagecontroller
-                                            .groupedUsers.length ==
-                                        1) {
-                                      return InkWell(
-                                        onTap: () {
-                                          Get.to(() => FriendsPage(
-                                              group: widget.currentGroup));
-                                        },
-                                        child: const Text(
-                                          'Add Friends',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      );
-                                    } else if (landingPagecontroller
-                                        .groupedUsers.isNotEmpty) {
-                                      List<Profile> groupMembers = [];
-                                      for (var member in landingPagecontroller
-                                          .groupedUsers) {
-                                        if (member.name !=
-                                            widget.currentGroup.owner) {
-                                          groupMembers.add(member);
-                                        }
-                                      }
-                                      return InkWell(
-                                        onTap: () {
-                                          Get.to(() => FriendsPage(
-                                              group: widget.currentGroup));
-                                        },
-                                        child: Container(
-                                          width: (35 * 3.5).toDouble(),
-                                          height: 40,
-                                          child: Stack(
-                                              children: List.generate(
-                                                  groupMembers.length > 5
-                                                      ? 5
-                                                      : groupMembers.length,
-                                                  (index) {
-                                            return Positioned(
-                                                left: index * 20,
-                                                child: Container(
-                                                    width: 35,
-                                                    height: 35,
-                                                    decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(
-                                                            color: Colors.grey,
-                                                            width: 2),
-                                                        image: DecorationImage(
-                                                            fit: BoxFit.fill,
-                                                            image: NetworkImage(
-                                                                groupMembers[
-                                                                        index]
-                                                                    .imageUrl)))));
-                                          }, growable: true)),
-                                        ),
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  }),
-                                  // Show +7
-                                  Obx(() {
-                                    if (landingPagecontroller
-                                        .groupedUsers.isNotEmpty) {
-                                      List<Profile> groupMembers = [];
-                                      for (var member in landingPagecontroller
-                                          .groupedUsers) {
-                                        if (member.name !=
-                                            widget.currentGroup.owner) {
-                                          groupMembers.add(member);
-                                        }
-                                      }
-                                      return groupMembers.length > 5
-                                          ? Text(
-                                              '+${groupMembers.length - 5}',
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            )
-                                          : const SizedBox.shrink();
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  }),
-                                  // Firends Area Button
-                                  InkWell(
-                                    onTap: () {
-                                      Get.to(() => FriendsPage(
-                                          group: widget.currentGroup));
-                                    },
-                                    child: Image.asset(
-                                      'assets/icons/BackTo.png',
-                                      width: 40,
-                                      height: 40,
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 10,
                                     ),
+                                    Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                                fit: BoxFit.fill,
+                                                image: NetworkImage(widget
+                                                    .currentGroup
+                                                    .ownerImageUrl)))),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    const Text(
+                                      'By',
+                                      style: TextStyle(
+                                          color: Colors.white54,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Container(
+                                      width:
+                                          MediaQuery.of(context).size.width / 3,
+                                      child: Text(
+                                        widget.currentGroup.owner,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Obx(() {
+                                        if (landingPagecontroller
+                                            .groupedUsers.isEmpty) {
+                                          return const SizedBox.shrink();
+                                        } else if (landingPagecontroller
+                                                .groupedUsers.length ==
+                                            1) {
+                                          return InkWell(
+                                            onTap: () {
+                                              Get.to(() => FriendsPage(
+                                                  group: widget.currentGroup));
+                                            },
+                                            child: const Text(
+                                              'Add Friends',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          );
+                                        } else if (landingPagecontroller
+                                            .groupedUsers.isNotEmpty) {
+                                          List<Profile> groupMembers = [];
+                                          for (var member
+                                              in landingPagecontroller
+                                                  .groupedUsers) {
+                                            if (member.name !=
+                                                widget.currentGroup.owner) {
+                                              groupMembers.add(member);
+                                            }
+                                          }
+                                          return InkWell(
+                                            onTap: () {
+                                              Get.to(() => FriendsPage(
+                                                  group: widget.currentGroup));
+                                            },
+                                            child: Container(
+                                              width: (35 * 3.5).toDouble(),
+                                              height: 40,
+                                              child: Stack(
+                                                  children: List.generate(
+                                                      groupMembers.length > 5
+                                                          ? 5
+                                                          : groupMembers.length,
+                                                      (index) {
+                                                return Positioned(
+                                                    left: index * 20,
+                                                    child: Container(
+                                                        width: 35,
+                                                        height: 35,
+                                                        decoration: BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            border: Border.all(
+                                                                color:
+                                                                    Colors.grey,
+                                                                width: 2),
+                                                            image: DecorationImage(
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                                image: NetworkImage(
+                                                                    groupMembers[
+                                                                            index]
+                                                                        .imageUrl)))));
+                                              }, growable: true)),
+                                            ),
+                                          );
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      }),
+                                      // Show +7
+                                      Obx(() {
+                                        if (landingPagecontroller
+                                            .groupedUsers.isNotEmpty) {
+                                          List<Profile> groupMembers = [];
+                                          for (var member
+                                              in landingPagecontroller
+                                                  .groupedUsers) {
+                                            if (member.name !=
+                                                widget.currentGroup.owner) {
+                                              groupMembers.add(member);
+                                            }
+                                          }
+                                          return groupMembers.length > 5
+                                              ? Text(
+                                                  '+${groupMembers.length - 5}',
+                                                  style: const TextStyle(
+                                                      color: Colors.white),
+                                                )
+                                              : const SizedBox.shrink();
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      }),
+                                      // Firends Area Button
+                                      InkWell(
+                                        onTap: () {
+                                          Get.to(() => FriendsPage(
+                                              group: widget.currentGroup));
+                                        },
+                                        child: Image.asset(
+                                          'assets/icons/BackTo.png',
+                                          // width: 40,
+                                          height: 30,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(
-                            height: 10,
+                                ),
+                              ],
+                            ),
                           ),
                           // Filter tag
                           Container(
-                            height: MediaQuery.of(context).size.height / 15,
+                            height: MediaQuery.of(context).size.height / 20,
+                            width: MediaQuery.of(context).size.width / 1.05,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Autocomplete(
+                              optionsBuilder:
+                                  (TextEditingValue textEditingValue) {
+                                if (textEditingValue.text.isEmpty) {
+                                  return const Iterable<String>.empty();
+                                } else {
+                                  return viewGroupController.allTags
+                                      .where((String option) {
+                                    return option
+                                        .trim()
+                                        .toLowerCase()
+                                        .startsWith(textEditingValue.text
+                                            .trim()
+                                            .toLowerCase());
+                                  });
+                                }
+                              },
+                              optionsViewBuilder: (context,
+                                  Function(String) onSelected, options) {
+                                return Material(
+                                  elevation: 4,
+                                  child: ListView.separated(
+                                    padding: EdgeInsets.zero,
+                                    itemBuilder: (context, index) {
+                                      final option = options.elementAt(index);
+                                      return ListTile(
+                                        title: Text(option.toString().trim()),
+                                        onTap: () {
+                                          viewGroupController.addTags(
+                                              option.toString().trim());
+                                          viewGroupController.tagName.clear();
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                      );
+                                    },
+                                    separatorBuilder: (context, index) =>
+                                        const Divider(),
+                                    itemCount: options.length,
+                                  ),
+                                );
+                              },
+                              onSelected: (selectedString) {
+                                viewGroupController
+                                    .addTags(selectedString.toString().trim());
+                                viewGroupController.tagName.clear();
+                                FocusScope.of(context).unfocus();
+                              },
+                              fieldViewBuilder: (context, controller, focusNode,
+                                  onEditingComplete) {
+                                viewGroupController.tagName = controller;
+
+                                return TextField(
+                                    style: const TextStyle(color: Colors.white),
+                                    controller: controller,
+                                    focusNode: focusNode,
+                                    onEditingComplete: onEditingComplete,
+                                    onSubmitted: (value) {
+                                      if (value.isNotEmpty) {
+                                        // Split if input contains ,
+                                        if (value.contains(',')) {
+                                          List<String> splitedString =
+                                              value.split(',');
+                                          splitedString.forEach((element) {
+                                            viewGroupController
+                                                .addTags(element.trim());
+                                          });
+                                        } else {
+                                          viewGroupController
+                                              .addTags(value.trim());
+                                        }
+                                      }
+                                      viewGroupController.tagName.clear();
+                                    },
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            30.0,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              color: Colors.transparent),
+                                          borderRadius:
+                                              BorderRadius.circular(30.0),
+                                        ),
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.zero,
+                                        filled: true,
+                                        fillColor: const Color(bgColor),
+                                        hintText: 'Filter by tag',
+                                        hintStyle: const TextStyle(
+                                            color: Colors.white70),
+                                        prefixIcon: InkWell(
+                                          onTap: () {
+                                            viewGroupController.setFilterOn();
+                                          },
+                                          child: const Icon(
+                                            Icons.search,
+                                            size: 25,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            viewGroupController.tagName.clear();
+                                          },
+                                          icon: const CircleAvatar(
+                                            backgroundColor: Colors.white24,
+                                            child: Icon(
+                                              Icons.close_rounded,
+                                              size: 15,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        )));
+                              },
+                            ),
+                          ),
+
+                          // Sorting Container
+                          Container(
+                            height: MediaQuery.of(context).size.height / 20,
+                            margin: const EdgeInsets.symmetric(vertical: 10),
                             child: ListView(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
                               children: [
-                                Obx(
-                                  () => viewGroupController
-                                              .filteredTags.isNotEmpty &&
-                                          viewGroupController.isFilterOn.value
-                                      ? IconButton(
-                                          onPressed: () {
-                                            viewGroupController.setFilterOn();
-                                          },
-                                          icon: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 5),
-                                            child: CircleAvatar(
-                                              radius: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  30,
-                                              backgroundColor: Colors.white,
-                                              child: Icon(
-                                                Icons.search,
-                                                size: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    50,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ))
-                                      : Container(
-                                          padding:
-                                              const EdgeInsets.only(left: 10),
+                                Obx(() => viewGroupController.sortByRecent.value
+                                    ? InkWell(
+                                        onTap: () {
+                                          viewGroupController.sort(false);
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
                                           height: MediaQuery.of(context)
                                                   .size
                                                   .height /
-                                              15,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              1.8,
-                                          child: InputDecorator(
-                                              decoration: InputDecoration(
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          30.0),
-                                                ),
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                filled: true,
-                                                fillColor: Colors.white70,
-                                                prefixIcon: InkWell(
-                                                  onTap: () {
-                                                    viewGroupController
-                                                        .setFilterOn();
-                                                  },
-                                                  child: const Icon(
-                                                    Icons.search,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
+                                              20,
+                                          child: Row(
+                                            children: [
+                                              Image.asset(
+                                                'assets/icons/UpDownArrow.png',
+                                                width: 20,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    20,
                                               ),
-                                              child: Stack(
-                                                children: [
-                                                  Autocomplete<String>(
-                                                    displayStringForOption:
-                                                        (c) => c.toString(),
-                                                    optionsBuilder:
-                                                        (TextEditingValue
-                                                            textEditingValue) {
-                                                      if (textEditingValue
-                                                              .text ==
-                                                          '') {
-                                                        return const Iterable<
-                                                            String>.empty();
-                                                      }
-                                                      return viewGroupController
-                                                          .allTags
-                                                          .where(
-                                                              (String option) {
-                                                        return option
-                                                            .trim()
-                                                            .toLowerCase()
-                                                            .contains(
-                                                                textEditingValue
-                                                                    .text
-                                                                    .trim()
-                                                                    .toLowerCase());
-                                                      });
-                                                    },
-                                                    onSelected:
-                                                        (String selection) {
-                                                      viewGroupController
-                                                          .addTags(selection);
-                                                      tagName.clear();
-                                                      FocusScope.of(context)
-                                                          .unfocus();
-                                                    },
-                                                  ),
-                                                  const Text(
-                                                    'Filter by tag',
-                                                    style:
-                                                        TextStyle(fontSize: 10),
-                                                  ),
-                                                ],
-                                              )),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              const Text(
+                                                'Most recent',
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              )
+                                            ],
+                                          ),
                                         ),
-                                ),
-
-                                const SizedBox(
-                                  width: 10,
-                                ),
+                                      )
+                                    : InkWell(
+                                        onTap: () {
+                                          viewGroupController.sort(true);
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              20,
+                                          child: Row(
+                                            children: [
+                                              FaIcon(
+                                                FontAwesomeIcons.arrowUpAZ,
+                                                color: Colors.white,
+                                                size: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    40,
+                                              ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              const Text(
+                                                'Alphabetical',
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      )),
                                 // Show Filtered tags
                                 Obx(
                                   () => viewGroupController
@@ -723,19 +825,20 @@ class _ViewGroupState extends State<ViewGroup> {
                                             return Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                      horizontal: 5,
-                                                      vertical: 10),
+                                                      horizontal: 5),
                                               child: Stack(
-                                                alignment: Alignment.topLeft,
+                                                alignment: Alignment.topRight,
                                                 children: [
                                                   Container(
-                                                    height: 40,
-                                                    decoration: BoxDecoration(
-                                                        color: Colors
-                                                            .grey.shade800,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            20,
+                                                    decoration: const BoxDecoration(
+                                                        color: Color(bgColor),
                                                         borderRadius:
-                                                            const BorderRadius
-                                                                    .all(
+                                                            BorderRadius.all(
                                                                 Radius.circular(
                                                                     30))),
                                                     padding: const EdgeInsets
@@ -760,15 +863,15 @@ class _ViewGroupState extends State<ViewGroup> {
                                                     },
                                                     child: const Align(
                                                         alignment:
-                                                            Alignment.topLeft,
+                                                            Alignment.topRight,
                                                         child: CircleAvatar(
-                                                          radius: 10,
+                                                          radius: 8,
                                                           backgroundColor:
                                                               Colors.white70,
                                                           child: Icon(
                                                             Icons.close,
                                                             color: Colors.black,
-                                                            size: 8,
+                                                            size: 10,
                                                           ),
                                                         )),
                                                   )
@@ -781,61 +884,6 @@ class _ViewGroupState extends State<ViewGroup> {
                               ],
                             ),
                           ),
-
-                          // Sorting Container
-                          Obx(() => viewGroupController.sortByRecent.value
-                              ? InkWell(
-                                  onTap: () {
-                                    viewGroupController.sort(false);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    height: 50,
-                                    child: Row(
-                                      children: [
-                                        Image.asset(
-                                          'assets/icons/UpDownArrow.png',
-                                          width: 20,
-                                          height: 15,
-                                        ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        const Text(
-                                          'Most recent',
-                                          style: TextStyle(color: Colors.white),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              : InkWell(
-                                  onTap: () {
-                                    viewGroupController.sort(true);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    height: 50,
-                                    child: Row(
-                                      children: const [
-                                        FaIcon(
-                                          FontAwesomeIcons.arrowUpAZ,
-                                          color: Colors.white,
-                                          size: 15,
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text(
-                                          'Alphabetical',
-                                          style: TextStyle(color: Colors.white),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )),
 
                           ///
                           const Divider(
@@ -956,7 +1004,9 @@ class _ViewGroupState extends State<ViewGroup> {
                                                     onTap: () {
                                                       Get.to(() =>
                                                               FullScreenPage(
-                                                                index: 1,
+                                                                isToRefresh:
+                                                                    true,
+                                                                index: 0,
                                                                 post:
                                                                     currentPosts[
                                                                         index],
@@ -1006,6 +1056,12 @@ class _ViewGroupState extends State<ViewGroup> {
                                                               ))!
                                                           .then((value) =>
                                                               _pullRefresh());
+                                                      if (widget
+                                                          .isFromFullScreenPage) {
+                                                        setState(
+                                                          () {},
+                                                        );
+                                                      }
                                                     },
                                                     child: VideoWidget(
                                                       post: currentPosts[index],
@@ -1042,6 +1098,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                       isFromGroup:
                                                                           true,
                                                                       isFromFullScreenPage:
+                                                                          false,
+                                                                      isFromAddGroup:
                                                                           false,
                                                                     ));
                                                           }
@@ -1092,7 +1150,9 @@ class _ViewGroupState extends State<ViewGroup> {
                                                       viewCommentFunction: () {
                                                         Get.to(() =>
                                                                 FullScreenPage(
-                                                                  index: 1,
+                                                                  isToRefresh:
+                                                                      true,
+                                                                  index: 0,
                                                                   post:
                                                                       currentPosts[
                                                                           index],
@@ -1141,6 +1201,12 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                 ))!
                                                             .then((value) =>
                                                                 _pullRefresh());
+                                                        if (widget
+                                                            .isFromFullScreenPage) {
+                                                          setState(
+                                                            () {},
+                                                          );
+                                                        }
                                                       },
                                                     ),
                                                   )
@@ -1148,7 +1214,9 @@ class _ViewGroupState extends State<ViewGroup> {
                                                     onTap: () {
                                                       Get.to(() =>
                                                               FullScreenPage(
-                                                                index: 1,
+                                                                isToRefresh:
+                                                                    true,
+                                                                index: 0,
                                                                 post:
                                                                     currentPosts[
                                                                         index],
@@ -1198,12 +1266,18 @@ class _ViewGroupState extends State<ViewGroup> {
                                                               ))!
                                                           .then((value) =>
                                                               _pullRefresh());
+                                                      if (widget
+                                                          .isFromFullScreenPage) {
+                                                        setState(
+                                                          () {},
+                                                        );
+                                                      }
                                                     },
                                                     child: VideoWidget(
                                                       viewCommentFunction: () {
                                                         Get.to(() =>
                                                                 FullScreenPage(
-                                                                  index: 1,
+                                                                  index: 0,
                                                                   post:
                                                                       currentPosts[
                                                                           index],
@@ -1252,6 +1326,12 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                 ))!
                                                             .then((value) =>
                                                                 _pullRefresh());
+                                                        if (widget
+                                                            .isFromFullScreenPage) {
+                                                          setState(
+                                                            () {},
+                                                          );
+                                                        }
                                                       },
                                                       post: currentPosts[index],
                                                       user:
@@ -1287,6 +1367,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                       isFromGroup:
                                                                           true,
                                                                       isFromFullScreenPage:
+                                                                          false,
+                                                                      isFromAddGroup:
                                                                           false,
                                                                     ));
                                                           }
@@ -1386,6 +1468,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                     onTap: () {
                                                       Get.to(() =>
                                                               FullScreenPage(
+                                                                isToRefresh:
+                                                                    true,
                                                                 index: 1,
                                                                 post:
                                                                     currentPosts[
@@ -1436,12 +1520,20 @@ class _ViewGroupState extends State<ViewGroup> {
                                                               ))!
                                                           .then((value) =>
                                                               _pullRefresh());
+                                                      if (widget
+                                                          .isFromFullScreenPage) {
+                                                        setState(
+                                                          () {},
+                                                        );
+                                                      }
                                                     },
                                                     child: VideoWidget(
                                                       viewCommentFunction: () {
                                                         Get.to(() =>
                                                                 FullScreenPage(
-                                                                  index: 1,
+                                                                  isToRefresh:
+                                                                      true,
+                                                                  index: 0,
                                                                   post:
                                                                       currentPosts[
                                                                           index],
@@ -1490,6 +1582,12 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                 ))!
                                                             .then((value) =>
                                                                 _pullRefresh());
+                                                        if (widget
+                                                            .isFromFullScreenPage) {
+                                                          setState(
+                                                            () {},
+                                                          );
+                                                        }
                                                       },
                                                       post: currentPosts[index],
                                                       user:
@@ -1525,6 +1623,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                       isFromGroup:
                                                                           true,
                                                                       isFromFullScreenPage:
+                                                                          false,
+                                                                      isFromAddGroup:
                                                                           false,
                                                                     ));
                                                           }
@@ -1578,7 +1678,9 @@ class _ViewGroupState extends State<ViewGroup> {
                                                     onTap: () {
                                                       Get.to(() =>
                                                               FullScreenPage(
-                                                                index: 1,
+                                                                isToRefresh:
+                                                                    true,
+                                                                index: 0,
                                                                 post:
                                                                     currentPosts[
                                                                         index],
@@ -1628,12 +1730,20 @@ class _ViewGroupState extends State<ViewGroup> {
                                                               ))!
                                                           .then((value) =>
                                                               _pullRefresh());
+                                                      if (widget
+                                                          .isFromFullScreenPage) {
+                                                        setState(
+                                                          () {},
+                                                        );
+                                                      }
                                                     },
                                                     child: VideoWidget(
                                                       viewCommentFunction: () {
                                                         Get.to(() =>
                                                                 FullScreenPage(
-                                                                  index: 1,
+                                                                  isToRefresh:
+                                                                      true,
+                                                                  index: 0,
                                                                   post:
                                                                       currentPosts[
                                                                           index],
@@ -1682,6 +1792,12 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                 ))!
                                                             .then((value) =>
                                                                 _pullRefresh());
+                                                        if (widget
+                                                            .isFromFullScreenPage) {
+                                                          setState(
+                                                            () {},
+                                                          );
+                                                        }
                                                       },
                                                       post: currentPosts[index],
                                                       user:
@@ -1717,6 +1833,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                       isFromGroup:
                                                                           true,
                                                                       isFromFullScreenPage:
+                                                                          false,
+                                                                      isFromAddGroup:
                                                                           false,
                                                                     ));
                                                           }
@@ -1776,6 +1894,7 @@ class _ViewGroupState extends State<ViewGroup> {
                     ),
 
               ///------------------------------------------------//
+              ///// Index == 1
               widget.isFromGroup
                   ? RefresherWidget(
                       controller: _refreshController,
@@ -1923,272 +2042,365 @@ class _ViewGroupState extends State<ViewGroup> {
                                 : const SizedBox.shrink(),
                           ),
                           // Friends area
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          image: DecorationImage(
-                                              fit: BoxFit.fill,
-                                              image: NetworkImage(widget
-                                                  .currentGroup
-                                                  .ownerImageUrl)))),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  const Text(
-                                    'By',
-                                    style: TextStyle(
-                                        color: Colors.white54,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    widget.currentGroup.owner,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Obx(() {
-                                    if (landingPagecontroller
-                                        .groupedUsers.isEmpty) {
-                                      return const SizedBox.shrink();
-                                    } else if (landingPagecontroller
-                                            .groupedUsers.length ==
-                                        1) {
-                                      return InkWell(
-                                        onTap: () {
-                                          Get.to(() => FriendsPage(
-                                              group: widget.currentGroup));
-                                        },
-                                        child: const Text(
-                                          'Add Friends',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      );
-                                    } else if (landingPagecontroller
-                                        .groupedUsers.isNotEmpty) {
-                                      List<Profile> groupMembers = [];
-                                      for (var member in landingPagecontroller
-                                          .groupedUsers) {
-                                        if (member.name !=
-                                            widget.currentGroup.owner) {
-                                          groupMembers.add(member);
-                                        }
-                                      }
-                                      return InkWell(
-                                        onTap: () {
-                                          Get.to(() => FriendsPage(
-                                              group: widget.currentGroup));
-                                        },
-                                        child: Container(
-                                          width: (35 * 3.5).toDouble(),
-                                          height: 40,
-                                          child: Stack(
-                                              children: List.generate(
-                                                  groupMembers.length > 5
-                                                      ? 5
-                                                      : groupMembers.length,
-                                                  (index) {
-                                            return Positioned(
-                                                left: index * 20,
-                                                child: Container(
-                                                    width: 35,
-                                                    height: 35,
-                                                    decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(
-                                                            color: Colors.grey,
-                                                            width: 2),
-                                                        image: DecorationImage(
-                                                            fit: BoxFit.fill,
-                                                            image: NetworkImage(
-                                                                groupMembers[
-                                                                        index]
-                                                                    .imageUrl)))));
-                                          }, growable: true)),
-                                        ),
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  }),
-                                  // Show +7
-                                  Obx(() {
-                                    if (landingPagecontroller
-                                        .groupedUsers.isNotEmpty) {
-                                      List<Profile> groupMembers = [];
-                                      for (var member in landingPagecontroller
-                                          .groupedUsers) {
-                                        if (member.name !=
-                                            widget.currentGroup.owner) {
-                                          groupMembers.add(member);
-                                        }
-                                      }
-                                      return groupMembers.length > 5
-                                          ? Text(
-                                              '+${groupMembers.length - 5}',
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            )
-                                          : const SizedBox.shrink();
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  }),
-                                  // Firends Area Button
-                                  InkWell(
-                                    onTap: () {
-                                      Get.to(() => FriendsPage(
-                                          group: widget.currentGroup));
-                                    },
-                                    child: Image.asset(
-                                      'assets/icons/BackTo.png',
-                                      width: 40,
-                                      height: 40,
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 10,
                                     ),
+                                    Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                                fit: BoxFit.fill,
+                                                image: NetworkImage(widget
+                                                    .currentGroup
+                                                    .ownerImageUrl)))),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    const Text(
+                                      'By',
+                                      style: TextStyle(
+                                          color: Colors.white54,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Container(
+                                      width:
+                                          MediaQuery.of(context).size.width / 3,
+                                      child: Text(
+                                        widget.currentGroup.owner,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Obx(() {
+                                        if (landingPagecontroller
+                                            .groupedUsers.isEmpty) {
+                                          return const SizedBox.shrink();
+                                        } else if (landingPagecontroller
+                                                .groupedUsers.length ==
+                                            1) {
+                                          return InkWell(
+                                            onTap: () {
+                                              Get.to(() => FriendsPage(
+                                                  group: widget.currentGroup));
+                                            },
+                                            child: const Text(
+                                              'Add Friends',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          );
+                                        } else if (landingPagecontroller
+                                            .groupedUsers.isNotEmpty) {
+                                          List<Profile> groupMembers = [];
+                                          for (var member
+                                              in landingPagecontroller
+                                                  .groupedUsers) {
+                                            if (member.name !=
+                                                widget.currentGroup.owner) {
+                                              groupMembers.add(member);
+                                            }
+                                          }
+                                          return InkWell(
+                                            onTap: () {
+                                              Get.to(() => FriendsPage(
+                                                  group: widget.currentGroup));
+                                            },
+                                            child: Container(
+                                              width: (35 * 3.5).toDouble(),
+                                              height: 40,
+                                              child: Stack(
+                                                  children: List.generate(
+                                                      groupMembers.length > 5
+                                                          ? 5
+                                                          : groupMembers.length,
+                                                      (index) {
+                                                return Positioned(
+                                                    left: index * 20,
+                                                    child: Container(
+                                                        width: 35,
+                                                        height: 35,
+                                                        decoration: BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            border: Border.all(
+                                                                color:
+                                                                    Colors.grey,
+                                                                width: 2),
+                                                            image: DecorationImage(
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                                image: NetworkImage(
+                                                                    groupMembers[
+                                                                            index]
+                                                                        .imageUrl)))));
+                                              }, growable: true)),
+                                            ),
+                                          );
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      }),
+                                      // Show +7
+                                      Obx(() {
+                                        if (landingPagecontroller
+                                            .groupedUsers.isNotEmpty) {
+                                          List<Profile> groupMembers = [];
+                                          for (var member
+                                              in landingPagecontroller
+                                                  .groupedUsers) {
+                                            if (member.name !=
+                                                widget.currentGroup.owner) {
+                                              groupMembers.add(member);
+                                            }
+                                          }
+                                          return groupMembers.length > 5
+                                              ? Text(
+                                                  '+${groupMembers.length - 5}',
+                                                  style: const TextStyle(
+                                                      color: Colors.white),
+                                                )
+                                              : const SizedBox.shrink();
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      }),
+                                      // Firends Area Button
+                                      InkWell(
+                                        onTap: () {
+                                          Get.to(() => FriendsPage(
+                                              group: widget.currentGroup));
+                                        },
+                                        child: Image.asset(
+                                          'assets/icons/BackTo.png',
+                                          height: 30,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
                           ),
 
-                          const SizedBox(
-                            height: 10,
-                          ),
                           // Filter tag
                           Container(
-                            height: MediaQuery.of(context).size.height / 15,
+                            height: MediaQuery.of(context).size.height / 20,
+                            width: MediaQuery.of(context).size.width / 1.05,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Autocomplete(
+                              optionsBuilder:
+                                  (TextEditingValue textEditingValue) {
+                                if (textEditingValue.text.isEmpty) {
+                                  return const Iterable<String>.empty();
+                                } else {
+                                  return viewGroupController.allTags
+                                      .where((String option) {
+                                    return option
+                                        .trim()
+                                        .toLowerCase()
+                                        .startsWith(textEditingValue.text
+                                            .trim()
+                                            .toLowerCase());
+                                  });
+                                }
+                              },
+                              optionsViewBuilder: (context,
+                                  Function(String) onSelected, options) {
+                                return Material(
+                                  elevation: 4,
+                                  child: ListView.separated(
+                                    padding: EdgeInsets.zero,
+                                    itemBuilder: (context, index) {
+                                      final option = options.elementAt(index);
+                                      return ListTile(
+                                        title: Text(option.toString().trim()),
+                                        onTap: () {
+                                          viewGroupController.addTags(
+                                              option.toString().trim());
+                                          viewGroupController.tagName.clear();
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                      );
+                                    },
+                                    separatorBuilder: (context, index) =>
+                                        const Divider(),
+                                    itemCount: options.length,
+                                  ),
+                                );
+                              },
+                              onSelected: (selectedString) {
+                                viewGroupController
+                                    .addTags(selectedString.toString().trim());
+                                viewGroupController.tagName.clear();
+                                FocusScope.of(context).unfocus();
+                              },
+                              fieldViewBuilder: (context, controller, focusNode,
+                                  onEditingComplete) {
+                                viewGroupController.tagName = controller;
+
+                                return TextField(
+                                    style: const TextStyle(color: Colors.white),
+                                    controller: controller,
+                                    focusNode: focusNode,
+                                    onEditingComplete: onEditingComplete,
+                                    onSubmitted: (value) {
+                                      if (value.isNotEmpty) {
+                                        // Split if input contains ,
+                                        if (value.contains(',')) {
+                                          List<String> splitedString =
+                                              value.split(',');
+                                          splitedString.forEach((element) {
+                                            viewGroupController
+                                                .addTags(element.trim());
+                                          });
+                                        } else {
+                                          viewGroupController
+                                              .addTags(value.trim());
+                                        }
+                                      }
+                                      viewGroupController.tagName.clear();
+                                    },
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            30.0,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              color: Colors.transparent),
+                                          borderRadius:
+                                              BorderRadius.circular(30.0),
+                                        ),
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.zero,
+                                        filled: true,
+                                        fillColor: const Color(bgColor),
+                                        hintText: 'Filter by tag',
+                                        hintStyle: const TextStyle(
+                                            color: Colors.white70),
+                                        prefixIcon: InkWell(
+                                          onTap: () {
+                                            viewGroupController.setFilterOn();
+                                          },
+                                          child: const Icon(
+                                            Icons.search,
+                                            size: 25,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            viewGroupController.tagName.clear();
+                                          },
+                                          icon: const CircleAvatar(
+                                            backgroundColor: Colors.white24,
+                                            child: Icon(
+                                              Icons.close_rounded,
+                                              size: 15,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        )));
+                              },
+                            ),
+                          ),
+
+                          // Sorting Container
+                          Container(
+                            height: MediaQuery.of(context).size.height / 20,
+                            margin: const EdgeInsets.symmetric(vertical: 10),
                             child: ListView(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
                               children: [
-                                Obx(
-                                  () => viewGroupController
-                                              .filteredTags.isNotEmpty &&
-                                          viewGroupController.isFilterOn.value
-                                      ? IconButton(
-                                          onPressed: () {
-                                            viewGroupController.setFilterOn();
-                                          },
-                                          icon: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 5),
-                                            child: CircleAvatar(
-                                              radius: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  30,
-                                              backgroundColor: Colors.white,
-                                              child: Icon(
-                                                Icons.search,
-                                                size: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    50,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ))
-                                      : Container(
-                                          padding:
-                                              const EdgeInsets.only(left: 10),
+                                Obx(() => viewGroupController.sortByRecent.value
+                                    ? InkWell(
+                                        onTap: () {
+                                          viewGroupController.sort(false);
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
                                           height: MediaQuery.of(context)
                                                   .size
                                                   .height /
-                                              15,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              1.8,
-                                          child: InputDecorator(
-                                              decoration: InputDecoration(
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          30.0),
-                                                ),
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                filled: true,
-                                                fillColor: Colors.white70,
-                                                prefixIcon: InkWell(
-                                                  onTap: () {
-                                                    viewGroupController
-                                                        .setFilterOn();
-                                                  },
-                                                  child: const Icon(
-                                                    Icons.search,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
+                                              20,
+                                          child: Row(
+                                            children: [
+                                              Image.asset(
+                                                'assets/icons/UpDownArrow.png',
+                                                width: 20,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    20,
                                               ),
-                                              child: Stack(
-                                                children: [
-                                                  Autocomplete<String>(
-                                                    displayStringForOption:
-                                                        (c) => c.toString(),
-                                                    optionsBuilder:
-                                                        (TextEditingValue
-                                                            textEditingValue) {
-                                                      if (textEditingValue
-                                                              .text ==
-                                                          '') {
-                                                        return const Iterable<
-                                                            String>.empty();
-                                                      }
-                                                      return viewGroupController
-                                                          .allTags
-                                                          .where(
-                                                              (String option) {
-                                                        return option
-                                                            .trim()
-                                                            .toLowerCase()
-                                                            .contains(
-                                                                textEditingValue
-                                                                    .text
-                                                                    .trim()
-                                                                    .toLowerCase());
-                                                      });
-                                                    },
-                                                    onSelected:
-                                                        (String selection) {
-                                                      viewGroupController
-                                                          .addTags(selection);
-                                                      tagName.clear();
-                                                      FocusScope.of(context)
-                                                          .unfocus();
-                                                    },
-                                                  ),
-                                                  const Text(
-                                                    'Filter by tag',
-                                                    style:
-                                                        TextStyle(fontSize: 10),
-                                                  ),
-                                                ],
-                                              )),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              const Text(
+                                                'Most recent',
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              )
+                                            ],
+                                          ),
                                         ),
-                                ),
-
-                                const SizedBox(
-                                  width: 10,
-                                ),
+                                      )
+                                    : InkWell(
+                                        onTap: () {
+                                          viewGroupController.sort(true);
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              20,
+                                          child: Row(
+                                            children: [
+                                              FaIcon(
+                                                FontAwesomeIcons.arrowUpAZ,
+                                                color: Colors.white,
+                                                size: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    40,
+                                              ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              const Text(
+                                                'Alphabetical',
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      )),
                                 // Show Filtered tags
                                 Obx(
                                   () => viewGroupController
@@ -2202,19 +2414,20 @@ class _ViewGroupState extends State<ViewGroup> {
                                             return Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                      horizontal: 5,
-                                                      vertical: 10),
+                                                      horizontal: 5),
                                               child: Stack(
-                                                alignment: Alignment.topLeft,
+                                                alignment: Alignment.topRight,
                                                 children: [
                                                   Container(
-                                                    height: 40,
-                                                    decoration: BoxDecoration(
-                                                        color: Colors
-                                                            .grey.shade800,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            20,
+                                                    decoration: const BoxDecoration(
+                                                        color: Color(bgColor),
                                                         borderRadius:
-                                                            const BorderRadius
-                                                                    .all(
+                                                            BorderRadius.all(
                                                                 Radius.circular(
                                                                     30))),
                                                     padding: const EdgeInsets
@@ -2239,15 +2452,15 @@ class _ViewGroupState extends State<ViewGroup> {
                                                     },
                                                     child: const Align(
                                                         alignment:
-                                                            Alignment.topLeft,
+                                                            Alignment.topRight,
                                                         child: CircleAvatar(
-                                                          radius: 10,
+                                                          radius: 8,
                                                           backgroundColor:
                                                               Colors.white70,
                                                           child: Icon(
                                                             Icons.close,
                                                             color: Colors.black,
-                                                            size: 8,
+                                                            size: 10,
                                                           ),
                                                         )),
                                                   )
@@ -2260,61 +2473,6 @@ class _ViewGroupState extends State<ViewGroup> {
                               ],
                             ),
                           ),
-
-                          // Sorting Container
-                          Obx(() => viewGroupController.sortByRecent.value
-                              ? InkWell(
-                                  onTap: () {
-                                    viewGroupController.sort(false);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    height: 50,
-                                    child: Row(
-                                      children: [
-                                        Image.asset(
-                                          'assets/icons/UpDownArrow.png',
-                                          width: 20,
-                                          height: 15,
-                                        ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        const Text(
-                                          'Most recent',
-                                          style: TextStyle(color: Colors.white),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              : InkWell(
-                                  onTap: () {
-                                    viewGroupController.sort(true);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    height: 50,
-                                    child: Row(
-                                      children: const [
-                                        FaIcon(
-                                          FontAwesomeIcons.arrowUpAZ,
-                                          color: Colors.white,
-                                          size: 15,
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text(
-                                          'Alphabetical',
-                                          style: TextStyle(color: Colors.white),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )),
 
                           ///
                           const Divider(
@@ -2574,6 +2732,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                           true,
                                                                       isFromFullScreenPage:
                                                                           false,
+                                                                      isFromAddGroup:
+                                                                          false,
                                                                     ));
                                                           }
                                                         });
@@ -2760,6 +2920,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                     isFromGroup:
                                                                         true,
                                                                     isFromFullScreenPage:
+                                                                        false,
+                                                                    isFromAddGroup:
                                                                         false,
                                                                   ));
                                                             }
@@ -2993,6 +3155,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                         true,
                                                                     isFromFullScreenPage:
                                                                         false,
+                                                                    isFromAddGroup:
+                                                                        false,
                                                                   ));
                                                             }
                                                           });
@@ -3179,6 +3343,8 @@ class _ViewGroupState extends State<ViewGroup> {
                                                                     isFromGroup:
                                                                         true,
                                                                     isFromFullScreenPage:
+                                                                        false,
+                                                                    isFromAddGroup:
                                                                         false,
                                                                   ));
                                                             }

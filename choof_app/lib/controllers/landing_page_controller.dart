@@ -91,7 +91,9 @@ class LandingPageController extends GetxController {
         storeUserProfile(userProfile.value);
       }
       Get.back();
-      Get.offAll(() => const HomePage());
+      Get.offAll(() => const HomePage(
+            isFristTime: true,
+          ));
     } else {
       Get.back();
       Get.snackbar(
@@ -126,7 +128,9 @@ class LandingPageController extends GetxController {
         storeUserProfile(userProfile.value);
       }
       Get.back();
-      Get.offAll(() => const HomePage());
+      Get.offAll(() => const HomePage(
+            isFristTime: true,
+          ));
     } else {
       Get.back();
       Get.snackbar(
@@ -159,7 +163,9 @@ class LandingPageController extends GetxController {
         storeUserProfile(userProfile.value);
       }
       Get.back();
-      Get.offAll(() => const HomePage());
+      Get.offAll(() => const HomePage(
+            isFristTime: true,
+          ));
     } else {
       Get.back();
       Get.snackbar(
@@ -201,7 +207,9 @@ class LandingPageController extends GetxController {
         await addNewUser();
         storeUserProfile(userProfile.value);
         Get.back();
-        Get.offAll(() => const HomePage());
+        Get.offAll(() => const HomePage(
+              isFristTime: true,
+            ));
       } else {
         Get.back();
         Get.snackbar(

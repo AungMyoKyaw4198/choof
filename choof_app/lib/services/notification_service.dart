@@ -12,7 +12,8 @@ class NotificationService {
           'channel name',
           channelDescription: 'channel description',
           importance: Importance.max,
-          playSound: false,
+          playSound: true,
+          icon: '@mipmap/ic_noti',
         ),
         iOS: IOSNotificationDetails(
           presentAlert:

@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:choof_app/controllers/full_screen_controller.dart';
 import 'package:choof_app/controllers/home_page_controller.dart';
+import 'package:choof_app/controllers/view_group_controller.dart';
+import 'package:choof_app/controllers/view_group_controller.dart';
 import 'package:choof_app/controllers/your_group_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -199,5 +201,10 @@ class EditVideoController extends GetxController {
       );
       return false;
     }
+  }
+
+  deleteVideo(Post post) {
+    fullScreenController.deletePost(post);
+    favController.refreshPosts();
   }
 }

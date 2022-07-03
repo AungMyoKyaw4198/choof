@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:choof_app/utils/app_constant.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,17 +48,17 @@ class VideoWidget extends StatefulWidget {
 
 class _VideoWidgetState extends State<VideoWidget> {
   bool isHide = true;
+  bool textFieldExpanded = false;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Container(
         color: const Color(bgColor),
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: Column(
           children: [
-            const SizedBox(
-              height: 10,
-            ),
             // Video Widget
             Row(
               children: [
@@ -74,6 +76,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                 widget.post.creator.trim() == widget.user.name.trim()
                     ? const SizedBox(
                         width: 30,
+                        height: 50,
                       )
                     : IconButton(
                         onPressed: () {
@@ -655,10 +658,6 @@ class _VideoWidgetState extends State<VideoWidget> {
               ],
             ),
 
-            const SizedBox(
-              height: 5,
-            ),
-
             widget.post.isReported != null
                 ? widget.post.isReported!
                     ? Stack(
@@ -761,7 +760,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                             height: 200,
                             color: Colors.black,
                             child: const Center(
-                                child: Text('Unable to get thumnail',
+                                child: Text('Unable to get thumbnail',
                                     style: TextStyle(color: Colors.white))),
                           )
                 : widget.thumbnailUrl != null
@@ -778,15 +777,16 @@ class _VideoWidgetState extends State<VideoWidget> {
                         height: 200,
                         color: Colors.black,
                         child: const Center(
-                            child: Text('Unable to get thumnail',
+                            child: Text('Unable to get thumbnail',
                                 style: TextStyle(color: Colors.white))),
                       ),
 
             const SizedBox(
-              height: 5,
+              height: 10,
             ),
 
             Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
               height: 30,
               child: ListView(scrollDirection: Axis.horizontal, children: [
                 Row(
@@ -812,7 +812,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                           padding: EdgeInsets.symmetric(horizontal: 5),
                           child: CircleAvatar(
                             radius: 20,
-                            backgroundColor: Colors.white54,
+                            backgroundColor: Color(mainBgColor),
                             child: FaIcon(
                               FontAwesomeIcons.link,
                               color: Colors.white,
@@ -849,196 +849,238 @@ class _VideoWidgetState extends State<VideoWidget> {
               ]),
             ),
             const SizedBox(
-              height: 5,
+              height: 10,
             ),
 
             widget.isInsideGroup
                 ? const SizedBox.shrink()
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                  fit: BoxFit.fill,
-                                  image: NetworkImage(
-                                      widget.post.creatorImageUrl)))),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      const Text(
-                        'By: ',
-                        style: TextStyle(
-                            color: Colors.white54, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.post.creator,
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      const CircleAvatar(
-                        radius: 2,
-                        backgroundColor: Colors.white54,
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      const Text(
-                        'In:',
-                        style: TextStyle(
-                            color: Colors.white54, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          widget.viewGroupFunc();
-                        },
-                        child: Center(
-                          child: Text(
-                            widget.post.groupName.contains('#')
-                                ? widget.post.groupName.substring(
-                                    0, widget.post.groupName.indexOf('#'))
-                                : widget.post.groupName,
-                            textAlign: TextAlign.start,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                : Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    fit: BoxFit.fill,
+                                    image: NetworkImage(
+                                        widget.post.creatorImageUrl)))),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        const Text(
+                          'By: ',
+                          style: TextStyle(
+                              color: Colors.white54,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.post.creator,
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        const CircleAvatar(
+                          radius: 2,
+                          backgroundColor: Colors.white54,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        const Text(
+                          'In: ',
+                          style: TextStyle(
+                              color: Colors.white54,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              widget.viewGroupFunc();
+                            },
+                            child: Text(
+                              widget.post.groupName.contains('#')
+                                  ? widget.post.groupName.substring(
+                                      0, widget.post.groupName.indexOf('#'))
+                                  : widget.post.groupName,
+                              textAlign: TextAlign.start,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16),
+                              ),
+                            ),
                           ),
-                        ),
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
             const SizedBox(
               height: 10,
             ),
             widget.commentList.isNotEmpty
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const SizedBox(
-                            width: 2,
-                          ),
-                          Container(
-                              width: 30,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                      fit: BoxFit.fill,
-                                      image: NetworkImage(widget
-                                          .commentList.first.commenterUrl)))),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
-                            child: widget.commentList.first.commentText.length <
-                                    80
-                                ? Text(
-                                    widget.commentList.first.commentText,
-                                    overflow: TextOverflow.fade,
-                                    style: const TextStyle(color: Colors.white),
-                                  )
-                                : Stack(children: [
-                                    Text(
-                                      widget.commentList.first.commentText
-                                              .substring(0, 80) +
-                                          '...',
+                ? Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        fit: BoxFit.fill,
+                                        image: NetworkImage(widget
+                                            .commentList.first.commenterUrl)))),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: widget.commentList.first.commentText
+                                          .length <
+                                      300
+                                  ? Text(
+                                      widget.commentList.first.commentText,
                                       overflow: TextOverflow.fade,
                                       style:
                                           const TextStyle(color: Colors.white),
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        widget.viewCommentFunction();
-                                      },
-                                      child: const Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: Padding(
-                                            padding: EdgeInsets.only(
-                                                top: 17, right: 10),
+                                    )
+                                  : Stack(
+                                      alignment: Alignment.bottomRight,
+                                      children: [
+                                          Container(
                                             child: Text(
+                                              widget.commentList.first
+                                                      .commentText
+                                                      .substring(0, 300) +
+                                                  '...',
+                                              overflow: TextOverflow.fade,
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              widget.viewCommentFunction();
+                                            },
+                                            child: const Text(
                                               'more',
                                               style: TextStyle(
                                                   color: Colors.white70),
                                             ),
-                                          )),
-                                    ),
-                                  ]),
-                          ),
-                        ],
-                      ),
-                      TextButton(
-                          onPressed: () {
-                            widget.viewCommentFunction();
-                          },
-                          child: Text(
-                            'View all ${widget.commentList.length} comments',
-                            style: const TextStyle(color: Colors.white),
-                          ))
-                    ],
+                                          ),
+                                        ]),
+                            ),
+                          ],
+                        ),
+                        TextButton(
+                            onPressed: () {
+                              widget.viewCommentFunction();
+                            },
+                            child: Text(
+                              widget.commentList.length == 1
+                                  ? 'View all ${widget.commentList.length} comment'
+                                  : 'View all ${widget.commentList.length} comments',
+                              style: const TextStyle(color: Colors.white),
+                            ))
+                      ],
+                    ),
                   )
                 : const SizedBox.shrink(),
 
-            Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5),
-                  child: Icon(
-                    Icons.comment_outlined,
-                    color: Colors.white,
-                    size: 25,
-                  ),
-                ),
-                Expanded(
-                    child: TextField(
-                  controller: widget.textController,
-                  onSubmitted: (value) {
-                    widget.commentFunction();
-                  },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      hintText: 'Add a comment...',
-                      hintStyle: const TextStyle(color: Colors.white),
-                      contentPadding: const EdgeInsets.all(10),
-                      filled: true,
-                      fillColor: Colors.white24,
-                      suffixIcon: IconButton(
-                        icon: Image.asset(
-                          'assets/icons/EmailSend.png',
-                          width: 30,
-                          height: 30,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          widget.commentFunction();
-                        },
+            Container(
+              height: textFieldExpanded
+                  ? MediaQuery.of(context).size.height / 10
+                  : MediaQuery.of(context).size.height / 25,
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Row(
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: Image.asset(
+                        'assets/icons/Comment.png',
+                        width: 30,
+                        height: 30,
                       )),
-                )),
-              ],
+                  Expanded(
+                      child: TextField(
+                    expands: true,
+                    maxLines: null,
+                    style: const TextStyle(color: Colors.white),
+                    controller: widget.textController,
+                    onChanged: (e) {
+                      int numLines = '\n'.allMatches(e).length + 1;
+                      if (numLines > 1 || e.length > 30) {
+                        setState(() {
+                          textFieldExpanded = true;
+                        });
+                      } else {
+                        setState(() {
+                          textFieldExpanded = false;
+                        });
+                      }
+                    },
+                    onSubmitted: (value) {
+                      widget.commentFunction();
+                      setState(() {
+                        textFieldExpanded = false;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Add a comment...',
+                      hintStyle: const TextStyle(color: Colors.white70),
+                      contentPadding: const EdgeInsets.all(3),
+                      filled: true,
+                      fillColor: const Color(bgColor),
+                      suffixIcon: Padding(
+                        padding: textFieldExpanded
+                            ? const EdgeInsets.all(10)
+                            : const EdgeInsets.all(3),
+                        child: InkWell(
+                          child: Image.asset(
+                            'assets/icons/EmailSend.png',
+                            width: 10,
+                            height: 10,
+                            color: Colors.white24,
+                          ),
+                          onTap: () {
+                            widget.commentFunction();
+                            setState(() {
+                              textFieldExpanded = false;
+                            });
+                          },
+                        ),
+                      ),
+                      enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white24),
+                      ),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white24),
+                      ),
+                    ),
+                  )),
+                ],
+              ),
             ),
             const SizedBox(
-              height: 10,
-            ),
-            const Divider(
-              height: 0,
-              color: Colors.white,
+              height: 20,
             ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 }
 
@@ -1211,6 +1253,9 @@ class ProfileVerticalWidget extends StatelessWidget {
                       : Border.all(color: Colors.white),
                   image: DecorationImage(
                       fit: BoxFit.fill, image: NetworkImage(imageUrl)))),
+          const SizedBox(
+            height: 5,
+          ),
           Text(
             name,
             style: TextStyle(
@@ -1304,6 +1349,8 @@ infoDialog(
     required String content,
     required List<Widget>? actions}) {
   Get.defaultDialog(
+    titlePadding: const EdgeInsets.only(left: 20, right: 20, top: 30),
+    contentPadding: const EdgeInsets.only(left: 20, right: 20, top: 20),
     backgroundColor: const Color(mainBgColor),
     title: title,
     titleStyle: const TextStyle(fontSize: 15, color: Colors.white),
@@ -1322,63 +1369,64 @@ class BottomMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() => MediaQuery(
-        data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height / 8.88,
-          child: BottomNavigationBar(
-            showUnselectedLabels: true,
-            showSelectedLabels: true,
-            onTap: landingPagecontroller.changeTabIndex,
-            currentIndex: landingPagecontroller.tabIndex.value,
-            backgroundColor: const Color(bgColor),
-            unselectedItemColor: Colors.white.withOpacity(0.5),
-            selectedItemColor: const Color(mainColor),
-            items: [
-              BottomNavigationBarItem(
-                icon: Image.asset(
-                  'assets/icons/Favorite.png',
-                  width: 30,
-                  height: 30,
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: SizedBox(
+            height: Platform.isIOS ? 95 : 60,
+            child: BottomNavigationBar(
+              showUnselectedLabels: true,
+              showSelectedLabels: true,
+              onTap: landingPagecontroller.changeTabIndex,
+              currentIndex: landingPagecontroller.tabIndex.value,
+              backgroundColor: const Color(bgColor),
+              unselectedItemColor: Colors.white.withOpacity(0.5),
+              selectedItemColor: const Color(mainColor),
+              items: [
+                BottomNavigationBarItem(
+                  icon: Image.asset(
+                    'assets/icons/Favorite.png',
+                    width: 30,
+                    height: 30,
+                  ),
+                  activeIcon: Image.asset(
+                    'assets/icons/Favorite.png',
+                    width: 30,
+                    height: 30,
+                    color: const Color(mainColor),
+                  ),
+                  label: 'Favorites',
                 ),
-                activeIcon: Image.asset(
-                  'assets/icons/Favorite.png',
-                  width: 30,
-                  height: 30,
-                  color: const Color(mainColor),
+                BottomNavigationBarItem(
+                  icon: Image.asset(
+                    'assets/icons/Users.png',
+                    width: 30,
+                    height: 30,
+                  ),
+                  activeIcon: Image.asset(
+                    'assets/icons/Users.png',
+                    width: 30,
+                    height: 30,
+                    color: const Color(mainColor),
+                  ),
+                  label: 'Groups',
                 ),
-                label: 'Favorites',
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset(
-                  'assets/icons/Users.png',
-                  width: 30,
-                  height: 30,
+                BottomNavigationBarItem(
+                  icon: Image.asset(
+                    'assets/icons/Settings.png',
+                    width: 30,
+                    height: 30,
+                  ),
+                  activeIcon: Image.asset(
+                    'assets/icons/Settings.png',
+                    width: 30,
+                    height: 30,
+                    color: const Color(mainColor),
+                  ),
+                  label: 'Settings',
                 ),
-                activeIcon: Image.asset(
-                  'assets/icons/Users.png',
-                  width: 30,
-                  height: 30,
-                  color: const Color(mainColor),
-                ),
-                label: 'Groups',
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset(
-                  'assets/icons/Settings.png',
-                  width: 30,
-                  height: 30,
-                ),
-                activeIcon: Image.asset(
-                  'assets/icons/Settings.png',
-                  width: 30,
-                  height: 30,
-                  color: const Color(mainColor),
-                ),
-                label: 'Settings',
-              ),
-            ],
+              ],
+            ),
           ),
-        )));
+        ));
   }
 }
 
@@ -1408,13 +1456,22 @@ class RefresherWidget extends StatelessWidget {
         builder: (BuildContext context, LoadStatus? mode) {
           Widget body;
           if (mode == LoadStatus.idle) {
-            body = const Text("Pull up to load more");
+            body = const Text(
+              "Pull up to load more",
+              style: TextStyle(color: Colors.white),
+            );
           } else if (mode == LoadStatus.loading) {
             body = const CupertinoActivityIndicator();
           } else if (mode == LoadStatus.failed) {
-            body = const Text("Load Failed!Click retry!");
+            body = const Text(
+              "Load Failed!Click retry!",
+              style: TextStyle(color: Colors.white),
+            );
           } else if (mode == LoadStatus.canLoading) {
-            body = const Text("Release to load more");
+            body = const Text(
+              "Release to load more",
+              style: TextStyle(color: Colors.white),
+            );
           } else {
             body = const Text("");
           }
@@ -1433,165 +1490,3 @@ class RefresherWidget extends StatelessWidget {
     );
   }
 }
-
-// class filterWidget extends StatelessWidget {
-//   const filterWidget({
-//     Key? key,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       width: MediaQuery.of(context).size.width / 1.25,
-//       child: Autocomplete(
-//         optionsBuilder: (TextEditingValue textEditingValue) {
-//           if (textEditingValue.text.isEmpty) {
-//             return const Iterable<String>.empty();
-//           } else {
-//             return homePageController.allTags.where((String option) {
-//               return option
-//                   .trim()
-//                   .toLowerCase()
-//                   .contains(textEditingValue.text.trim().toLowerCase());
-//             });
-//           }
-//         },
-//         optionsViewBuilder: (context, Function(String) onSelected, options) {
-//           return Material(
-//             elevation: 4,
-//             child: ListView.separated(
-//               padding: EdgeInsets.zero,
-//               itemBuilder: (context, index) {
-//                 final option = options.elementAt(index);
-//                 return ListTile(
-//                   title: Text(option.toString()),
-//                   onTap: () {
-//                     homePageController.addTags(option.toString().trim());
-//                     homePageController.tagName.clear();
-//                     FocusScope.of(context).unfocus();
-//                   },
-//                 );
-//               },
-//               separatorBuilder: (context, index) => const Divider(),
-//               itemCount: options.length,
-//             ),
-//           );
-//         },
-//         onSelected: (selectedString) {
-//           homePageController.addTags(selectedString.toString().trim());
-//           homePageController.tagName.clear();
-//           FocusScope.of(context).unfocus();
-//         },
-//         fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-//           homePageController.tagName = controller;
-
-//           return TextField(
-//             controller: controller,
-//             focusNode: focusNode,
-//             onEditingComplete: onEditingComplete,
-//             onSubmitted: (value) {
-//               if (value.isNotEmpty) {
-//                 // Split if input contains ,
-//                 if (value.contains(',')) {
-//                   List<String> splitedString = value.split(',');
-//                   splitedString.forEach((element) {
-//                     homePageController.addTags(element.trim());
-//                   });
-//                 } else {
-//                   homePageController.addTags(value.trim());
-//                 }
-//               }
-//               homePageController.tagName.clear();
-//             },
-//             decoration: InputDecoration(
-//                 border: OutlineInputBorder(
-//                   borderRadius: BorderRadius.circular(30.0),
-//                 ),
-//                 filled: true,
-//                 hintStyle: TextStyle(color: Colors.grey[800]),
-//                 hintText: ''' “At least one tag (food, music, etc.)”''',
-//                 fillColor: Colors.white70,
-//                 suffixIcon: IconButton(
-//                   onPressed: () {
-//                     controller.clear();
-//                   },
-//                   icon: const Icon(Icons.close_rounded),
-//                 )),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
-
-
-
-// Container(
-//                                       padding: const EdgeInsets.only(left: 10),
-//                                       height: double.infinity,
-//                                       // MediaQuery.of(context).size.height /
-//                                       //     16,
-//                                       width: MediaQuery.of(context).size.width /
-//                                           1.8,
-//                                       child: InputDecorator(
-//                                           decoration: InputDecoration(
-//                                             border: OutlineInputBorder(
-//                                               borderRadius:
-//                                                   BorderRadius.circular(30.0),
-//                                             ),
-//                                             contentPadding:
-//                                                 const EdgeInsets.all(10),
-//                                             filled: true,
-//                                             fillColor: Colors.white70,
-//                                             prefixIcon: InkWell(
-//                                               onTap: () {
-//                                                 homePageController
-//                                                     .setFilterOn();
-//                                               },
-//                                               child: const Icon(
-//                                                 Icons.search,
-//                                                 color: Colors.black,
-//                                               ),
-//                                             ),
-//                                           ),
-//                                           child: Stack(
-//                                             children: [
-//                                               Autocomplete<String>(
-//                                                 displayStringForOption: (c) =>
-//                                                     c.toString(),
-//                                                 optionsBuilder:
-//                                                     (TextEditingValue
-//                                                         textEditingValue) {
-//                                                   if (textEditingValue.text ==
-//                                                       '') {
-//                                                     return const Iterable<
-//                                                         String>.empty();
-//                                                   }
-//                                                   return homePageController
-//                                                       .allTags
-//                                                       .where((String option) {
-//                                                     return option
-//                                                         .trim()
-//                                                         .toLowerCase()
-//                                                         .contains(
-//                                                             textEditingValue
-//                                                                 .text
-//                                                                 .trim()
-//                                                                 .toLowerCase());
-//                                                   });
-//                                                 },
-//                                                 onSelected: (String selection) {
-//                                                   homePageController
-//                                                       .addTags(selection);
-//                                                   tagName.clear();
-//                                                   FocusScope.of(context)
-//                                                       .unfocus();
-//                                                 },
-//                                               ),
-//                                               const Text(
-//                                                 'Filter by tag',
-//                                                 style: TextStyle(fontSize: 10),
-//                                               ),
-//                                             ],
-//                                           )),
-//                                     ),

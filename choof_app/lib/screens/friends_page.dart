@@ -2,6 +2,7 @@ import 'package:choof_app/screens/widgets/shared_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/landing_page_controller.dart';
 import '../models/group.dart';
@@ -391,9 +392,10 @@ class _FriendsPageState extends State<FriendsPage> {
                     children: [
                       Expanded(
                         child: Container(
-                          height: 35,
+                          height: MediaQuery.of(context).size.height / 20,
                           width: MediaQuery.of(context).size.width / 1.22,
                           child: TextFormField(
+                            style: const TextStyle(color: Colors.white),
                             controller: _filter,
                             onChanged: (value) {
                               if (value.isEmpty) {
@@ -404,29 +406,28 @@ class _FriendsPageState extends State<FriendsPage> {
                               }
                             },
                             decoration: InputDecoration(
-                              contentPadding:
-                                  const EdgeInsets.symmetric(horizontal: 2),
+                              contentPadding: const EdgeInsets.only(left: 15),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
                               filled: true,
-                              hintStyle: TextStyle(
-                                color: Colors.grey[800],
+                              hintStyle: const TextStyle(
+                                color: Colors.white70,
                                 fontStyle: FontStyle.italic,
                               ),
                               hintText:
                                   "Search a member or type an email to invite",
-                              fillColor: Colors.white70,
-                              suffixIcon: IconButton(
-                                onPressed: () {
+                              fillColor: const Color(bgColor),
+                              suffixIcon: InkWell(
+                                onTap: () {
                                   _filter.clear();
                                   landingPagecontroller.updateIsFilter(false);
                                 },
-                                icon: const Icon(Icons.close_rounded),
+                                child: const Icon(Icons.close_rounded),
                               ),
                               prefixIcon: const Icon(
                                 Icons.search,
-                                color: Colors.black,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -440,26 +441,19 @@ class _FriendsPageState extends State<FriendsPage> {
                               if (_filter.text.isEmail) {
                                 final Email email = Email(
                                   subject:
-                                      '${widget.group.owner} added you to the Choof group: ${widget.group.name}.',
+                                      '${widget.group.owner} has some recommendations for you in the Choof group: ${widget.group.name}.',
                                   body: '''
-              ${widget.group.owner} has some recommendation for you in the Choof group: ${widget.group.name}.
-              \n
-             Download the Choof app and sign in with this email or a social account linked to this email : ${_filter.text}.
-             \n
-             Download from PlayStore : https://play.google.com/store/apps/details?id=com.choof.choof_app
-             \n
-             Download from AppleStore : https://appstoreconnect.apple.com/apps/1621921507/appstore/info
-              
+Choof is an app to share recommendations among friends.
+• Create groups and broadcast what you like to watch, listen, read, play, visit, etc.,
+• Discover your friends' favorites by genre.
+
+To view ${widget.group.owner}'s recommendations, download Choof and sign in with a social account linked to this email : ${_filter.text}. \n
+Download from PlayStore : https://play.google.com/store/apps/details?id=com.choof.choof_app 
+Download from AppleStore : https://appstoreconnect.apple.com/apps/1621921507/appstore/info
              ''',
                                   recipients: [_filter.text],
-                                  isHTML: true,
+                                  isHTML: false,
                                 );
-//        <a href="https://play.google.com/store/apps/details?id=com.choof.choof_app"><p>Hello</p></a>
-                                //        <a href="https://appstoreconnect.apple.com/apps/1621921507/appstore/info"><img src="https://media.istockphoto.com/photos/group-multiracial-people-having-fun-outdoor-happy-mixed-race-friends-picture-id1211345565?k=20&m=1211345565&s=612x612&w=0&h=Gg65DvzedP7YDo6XFbB-8-f7U7m5zHm1OPO3uIiVFgo=" /></a>
-                                //        <a href="https://www.qries.com/">
-                                //    <img alt="Qries" src="https://www.qries.com/images/banner_logo.png"
-                                //    width=150" height="70">
-                                // </a>
                                 await FlutterEmailSender.send(email)
                                     .then((value) {
                                   landingPagecontroller.addInvitedUserToGroup(
@@ -474,6 +468,7 @@ class _FriendsPageState extends State<FriendsPage> {
                                     duration: const Duration(seconds: 3),
                                   );
                                 }).catchError((e) {
+                                  print(e);
                                   Get.snackbar(
                                     'Failed to send Email.',
                                     '',

@@ -13,7 +13,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size(60, 60),
+        preferredSize: const Size(50, 50),
         child: Obx(() => landingPagecontroller.isDeviceTablet.value
             ? const SizedBox.shrink()
             : landingPagecontroller.tabIndex.value == 2

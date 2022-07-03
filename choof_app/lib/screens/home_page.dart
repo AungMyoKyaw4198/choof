@@ -9,7 +9,8 @@ import 'favourite_page.dart';
 import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final bool isFristTime;
+  const HomePage({Key? key, required this.isFristTime}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size(60, 60),
+        preferredSize: const Size(50, 50),
         child: Obx(() => landingPagecontroller.isDeviceTablet.value
             ? AppBar(
                 backgroundColor: const Color(bgColor),
@@ -157,7 +158,7 @@ class _HomePageState extends State<HomePage> {
         child: Obx(() => IndexedStack(
               index: landingPagecontroller.tabIndex.value,
               children: [
-                const FavouritePage(isFirstTime: true),
+                FavouritePage(isFirstTime: widget.isFristTime),
                 const YourGroupsPage(
                   isFirstTime: true,
                 ),

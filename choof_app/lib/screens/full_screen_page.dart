@@ -24,6 +24,7 @@ class FullScreenPage extends StatefulWidget {
   final Post post;
   final bool isOwner;
   final bool isViewComment;
+  final bool? isToRefresh;
   final TextEditingController commentController;
   final Function addCommentFunction;
   const FullScreenPage(
@@ -33,7 +34,8 @@ class FullScreenPage extends StatefulWidget {
       required this.isOwner,
       required this.isViewComment,
       required this.commentController,
-      required this.addCommentFunction})
+      required this.addCommentFunction,
+      this.isToRefresh})
       : super(key: key);
 
   @override
@@ -54,7 +56,7 @@ class _FullScreenPageState extends State<FullScreenPage>
 
   @override
   void initState() {
-    widget.commentController.clear();
+    viewVideoDetail(widget.post.youtubeLink);
     _tabController = TabController(length: 2, vsync: this);
     if (widget.isViewComment) {
       _tabController.index = 1;
@@ -70,7 +72,6 @@ class _FullScreenPageState extends State<FullScreenPage>
         mute: false,
       ),
     );
-    viewVideoDetail(widget.post.youtubeLink);
 
     super.initState();
   }
@@ -153,7 +154,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                         child: Text(
                                           fullScreenController.post.value.name,
                                           style: const TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 15,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.white),
                                         ),
@@ -167,35 +168,35 @@ class _FullScreenPageState extends State<FullScreenPage>
                                             borderRadius: BorderRadius.circular(
                                               30.0,
                                             ),
-                                            border:
-                                                Border.all(color: Colors.white),
+                                            color: const Color(bgColor),
                                           ),
                                           child: TabBar(
                                             controller: _tabController,
+                                            padding: const EdgeInsets.all(5),
                                             indicator: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(
-                                                25.0,
+                                                30.0,
                                               ),
-                                              border: Border.all(
-                                                  color: Colors.white),
-                                              color: const Color(mainColor),
+                                              color: const Color(mainBgColor),
                                             ),
-                                            labelColor: Colors.black,
+                                            labelColor: Colors.white,
                                             unselectedLabelColor: Colors.white,
                                             tabs: [
                                               Tab(
                                                 child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.center,
-                                                  children: const [
+                                                  children: [
                                                     Padding(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 5),
-                                                      child: Icon(Icons.info),
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          horizontal: 5,
+                                                          vertical: 2),
+                                                      child: Image.asset(
+                                                          'assets/icons/Info.png'),
                                                     ),
-                                                    Text(
+                                                    const Text(
                                                       'Info',
                                                     )
                                                   ],
@@ -208,16 +209,15 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                 child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.center,
-                                                  children: const [
+                                                  children: [
                                                     Padding(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 5),
-                                                      child: Icon(
-                                                        Icons.comment_outlined,
-                                                      ),
-                                                    ),
-                                                    Text(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 5),
+                                                        child: Image.asset(
+                                                            'assets/icons/Comment.png')),
+                                                    const Text(
                                                       'Comments',
                                                     ),
                                                   ],
@@ -261,14 +261,21 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                       5),
                                                               child: Chip(
                                                                 backgroundColor:
-                                                                    Colors.grey
-                                                                        .shade800,
-                                                                label: Text(
-                                                                    fullScreenController
-                                                                            .post
-                                                                            .value
-                                                                            .tags[
-                                                                        index]),
+                                                                    const Color(
+                                                                        bgColor),
+                                                                label: Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          5),
+                                                                  child: Text(
+                                                                      fullScreenController
+                                                                          .post
+                                                                          .value
+                                                                          .tags[
+                                                                              index]
+                                                                          .trim()),
+                                                                ),
                                                                 labelStyle: const TextStyle(
                                                                     color: Colors
                                                                         .white),
@@ -304,7 +311,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                           .creatorImageUrl)))),
                                                         ),
                                                         const SizedBox(
-                                                          width: 10,
+                                                          width: 5,
                                                         ),
                                                         const Center(
                                                           child: Text(
@@ -332,7 +339,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                           ),
                                                         ),
                                                         const SizedBox(
-                                                          width: 20,
+                                                          width: 5,
                                                         ),
                                                         const Center(
                                                           child: CircleAvatar(
@@ -342,7 +349,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                           ),
                                                         ),
                                                         const SizedBox(
-                                                          width: 20,
+                                                          width: 5,
                                                         ),
                                                         const Center(
                                                           child: Text(
@@ -357,47 +364,54 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                         ),
                                                         InkWell(
                                                           onTap: () async {
-                                                            final CollectionReference
-                                                                _allGroups =
-                                                                FirebaseFirestore
-                                                                    .instance
-                                                                    .collection(
-                                                                        "groups");
-                                                            QuerySnapshot<
-                                                                    Object?>
-                                                                group =
-                                                                await _allGroups
-                                                                    .where(
-                                                                        'name',
-                                                                        isEqualTo: widget
-                                                                            .post
-                                                                            .groupName)
-                                                                    .get();
-                                                            if (group.docs
-                                                                .isNotEmpty) {
-                                                              Group gp = Group
-                                                                  .fromJson(group
-                                                                          .docs
-                                                                          .first
-                                                                          .data()
-                                                                      as Map<
-                                                                          String,
-                                                                          dynamic>);
+                                                            if (widget
+                                                                    .isToRefresh !=
+                                                                null) {
+                                                              Get.back();
+                                                            } else {
+                                                              final CollectionReference
+                                                                  _allGroups =
+                                                                  FirebaseFirestore
+                                                                      .instance
+                                                                      .collection(
+                                                                          "groups");
+                                                              QuerySnapshot<
+                                                                      Object?>
+                                                                  group =
+                                                                  await _allGroups
+                                                                      .where(
+                                                                          'name',
+                                                                          isEqualTo: widget
+                                                                              .post
+                                                                              .groupName)
+                                                                      .get();
+                                                              if (group.docs
+                                                                  .isNotEmpty) {
+                                                                Group gp = Group
+                                                                    .fromJson(group
+                                                                            .docs
+                                                                            .first
+                                                                            .data()
+                                                                        as Map<
+                                                                            String,
+                                                                            dynamic>);
 
-                                                              Get.to(() =>
-                                                                  ViewGroup(
-                                                                    index: widget
-                                                                        .index,
-                                                                    currentGroup:
-                                                                        gp,
-                                                                    isFromGroup:
-                                                                        widget.index ==
-                                                                                1
-                                                                            ? true
-                                                                            : false,
-                                                                    isFromFullScreenPage:
-                                                                        true,
-                                                                  ));
+                                                                Get.to(() =>
+                                                                    ViewGroup(
+                                                                      index: widget
+                                                                          .index,
+                                                                      currentGroup:
+                                                                          gp,
+                                                                      isFromGroup: widget.index ==
+                                                                              1
+                                                                          ? true
+                                                                          : false,
+                                                                      isFromFullScreenPage:
+                                                                          true,
+                                                                      isFromAddGroup:
+                                                                          false,
+                                                                    ));
+                                                              }
                                                             }
                                                           },
                                                           child: Center(
@@ -430,18 +444,19 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                               overflow:
                                                                   TextOverflow
                                                                       .ellipsis,
-                                                              style: const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 16),
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
                                                         const SizedBox(
-                                                          width: 20,
+                                                          width: 5,
                                                         ),
                                                         Center(
                                                           child: Text(
@@ -487,228 +502,279 @@ class _FullScreenPageState extends State<FullScreenPage>
                                               physics:
                                                   const ClampingScrollPhysics(),
                                               children: [
-                                                // Sorting Container
-                                                Obx(() => !fullScreenController
-                                                        .sortByRecent.value
-                                                    ? InkWell(
-                                                        onTap: () {
-                                                          fullScreenController
-                                                              .sortComments(
-                                                                  true);
-                                                          setState(() {});
-                                                        },
-                                                        child: Container(
-                                                          padding:
-                                                              const EdgeInsets
+                                                Obx(() => Container(
+                                                      height: fullScreenController
+                                                              .textFieldExpanded
+                                                              .value
+                                                          ? MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              10
+                                                          : MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              20,
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          horizontal: 10),
+                                                      child: Row(
+                                                        children: [
+                                                          Padding(
+                                                              padding: const EdgeInsets
                                                                       .symmetric(
                                                                   horizontal:
-                                                                      10),
-                                                          height: 50,
-                                                          child: Row(
-                                                            children: [
-                                                              Padding(
-                                                                padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                                child:
-                                                                    Image.asset(
-                                                                  'assets/icons/UpDownArrow.png',
-                                                                  width: 20,
-                                                                  height: 15,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 10,
-                                                              ),
-                                                              const Text(
-                                                                'Most recent',
-                                                                style: TextStyle(
+                                                                      5),
+                                                              child:
+                                                                  Image.asset(
+                                                                'assets/icons/Comment.png',
+                                                                width: 30,
+                                                                height: 30,
+                                                              )),
+                                                          Expanded(
+                                                              child: TextField(
+                                                            keyboardType:
+                                                                TextInputType
+                                                                    .multiline,
+                                                            expands: true,
+                                                            maxLines: null,
+                                                            controller: widget
+                                                                .commentController,
+                                                            style:
+                                                                const TextStyle(
                                                                     color: Colors
                                                                         .white),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : InkWell(
-                                                        onTap: () {
-                                                          fullScreenController
-                                                              .sortComments(
-                                                                  false);
-                                                          setState(() {});
-                                                        },
-                                                        child: Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      10),
-                                                          height: 50,
-                                                          child: Row(
-                                                            children: [
-                                                              Padding(
-                                                                padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                                child:
-                                                                    Image.asset(
-                                                                  'assets/icons/UpDownArrow.png',
-                                                                  width: 20,
-                                                                  height: 15,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 10,
-                                                              ),
-                                                              const Text(
-                                                                'Default',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .white),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      )),
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 10),
-                                                  child: Row(
-                                                    children: [
-                                                      const Padding(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal: 5),
-                                                        child: Icon(
-                                                          Icons
-                                                              .comment_outlined,
-                                                          color: Colors.white,
-                                                          size: 25,
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                          child: TextField(
-                                                        controller: widget
-                                                            .commentController,
-                                                        onSubmitted: (value) {
-                                                          if (value
-                                                              .isNotEmpty) {
-                                                            Comment currentCmt = Comment(
-                                                                postName: widget
-                                                                    .post.name,
-                                                                postLink: widget
-                                                                    .post
-                                                                    .youtubeLink,
-                                                                postCreator: widget
-                                                                    .post
-                                                                    .creator,
-                                                                postGroup: widget
-                                                                    .post
-                                                                    .groupName,
-                                                                commenter:
-                                                                    landingPagecontroller
+                                                            onChanged: (e) {
+                                                              int numLines = '\n'
+                                                                      .allMatches(
+                                                                          e)
+                                                                      .length +
+                                                                  1;
+                                                              if (numLines >
+                                                                      1 ||
+                                                                  e.length >
+                                                                      30) {
+                                                                fullScreenController
+                                                                    .setTextFieldExpanded(
+                                                                        true);
+                                                              } else {
+                                                                fullScreenController
+                                                                    .setTextFieldExpanded(
+                                                                        false);
+                                                              }
+                                                            },
+                                                            onSubmitted:
+                                                                (value) {
+                                                              if (value
+                                                                  .isNotEmpty) {
+                                                                Comment currentCmt = Comment(
+                                                                    postName:
+                                                                        widget
+                                                                            .post
+                                                                            .name,
+                                                                    postLink: widget
+                                                                        .post
+                                                                        .youtubeLink,
+                                                                    postCreator:
+                                                                        widget
+                                                                            .post
+                                                                            .creator,
+                                                                    postGroup: widget
+                                                                        .post
+                                                                        .groupName,
+                                                                    commenter: landingPagecontroller
                                                                         .userProfile
                                                                         .value
                                                                         .name,
-                                                                commenterUrl:
-                                                                    landingPagecontroller
+                                                                    commenterUrl: landingPagecontroller
                                                                         .userProfile
                                                                         .value
                                                                         .imageUrl,
-                                                                commentText: widget
+                                                                    commentText:
+                                                                        widget
+                                                                            .commentController
+                                                                            .text,
+                                                                    addedTime:
+                                                                        DateTime
+                                                                            .now());
+                                                                widget
+                                                                    .addCommentFunction();
+                                                                fullScreenController
+                                                                    .addCommentToPost(
+                                                                        currentCmt);
+                                                                FocusScope.of(
+                                                                        context)
+                                                                    .unfocus();
+                                                                widget
                                                                     .commentController
-                                                                    .text,
-                                                                addedTime:
-                                                                    DateTime
-                                                                        .now());
-                                                            widget
-                                                                .addCommentFunction();
-                                                            fullScreenController
-                                                                .addCommentToPost(
-                                                                    currentCmt);
-                                                            setState(() {});
-                                                          }
-                                                        },
-                                                        decoration:
-                                                            InputDecoration(
-                                                                border:
-                                                                    OutlineInputBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
+                                                                    .clear();
+                                                              }
+                                                            },
+                                                            decoration:
+                                                                InputDecoration(
+                                                                    border:
+                                                                        OutlineInputBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
                                                                               30.0),
-                                                                ),
-                                                                contentPadding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        10),
-                                                                hintText:
-                                                                    'Add a comment...',
-                                                                hintStyle: const TextStyle(
-                                                                    color: Colors
-                                                                        .white54),
-                                                                filled: true,
-                                                                fillColor: Colors
-                                                                    .white24,
-                                                                suffixIcon:
-                                                                    IconButton(
-                                                                  icon: Image
-                                                                      .asset(
-                                                                    'assets/icons/EmailSend.png',
-                                                                    width: 30,
-                                                                    height: 30,
-                                                                    color: Colors
-                                                                        .white,
-                                                                  ),
-                                                                  onPressed:
-                                                                      () {
-                                                                    if (widget
-                                                                        .commentController
-                                                                        .text
-                                                                        .isNotEmpty) {
-                                                                      Comment currentCmt = Comment(
-                                                                          postName: widget
-                                                                              .post
-                                                                              .name,
-                                                                          postLink: widget
-                                                                              .post
-                                                                              .youtubeLink,
-                                                                          postCreator: widget
-                                                                              .post
-                                                                              .creator,
-                                                                          postGroup: widget
-                                                                              .post
-                                                                              .groupName,
-                                                                          commenter: landingPagecontroller
-                                                                              .userProfile
-                                                                              .value
-                                                                              .name,
-                                                                          commenterUrl: landingPagecontroller
-                                                                              .userProfile
-                                                                              .value
-                                                                              .imageUrl,
-                                                                          commentText: widget
+                                                                    ),
+                                                                    contentPadding:
+                                                                        const EdgeInsets.all(
+                                                                            10),
+                                                                    hintText:
+                                                                        'Add a comment...',
+                                                                    hintStyle: const TextStyle(
+                                                                        color: Colors
+                                                                            .white70),
+                                                                    filled:
+                                                                        true,
+                                                                    fillColor:
+                                                                        Colors
+                                                                            .white24,
+                                                                    suffixIcon:
+                                                                        IconButton(
+                                                                      icon: Image
+                                                                          .asset(
+                                                                        'assets/icons/EmailSend.png',
+                                                                        width:
+                                                                            30,
+                                                                        height:
+                                                                            30,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
+                                                                      onPressed:
+                                                                          () {
+                                                                        if (widget
+                                                                            .commentController
+                                                                            .text
+                                                                            .isNotEmpty) {
+                                                                          Comment currentCmt = Comment(
+                                                                              postName: widget.post.name,
+                                                                              postLink: widget.post.youtubeLink,
+                                                                              postCreator: widget.post.creator,
+                                                                              postGroup: widget.post.groupName,
+                                                                              commenter: landingPagecontroller.userProfile.value.name,
+                                                                              commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                              commentText: widget.commentController.text,
+                                                                              addedTime: DateTime.now());
+                                                                          fullScreenController
+                                                                              .addCommentToPost(currentCmt);
+                                                                          widget
+                                                                              .addCommentFunction();
+                                                                          FocusScope.of(context)
+                                                                              .unfocus();
+                                                                          widget
                                                                               .commentController
-                                                                              .text,
-                                                                          addedTime:
-                                                                              DateTime.now());
-                                                                      fullScreenController
-                                                                          .addCommentToPost(
-                                                                              currentCmt);
-                                                                      widget
-                                                                          .addCommentFunction();
-                                                                      setState(
-                                                                          () {});
-                                                                    }
+                                                                              .clear();
+                                                                        }
+                                                                      },
+                                                                    )),
+                                                          )),
+                                                        ],
+                                                      ),
+                                                    )),
+
+                                                // Sorting Container
+                                                Obx(
+                                                  () => fullScreenController
+                                                          .post
+                                                          .value
+                                                          .comments!
+                                                          .isNotEmpty
+                                                      ? Obx(() =>
+                                                          !fullScreenController
+                                                                  .sortByRecent
+                                                                  .value
+                                                              ? InkWell(
+                                                                  onTap: () {
+                                                                    fullScreenController
+                                                                        .sortComments(
+                                                                            true);
+                                                                    setState(
+                                                                        () {});
                                                                   },
-                                                                )),
-                                                      )),
-                                                    ],
-                                                  ),
+                                                                  child:
+                                                                      Container(
+                                                                    padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                        horizontal:
+                                                                            10),
+                                                                    height: 40,
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.symmetric(horizontal: 10),
+                                                                          child:
+                                                                              Image.asset(
+                                                                            'assets/icons/UpDownArrow.png',
+                                                                            width:
+                                                                                20,
+                                                                            height:
+                                                                                15,
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width:
+                                                                              10,
+                                                                        ),
+                                                                        const Text(
+                                                                          'Most recent',
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              : InkWell(
+                                                                  onTap: () {
+                                                                    fullScreenController
+                                                                        .sortComments(
+                                                                            false);
+                                                                    setState(
+                                                                        () {});
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                        horizontal:
+                                                                            10),
+                                                                    height: 40,
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.symmetric(horizontal: 10),
+                                                                          child:
+                                                                              Image.asset(
+                                                                            'assets/icons/UpDownArrow.png',
+                                                                            width:
+                                                                                20,
+                                                                            height:
+                                                                                15,
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width:
+                                                                              10,
+                                                                        ),
+                                                                        const Text(
+                                                                          'Alphabetical',
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ))
+                                                      : const SizedBox.shrink(),
                                                 ),
+
+                                                // Comments list
                                                 Obx(() {
                                                   return fullScreenController
                                                           .post
@@ -750,39 +816,53 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                           CrossAxisAlignment
                                                                               .end,
                                                                       children: [
-                                                                        Row(
-                                                                          children: [
-                                                                            const SizedBox(
-                                                                              width: 2,
+                                                                        Obx(
+                                                                          () =>
+                                                                              Container(
+                                                                            height: fullScreenController.editingTextFieldExpanded.value
+                                                                                ? MediaQuery.of(context).size.height / 10
+                                                                                : MediaQuery.of(context).size.height / 20,
+                                                                            child:
+                                                                                Row(
+                                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                                              children: [
+                                                                                const SizedBox(
+                                                                                  width: 2,
+                                                                                ),
+                                                                                Container(width: 30, height: 30, decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage(fullScreenController.post.value.comments![index].commenterUrl)))),
+                                                                                const SizedBox(
+                                                                                  width: 10,
+                                                                                ),
+                                                                                Expanded(
+                                                                                  child: TextField(
+                                                                                      controller: fullScreenController.editingController,
+                                                                                      expands: true,
+                                                                                      maxLines: null,
+                                                                                      style: const TextStyle(color: Colors.white),
+                                                                                      onChanged: (e) {
+                                                                                        int numLines = '\n'.allMatches(e).length + 1;
+                                                                                        if (numLines > 1 || e.length > 30) {
+                                                                                          fullScreenController.setEditingTextFieldExpanded(true);
+                                                                                        } else {
+                                                                                          fullScreenController.setEditingTextFieldExpanded(false);
+                                                                                        }
+                                                                                      },
+                                                                                      decoration: InputDecoration(
+                                                                                        border: OutlineInputBorder(
+                                                                                          borderRadius: BorderRadius.circular(30.0),
+                                                                                        ),
+                                                                                        contentPadding: const EdgeInsets.all(10),
+                                                                                        hintText: 'Add a comment...',
+                                                                                        hintStyle: const TextStyle(color: Colors.white70),
+                                                                                        filled: true,
+                                                                                        fillColor: Colors.white24,
+                                                                                      )),
+                                                                                )
+                                                                              ],
                                                                             ),
-                                                                            Container(
-                                                                                width: 30,
-                                                                                height: 30,
-                                                                                decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage(fullScreenController.post.value.comments![index].commenterUrl)))),
-                                                                            const SizedBox(
-                                                                              width: 10,
-                                                                            ),
-                                                                            Expanded(
-                                                                              child: TextField(
-                                                                                  controller: fullScreenController.editingController,
-                                                                                  onSubmitted: (value) {
-                                                                                    // fullScreenController.setEditingMode(false, fullScreenController.post.value.comments![index]);
-                                                                                    // setState(() {});
-                                                                                  },
-                                                                                  style: const TextStyle(color: Colors.white),
-                                                                                  decoration: InputDecoration(
-                                                                                    border: OutlineInputBorder(
-                                                                                      borderRadius: BorderRadius.circular(30.0),
-                                                                                    ),
-                                                                                    contentPadding: const EdgeInsets.all(10),
-                                                                                    hintText: 'Add a comment...',
-                                                                                    hintStyle: const TextStyle(color: Colors.white54),
-                                                                                    filled: true,
-                                                                                    fillColor: Colors.white24,
-                                                                                  )),
-                                                                            )
-                                                                          ],
+                                                                          ),
                                                                         ),
+
                                                                         // buttons
                                                                         Row(
                                                                           mainAxisAlignment:
@@ -790,15 +870,13 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                           children: [
                                                                             TextButton(
                                                                                 onPressed: () {
-                                                                                  if (fullScreenController.editingController.text != fullScreenController.editingComment.value.commentText) {
-                                                                                    fullScreenController.editComment();
-                                                                                  }
+                                                                                  fullScreenController.deleteComment();
+                                                                                  fullScreenController.clearEditingMode();
+                                                                                  FocusScope.of(context).unfocus();
+                                                                                  widget.commentController.clear();
                                                                                   setState(() {});
                                                                                 },
-                                                                                child: const Text(
-                                                                                  'Save',
-                                                                                  style: TextStyle(color: Color(mainColor)),
-                                                                                )),
+                                                                                child: const Text('Delete', style: TextStyle(color: Colors.red))),
                                                                             TextButton(
                                                                                 onPressed: () {
                                                                                   fullScreenController.clearEditingMode();
@@ -807,10 +885,18 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                                 child: const Text('Cancel', style: TextStyle(color: Colors.white70))),
                                                                             TextButton(
                                                                                 onPressed: () {
-                                                                                  fullScreenController.deleteComment();
+                                                                                  if (fullScreenController.editingController.text != fullScreenController.editingComment.value.commentText) {
+                                                                                    fullScreenController.editComment();
+                                                                                  }
+                                                                                  fullScreenController.clearEditingMode();
+                                                                                  FocusScope.of(context).unfocus();
+                                                                                  widget.commentController.clear();
                                                                                   setState(() {});
                                                                                 },
-                                                                                child: const Text('Delete', style: TextStyle(color: Colors.red))),
+                                                                                child: const Text(
+                                                                                  'Save',
+                                                                                  style: TextStyle(color: Color(mainColor)),
+                                                                                )),
                                                                           ],
                                                                         )
                                                                       ],
@@ -830,9 +916,9 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                         fullScreenController.setEditingMode(
                                                                             true,
                                                                             fullScreenController.post.value.comments![index]);
-                                                                        setState(
-                                                                            () {});
                                                                       }
+                                                                      setState(
+                                                                          () {});
                                                                     },
                                                                     child:
                                                                         Padding(
@@ -921,8 +1007,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                 // Edit Button
                                 widget.isOwner
                                     ? Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 40, right: 30),
+                                        padding: const EdgeInsets.only(top: 40),
                                         child: Align(
                                           alignment: Alignment.topRight,
                                           child: IconButton(
@@ -931,7 +1016,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                               radius: 13,
                                               child: Icon(
                                                 Icons.edit,
-                                                size: 10,
+                                                size: 15,
                                                 color: Colors.black,
                                               ),
                                             ),
@@ -956,31 +1041,6 @@ class _FullScreenPageState extends State<FullScreenPage>
                                         ),
                                       )
                                     : const SizedBox.shrink(),
-                                // Delete Button
-                                // widget.isOwner
-                                //     ? Padding(
-                                //         padding: const EdgeInsets.only(top: 40),
-                                //         child: Align(
-                                //           alignment: Alignment.topRight,
-                                //           child: IconButton(
-                                //             icon: const CircleAvatar(
-                                //               radius: 13,
-                                //               backgroundColor: Colors.white,
-                                //               child: Icon(
-                                //                 Icons.close,
-                                //                 color: Colors.black,
-                                //                 size: 10,
-                                //               ),
-                                //             ),
-                                //             onPressed: () {
-                                //               fullScreenController.deletePost(
-                                //                   fullScreenController
-                                //                       .post.value);
-                                //             },
-                                //           ),
-                                //         ),
-                                //       )
-                                //     : const SizedBox.shrink(),
                               ],
                             )
                           : const FavouritePage(isFirstTime: false),
@@ -1002,7 +1062,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                         child: Text(
                                           fullScreenController.post.value.name,
                                           style: const TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 15,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.white),
                                         ),
@@ -1016,35 +1076,35 @@ class _FullScreenPageState extends State<FullScreenPage>
                                             borderRadius: BorderRadius.circular(
                                               30.0,
                                             ),
-                                            border:
-                                                Border.all(color: Colors.white),
+                                            color: const Color(bgColor),
                                           ),
                                           child: TabBar(
                                             controller: _tabController,
+                                            padding: const EdgeInsets.all(5),
                                             indicator: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(
-                                                25.0,
+                                                30.0,
                                               ),
-                                              border: Border.all(
-                                                  color: Colors.white),
-                                              color: const Color(mainColor),
+                                              color: const Color(mainBgColor),
                                             ),
-                                            labelColor: Colors.black,
+                                            labelColor: Colors.white,
                                             unselectedLabelColor: Colors.white,
                                             tabs: [
                                               Tab(
                                                 child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.center,
-                                                  children: const [
+                                                  children: [
                                                     Padding(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 5),
-                                                      child: Icon(Icons.info),
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          horizontal: 5,
+                                                          vertical: 2),
+                                                      child: Image.asset(
+                                                          'assets/icons/Info.png'),
                                                     ),
-                                                    Text(
+                                                    const Text(
                                                       'Info',
                                                     )
                                                   ],
@@ -1057,16 +1117,15 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                 child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.center,
-                                                  children: const [
+                                                  children: [
                                                     Padding(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 5),
-                                                      child: Icon(
-                                                        Icons.comment_outlined,
-                                                      ),
-                                                    ),
-                                                    Text(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 5),
+                                                        child: Image.asset(
+                                                            'assets/icons/Comment.png')),
+                                                    const Text(
                                                       'Comments',
                                                     ),
                                                   ],
@@ -1110,14 +1169,21 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                       5),
                                                               child: Chip(
                                                                 backgroundColor:
-                                                                    Colors.grey
-                                                                        .shade800,
-                                                                label: Text(
-                                                                    fullScreenController
-                                                                            .post
-                                                                            .value
-                                                                            .tags[
-                                                                        index]),
+                                                                    const Color(
+                                                                        bgColor),
+                                                                label: Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          5),
+                                                                  child: Text(
+                                                                      fullScreenController
+                                                                          .post
+                                                                          .value
+                                                                          .tags[
+                                                                              index]
+                                                                          .trim()),
+                                                                ),
                                                                 labelStyle: const TextStyle(
                                                                     color: Colors
                                                                         .white),
@@ -1153,7 +1219,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                           .creatorImageUrl)))),
                                                         ),
                                                         const SizedBox(
-                                                          width: 10,
+                                                          width: 5,
                                                         ),
                                                         const Center(
                                                           child: Text(
@@ -1181,7 +1247,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                           ),
                                                         ),
                                                         const SizedBox(
-                                                          width: 20,
+                                                          width: 5,
                                                         ),
                                                         const Center(
                                                           child: CircleAvatar(
@@ -1191,7 +1257,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                           ),
                                                         ),
                                                         const SizedBox(
-                                                          width: 20,
+                                                          width: 5,
                                                         ),
                                                         const Center(
                                                           child: Text(
@@ -1206,47 +1272,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                         ),
                                                         InkWell(
                                                           onTap: () async {
-                                                            final CollectionReference
-                                                                _allGroups =
-                                                                FirebaseFirestore
-                                                                    .instance
-                                                                    .collection(
-                                                                        "groups");
-                                                            QuerySnapshot<
-                                                                    Object?>
-                                                                group =
-                                                                await _allGroups
-                                                                    .where(
-                                                                        'name',
-                                                                        isEqualTo: widget
-                                                                            .post
-                                                                            .groupName)
-                                                                    .get();
-                                                            if (group.docs
-                                                                .isNotEmpty) {
-                                                              Group gp = Group
-                                                                  .fromJson(group
-                                                                          .docs
-                                                                          .first
-                                                                          .data()
-                                                                      as Map<
-                                                                          String,
-                                                                          dynamic>);
-                                                              Get.to(() =>
-                                                                  ViewGroup(
-                                                                    index: widget
-                                                                        .index,
-                                                                    currentGroup:
-                                                                        gp,
-                                                                    isFromGroup:
-                                                                        widget.index ==
-                                                                                1
-                                                                            ? true
-                                                                            : false,
-                                                                    isFromFullScreenPage:
-                                                                        true,
-                                                                  ));
-                                                            }
+                                                            Get.back();
                                                           },
                                                           child: Center(
                                                             child: Text(
@@ -1283,13 +1309,12 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                       .white,
                                                                   fontWeight:
                                                                       FontWeight
-                                                                          .bold,
-                                                                  fontSize: 16),
+                                                                          .bold),
                                                             ),
                                                           ),
                                                         ),
                                                         const SizedBox(
-                                                          width: 20,
+                                                          width: 5,
                                                         ),
                                                         Center(
                                                           child: Text(
@@ -1335,231 +1360,267 @@ class _FullScreenPageState extends State<FullScreenPage>
                                               physics:
                                                   const ClampingScrollPhysics(),
                                               children: [
-                                                // Sorting Container
-                                                Obx(() => !fullScreenController
-                                                        .sortByRecent.value
-                                                    ? InkWell(
-                                                        onTap: () {
-                                                          fullScreenController
-                                                              .sortComments(
-                                                                  true);
-                                                          setState(() {});
-                                                        },
-                                                        child: Container(
-                                                          padding:
-                                                              const EdgeInsets
+                                                Obx(() => Container(
+                                                      height: fullScreenController
+                                                              .textFieldExpanded
+                                                              .value
+                                                          ? MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              10
+                                                          : MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              20,
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          horizontal: 10),
+                                                      child: Row(
+                                                        children: [
+                                                          Padding(
+                                                              padding: const EdgeInsets
                                                                       .symmetric(
                                                                   horizontal:
-                                                                      10),
-                                                          height: 50,
-                                                          child: Row(
-                                                            children: [
-                                                              Padding(
-                                                                padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                                child:
-                                                                    Image.asset(
-                                                                  'assets/icons/UpDownArrow.png',
-                                                                  width: 20,
-                                                                  height: 15,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 10,
-                                                              ),
-                                                              const Text(
-                                                                'Most recent',
-                                                                style: TextStyle(
+                                                                      5),
+                                                              child:
+                                                                  Image.asset(
+                                                                'assets/icons/Comment.png',
+                                                                width: 30,
+                                                                height: 30,
+                                                              )),
+                                                          Expanded(
+                                                              child: TextField(
+                                                            keyboardType:
+                                                                TextInputType
+                                                                    .multiline,
+                                                            expands: true,
+                                                            maxLines: null,
+                                                            controller: widget
+                                                                .commentController,
+                                                            style:
+                                                                const TextStyle(
                                                                     color: Colors
                                                                         .white),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : InkWell(
-                                                        onTap: () {
-                                                          fullScreenController
-                                                              .sortComments(
-                                                                  false);
-                                                          setState(() {});
-                                                        },
-                                                        child: Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      10),
-                                                          height: 50,
-                                                          child: Row(
-                                                            children: [
-                                                              Padding(
-                                                                padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                                child:
-                                                                    Image.asset(
-                                                                  'assets/icons/UpDownArrow.png',
-                                                                  width: 20,
-                                                                  height: 15,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 10,
-                                                              ),
-                                                              const Text(
-                                                                'Default',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .white),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      )),
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 10),
-                                                  child: Row(
-                                                    children: [
-                                                      const Padding(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal: 5),
-                                                        child: Icon(
-                                                          Icons
-                                                              .comment_outlined,
-                                                          color: Colors.white,
-                                                          size: 25,
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                          child: TextField(
-                                                        controller: widget
-                                                            .commentController,
-                                                        onSubmitted: (value) {
-                                                          if (value
-                                                              .isNotEmpty) {
-                                                            Comment currentCmt = Comment(
-                                                                postName: widget
-                                                                    .post.name,
-                                                                postLink: widget
-                                                                    .post
-                                                                    .youtubeLink,
-                                                                postCreator: widget
-                                                                    .post
-                                                                    .creator,
-                                                                postGroup: widget
-                                                                    .post
-                                                                    .groupName,
-                                                                commenter:
-                                                                    landingPagecontroller
+                                                            onChanged: (e) {
+                                                              int numLines = '\n'
+                                                                      .allMatches(
+                                                                          e)
+                                                                      .length +
+                                                                  1;
+                                                              if (numLines >
+                                                                      1 ||
+                                                                  e.length >
+                                                                      30) {
+                                                                fullScreenController
+                                                                    .setTextFieldExpanded(
+                                                                        true);
+                                                              } else {
+                                                                fullScreenController
+                                                                    .setTextFieldExpanded(
+                                                                        false);
+                                                              }
+                                                            },
+                                                            onSubmitted:
+                                                                (value) {
+                                                              if (value
+                                                                  .isNotEmpty) {
+                                                                Comment currentCmt = Comment(
+                                                                    postName:
+                                                                        widget
+                                                                            .post
+                                                                            .name,
+                                                                    postLink: widget
+                                                                        .post
+                                                                        .youtubeLink,
+                                                                    postCreator:
+                                                                        widget
+                                                                            .post
+                                                                            .creator,
+                                                                    postGroup: widget
+                                                                        .post
+                                                                        .groupName,
+                                                                    commenter: landingPagecontroller
                                                                         .userProfile
                                                                         .value
                                                                         .name,
-                                                                commenterUrl:
-                                                                    landingPagecontroller
+                                                                    commenterUrl: landingPagecontroller
                                                                         .userProfile
                                                                         .value
                                                                         .imageUrl,
-                                                                commentText: widget
-                                                                    .commentController
-                                                                    .text,
-                                                                addedTime:
-                                                                    DateTime
-                                                                        .now());
-                                                            widget
-                                                                .addCommentFunction();
-                                                            fullScreenController
-                                                                .addCommentToPost(
-                                                                    currentCmt);
-                                                            setState(() {});
-                                                          }
-                                                        },
-                                                        decoration:
-                                                            InputDecoration(
-                                                                border:
-                                                                    OutlineInputBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
+                                                                    commentText:
+                                                                        widget
+                                                                            .commentController
+                                                                            .text,
+                                                                    addedTime:
+                                                                        DateTime
+                                                                            .now());
+                                                                widget
+                                                                    .addCommentFunction();
+                                                                fullScreenController
+                                                                    .addCommentToPost(
+                                                                        currentCmt);
+                                                              }
+                                                            },
+                                                            decoration:
+                                                                InputDecoration(
+                                                                    border:
+                                                                        OutlineInputBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
                                                                               30.0),
-                                                                ),
-                                                                contentPadding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        10),
-                                                                hintText:
-                                                                    'Add a comment...',
-                                                                hintStyle: const TextStyle(
-                                                                    color: Colors
-                                                                        .white54),
-                                                                filled: true,
-                                                                fillColor: Colors
-                                                                    .white24,
-                                                                suffixIcon:
-                                                                    IconButton(
-                                                                  icon: Image
-                                                                      .asset(
-                                                                    'assets/icons/EmailSend.png',
-                                                                    width: 30,
-                                                                    height: 30,
-                                                                    color: Colors
-                                                                        .white,
-                                                                  ),
-                                                                  onPressed:
-                                                                      () {
-                                                                    if (widget
-                                                                        .commentController
-                                                                        .text
-                                                                        .isNotEmpty) {
-                                                                      Comment currentCmt = Comment(
-                                                                          postName: widget
-                                                                              .post
-                                                                              .name,
-                                                                          postLink: widget
-                                                                              .post
-                                                                              .youtubeLink,
-                                                                          postCreator: widget
-                                                                              .post
-                                                                              .creator,
-                                                                          postGroup: widget
-                                                                              .post
-                                                                              .groupName,
-                                                                          commenter: landingPagecontroller
-                                                                              .userProfile
-                                                                              .value
-                                                                              .name,
-                                                                          commenterUrl: landingPagecontroller
-                                                                              .userProfile
-                                                                              .value
-                                                                              .imageUrl,
-                                                                          commentText: widget
+                                                                    ),
+                                                                    contentPadding:
+                                                                        const EdgeInsets.all(
+                                                                            10),
+                                                                    hintText:
+                                                                        'Add a comment...',
+                                                                    hintStyle: const TextStyle(
+                                                                        color: Colors
+                                                                            .white70),
+                                                                    filled:
+                                                                        true,
+                                                                    fillColor:
+                                                                        Colors
+                                                                            .white24,
+                                                                    suffixIcon:
+                                                                        IconButton(
+                                                                      icon: Image
+                                                                          .asset(
+                                                                        'assets/icons/EmailSend.png',
+                                                                        width:
+                                                                            30,
+                                                                        height:
+                                                                            30,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
+                                                                      onPressed:
+                                                                          () {
+                                                                        if (widget
+                                                                            .commentController
+                                                                            .text
+                                                                            .isNotEmpty) {
+                                                                          Comment currentCmt = Comment(
+                                                                              postName: widget.post.name,
+                                                                              postLink: widget.post.youtubeLink,
+                                                                              postCreator: widget.post.creator,
+                                                                              postGroup: widget.post.groupName,
+                                                                              commenter: landingPagecontroller.userProfile.value.name,
+                                                                              commenterUrl: landingPagecontroller.userProfile.value.imageUrl,
+                                                                              commentText: widget.commentController.text,
+                                                                              addedTime: DateTime.now());
+                                                                          fullScreenController
+                                                                              .addCommentToPost(currentCmt);
+                                                                          widget
+                                                                              .addCommentFunction();
+                                                                          FocusScope.of(context)
+                                                                              .unfocus();
+                                                                          widget
                                                                               .commentController
-                                                                              .text,
-                                                                          addedTime:
-                                                                              DateTime.now());
-                                                                      fullScreenController
-                                                                          .addCommentToPost(
-                                                                              currentCmt);
-                                                                      widget
-                                                                          .addCommentFunction();
-                                                                      setState(
-                                                                          () {});
-                                                                    }
+                                                                              .clear();
+                                                                        }
+                                                                      },
+                                                                    )),
+                                                          )),
+                                                        ],
+                                                      ),
+                                                    )),
+                                                // Sorting Container
+                                                Obx(
+                                                  () => fullScreenController
+                                                          .post
+                                                          .value
+                                                          .comments!
+                                                          .isNotEmpty
+                                                      ? Obx(() =>
+                                                          !fullScreenController
+                                                                  .sortByRecent
+                                                                  .value
+                                                              ? InkWell(
+                                                                  onTap: () {
+                                                                    fullScreenController
+                                                                        .sortComments(
+                                                                            true);
                                                                   },
-                                                                )),
-                                                      )),
-                                                    ],
-                                                  ),
+                                                                  child:
+                                                                      Container(
+                                                                    padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                        horizontal:
+                                                                            10),
+                                                                    height: 40,
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.symmetric(horizontal: 10),
+                                                                          child:
+                                                                              Image.asset(
+                                                                            'assets/icons/UpDownArrow.png',
+                                                                            width:
+                                                                                20,
+                                                                            height:
+                                                                                15,
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width:
+                                                                              10,
+                                                                        ),
+                                                                        const Text(
+                                                                          'Most recent',
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              : InkWell(
+                                                                  onTap: () {
+                                                                    fullScreenController
+                                                                        .sortComments(
+                                                                            false);
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                        horizontal:
+                                                                            10),
+                                                                    height: 40,
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.symmetric(horizontal: 10),
+                                                                          child:
+                                                                              Image.asset(
+                                                                            'assets/icons/UpDownArrow.png',
+                                                                            width:
+                                                                                20,
+                                                                            height:
+                                                                                15,
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width:
+                                                                              10,
+                                                                        ),
+                                                                        const Text(
+                                                                          'Default',
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ))
+                                                      : const SizedBox.shrink(),
                                                 ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
+
                                                 Obx(() {
                                                   return fullScreenController
                                                           .post
@@ -1580,75 +1641,187 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                   .length,
                                                           itemBuilder:
                                                               (context, index) {
-                                                            return Padding(
-                                                              padding: const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      10,
-                                                                  vertical: 10),
-                                                              child: Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  const SizedBox(
-                                                                    width: 2,
-                                                                  ),
-                                                                  Container(
-                                                                      width: 30,
-                                                                      height:
-                                                                          30,
-                                                                      decoration: BoxDecoration(
-                                                                          shape: BoxShape
-                                                                              .circle,
-                                                                          image: DecorationImage(
-                                                                              fit: BoxFit.fill,
-                                                                              image: NetworkImage(fullScreenController.post.value.comments![index].commenterUrl)))),
-                                                                  const SizedBox(
-                                                                    width: 10,
-                                                                  ),
-                                                                  Expanded(
+                                                            return fullScreenController
+                                                                        .isInEditingMode
+                                                                        .value &&
+                                                                    fullScreenController.post.value.comments![
+                                                                            index] ==
+                                                                        fullScreenController
+                                                                            .editingComment
+                                                                            .value
+                                                                ? Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                        horizontal:
+                                                                            10,
+                                                                        vertical:
+                                                                            10),
                                                                     child:
                                                                         Column(
                                                                       crossAxisAlignment:
                                                                           CrossAxisAlignment
-                                                                              .start,
+                                                                              .end,
                                                                       children: [
-                                                                        Text(
-                                                                          fullScreenController
-                                                                              .post
-                                                                              .value
-                                                                              .comments![index]
-                                                                              .commentText,
-                                                                          overflow:
-                                                                              TextOverflow.fade,
-                                                                          style: const TextStyle(
-                                                                              fontSize: 15,
-                                                                              color: Colors.white),
-                                                                        ),
-                                                                        Row(
-                                                                          children: [
-                                                                            Text(fullScreenController.post.value.comments![index].commenter,
-                                                                                style: const TextStyle(color: Colors.white54)),
-                                                                            const Padding(
-                                                                              padding: EdgeInsets.symmetric(horizontal: 10),
-                                                                              child: Icon(Icons.circle, size: 5, color: Colors.white54),
+                                                                        Obx(
+                                                                          () =>
+                                                                              Container(
+                                                                            height: fullScreenController.editingTextFieldExpanded.value
+                                                                                ? MediaQuery.of(context).size.height / 10
+                                                                                : MediaQuery.of(context).size.height / 20,
+                                                                            child:
+                                                                                Row(
+                                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                                              children: [
+                                                                                const SizedBox(
+                                                                                  width: 2,
+                                                                                ),
+                                                                                Container(width: 30, height: 30, decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage(fullScreenController.post.value.comments![index].commenterUrl)))),
+                                                                                const SizedBox(
+                                                                                  width: 10,
+                                                                                ),
+                                                                                Expanded(
+                                                                                  child: TextField(
+                                                                                      controller: fullScreenController.editingController,
+                                                                                      expands: true,
+                                                                                      maxLines: null,
+                                                                                      style: const TextStyle(color: Colors.white),
+                                                                                      onChanged: (e) {
+                                                                                        int numLines = '\n'.allMatches(e).length + 1;
+                                                                                        if (numLines > 1 || e.length > 30) {
+                                                                                          fullScreenController.setEditingTextFieldExpanded(true);
+                                                                                        } else {
+                                                                                          fullScreenController.setEditingTextFieldExpanded(false);
+                                                                                        }
+                                                                                      },
+                                                                                      decoration: InputDecoration(
+                                                                                        border: OutlineInputBorder(
+                                                                                          borderRadius: BorderRadius.circular(30.0),
+                                                                                        ),
+                                                                                        contentPadding: const EdgeInsets.all(10),
+                                                                                        hintText: 'Add a comment...',
+                                                                                        hintStyle: const TextStyle(color: Colors.white70),
+                                                                                        filled: true,
+                                                                                        fillColor: Colors.white24,
+                                                                                      )),
+                                                                                )
+                                                                              ],
                                                                             ),
-                                                                            Text(
-                                                                              DateTime.parse(fullScreenController.post.value.comments![index].addedTime.toString()).getTimeAgo(),
-                                                                              style: const TextStyle(color: Colors.white54),
-                                                                            )
+                                                                          ),
+                                                                        ),
+                                                                        // buttons
+                                                                        Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.end,
+                                                                          children: [
+                                                                            TextButton(
+                                                                                onPressed: () {
+                                                                                  fullScreenController.deleteComment();
+                                                                                  fullScreenController.clearEditingMode();
+                                                                                  FocusScope.of(context).unfocus();
+                                                                                  widget.commentController.clear();
+                                                                                  setState(() {});
+                                                                                },
+                                                                                child: const Text('Delete', style: TextStyle(color: Colors.red))),
+                                                                            TextButton(
+                                                                                onPressed: () {
+                                                                                  fullScreenController.clearEditingMode();
+                                                                                  setState(() {});
+                                                                                },
+                                                                                child: const Text('Cancel', style: TextStyle(color: Colors.white70))),
+                                                                            TextButton(
+                                                                                onPressed: () {
+                                                                                  if (fullScreenController.editingController.text != fullScreenController.editingComment.value.commentText) {
+                                                                                    fullScreenController.editComment();
+                                                                                  }
+                                                                                  fullScreenController.clearEditingMode();
+                                                                                  FocusScope.of(context).unfocus();
+                                                                                  widget.commentController.clear();
+                                                                                  setState(() {});
+                                                                                },
+                                                                                child: const Text(
+                                                                                  'Save',
+                                                                                  style: TextStyle(color: Color(mainColor)),
+                                                                                )),
                                                                           ],
                                                                         )
                                                                       ],
+                                                                    ))
+                                                                : InkWell(
+                                                                    onTap: () {
+                                                                      if (fullScreenController
+                                                                              .post
+                                                                              .value
+                                                                              .comments![
+                                                                                  index]
+                                                                              .commenter ==
+                                                                          landingPagecontroller
+                                                                              .userProfile
+                                                                              .value
+                                                                              .name) {
+                                                                        fullScreenController.setEditingMode(
+                                                                            true,
+                                                                            fullScreenController.post.value.comments![index]);
+                                                                      }
+                                                                      setState(
+                                                                          () {});
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .symmetric(
+                                                                          horizontal:
+                                                                              10,
+                                                                          vertical:
+                                                                              10),
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                2,
+                                                                          ),
+                                                                          Container(
+                                                                              width: 30,
+                                                                              height: 30,
+                                                                              decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage(fullScreenController.post.value.comments![index].commenterUrl)))),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                10,
+                                                                          ),
+                                                                          Expanded(
+                                                                            child:
+                                                                                Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Text(
+                                                                                  fullScreenController.post.value.comments![index].commentText,
+                                                                                  overflow: TextOverflow.fade,
+                                                                                  style: const TextStyle(fontSize: 15, color: Colors.white),
+                                                                                ),
+                                                                                Row(
+                                                                                  children: [
+                                                                                    Text(fullScreenController.post.value.comments![index].commenter, style: const TextStyle(color: Colors.white54)),
+                                                                                    const Padding(
+                                                                                      padding: EdgeInsets.symmetric(horizontal: 10),
+                                                                                      child: Icon(Icons.circle, size: 5, color: Colors.white54),
+                                                                                    ),
+                                                                                    Text(
+                                                                                      DateTime.parse(fullScreenController.post.value.comments![index].addedTime.toString()).getTimeAgo(),
+                                                                                      style: const TextStyle(color: Colors.white54),
+                                                                                    )
+                                                                                  ],
+                                                                                )
+                                                                              ],
+                                                                            ),
+                                                                          )
+                                                                        ],
+                                                                      ),
                                                                     ),
-                                                                  )
-                                                                ],
-                                                              ),
-                                                            );
+                                                                  );
                                                           })
                                                       : const SizedBox.shrink();
                                                 }),
@@ -1679,8 +1852,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                 // Edit Button
                                 widget.isOwner
                                     ? Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 40, right: 30),
+                                        padding: const EdgeInsets.only(top: 40),
                                         child: Align(
                                           alignment: Alignment.topRight,
                                           child: IconButton(
@@ -1689,7 +1861,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                               radius: 13,
                                               child: Icon(
                                                 Icons.edit,
-                                                size: 10,
+                                                size: 15,
                                                 color: Colors.black,
                                               ),
                                             ),
@@ -1714,31 +1886,6 @@ class _FullScreenPageState extends State<FullScreenPage>
                                         ),
                                       )
                                     : const SizedBox.shrink(),
-                                // Delete Button
-                                // widget.isOwner
-                                //     ? Padding(
-                                //         padding: const EdgeInsets.only(top: 40),
-                                //         child: Align(
-                                //           alignment: Alignment.topRight,
-                                //           child: IconButton(
-                                //             icon: const CircleAvatar(
-                                //               radius: 10,
-                                //               backgroundColor: Colors.white,
-                                //               child: Icon(
-                                //                 Icons.close,
-                                //                 color: Colors.black,
-                                //                 size: 8,
-                                //               ),
-                                //             ),
-                                //             onPressed: () {
-                                //               fullScreenController.deletePost(
-                                //                   fullScreenController
-                                //                       .post.value);
-                                //             },
-                                //           ),
-                                //         ),
-                                //       )
-                                //     : const SizedBox.shrink(),
                               ],
                             )
                           : const YourGroupsPage(

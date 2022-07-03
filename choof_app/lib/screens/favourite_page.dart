@@ -485,8 +485,10 @@ class _FavouritePageState extends State<FavouritePage> {
                         () => landingPagecontroller.isDeviceTablet.value
                             ? const SizedBox.shrink()
                             : Container(
-                                margin: const EdgeInsets.symmetric(vertical: 6),
-                                height: MediaQuery.of(context).size.height / 9,
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 15),
+                                height:
+                                    MediaQuery.of(context).size.height / 8.5,
                                 child: ListView(
                                     shrinkWrap: true,
                                     scrollDirection: Axis.horizontal,
@@ -616,146 +618,195 @@ class _FavouritePageState extends State<FavouritePage> {
 
                       // Filter tag
                       Container(
-                        padding: const EdgeInsets.only(left: 10),
-                        height: MediaQuery.of(context).size.height / 13,
+                        height: MediaQuery.of(context).size.height / 20,
+                        width: MediaQuery.of(context).size.width / 1.05,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Autocomplete(
+                          optionsBuilder: (TextEditingValue textEditingValue) {
+                            if (textEditingValue.text.isEmpty) {
+                              return const Iterable<String>.empty();
+                            } else {
+                              return homePageController.allTags
+                                  .where((String option) {
+                                return option.trim().toLowerCase().startsWith(
+                                    textEditingValue.text.trim().toLowerCase());
+                              });
+                            }
+                          },
+                          optionsViewBuilder:
+                              (context, Function(String) onSelected, options) {
+                            return Material(
+                              elevation: 4,
+                              child: ListView.separated(
+                                padding: EdgeInsets.zero,
+                                itemBuilder: (context, index) {
+                                  final option = options.elementAt(index);
+                                  return ListTile(
+                                    title: Text(option.toString().trim()),
+                                    onTap: () {
+                                      homePageController
+                                          .addTags(option.toString());
+                                      homePageController.tagName.clear();
+                                      FocusScope.of(context).unfocus();
+                                    },
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const Divider(),
+                                itemCount: options.length,
+                              ),
+                            );
+                          },
+                          onSelected: (selectedString) {
+                            homePageController
+                                .addTags(selectedString.toString());
+                            homePageController.tagName.clear();
+                            FocusScope.of(context).unfocus();
+                          },
+                          fieldViewBuilder: (context, controller, focusNode,
+                              onEditingComplete) {
+                            homePageController.tagName = controller;
+
+                            return TextField(
+                                style: const TextStyle(color: Colors.white),
+                                controller: controller,
+                                focusNode: focusNode,
+                                onEditingComplete: onEditingComplete,
+                                onSubmitted: (value) {
+                                  if (value.isNotEmpty) {
+                                    // Split if input contains ,
+                                    if (value.contains(',')) {
+                                      List<String> splitedString =
+                                          value.split(',');
+                                      splitedString.forEach((element) {
+                                        homePageController
+                                            .addTags(element.trim());
+                                      });
+                                    } else {
+                                      homePageController.addTags(value.trim());
+                                    }
+                                  }
+                                  homePageController.tagName.clear();
+                                },
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        30.0,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(
+                                          color: Colors.transparent),
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    filled: true,
+                                    fillColor: const Color(bgColor),
+                                    hintText: 'Filter by tag',
+                                    hintStyle:
+                                        const TextStyle(color: Colors.white70),
+                                    prefixIcon: InkWell(
+                                      onTap: () {
+                                        homePageController.setFilterOn();
+                                      },
+                                      child: const Icon(
+                                        Icons.search,
+                                        size: 25,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        FocusScope.of(context).unfocus();
+                                        homePageController.tagName.clear();
+                                      },
+                                      icon: const CircleAvatar(
+                                        backgroundColor: Colors.white24,
+                                        child: Icon(
+                                          Icons.close_rounded,
+                                          size: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )));
+                          },
+                        ),
+                      ),
+
+                      // Sorting Container
+                      Container(
+                        height: MediaQuery.of(context).size.height / 20,
+                        margin: const EdgeInsets.symmetric(vertical: 10),
                         child: ListView(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           children: [
-                            Obx(() => homePageController
-                                        .filteredTags.isNotEmpty &&
-                                    homePageController.isFilterOn.value
-                                ? IconButton(
-                                    onPressed: () {
-                                      homePageController.setFilterOn();
+                            Obx(() => homePageController.sortByRecent.value
+                                ? InkWell(
+                                    onTap: () {
+                                      homePageController.sort(false);
                                     },
-                                    icon: Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 10),
-                                      child: CircleAvatar(
-                                        // radius: MediaQuery.of(context)
-                                        //         .size
-                                        //         .height /
-                                        //     13,
-                                        radius: double.infinity,
-                                        backgroundColor: const Color(bgColor),
-                                        child: Icon(
-                                          Icons.search,
-                                          size: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              30,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ))
-                                : Container(
-                                    width: MediaQuery.of(context).size.width /
-                                        1.25,
-                                    child: Autocomplete(
-                                      optionsBuilder:
-                                          (TextEditingValue textEditingValue) {
-                                        if (textEditingValue.text.isEmpty) {
-                                          return const Iterable<String>.empty();
-                                        } else {
-                                          return homePageController.allTags
-                                              .where((String option) {
-                                            return option
-                                                .trim()
-                                                .toLowerCase()
-                                                .contains(textEditingValue.text
-                                                    .trim()
-                                                    .toLowerCase());
-                                          });
-                                        }
-                                      },
-                                      optionsViewBuilder: (context,
-                                          Function(String) onSelected,
-                                          options) {
-                                        return Material(
-                                          elevation: 4,
-                                          child: ListView.separated(
-                                            padding: EdgeInsets.zero,
-                                            itemBuilder: (context, index) {
-                                              final option =
-                                                  options.elementAt(index);
-                                              return ListTile(
-                                                title: Text(option.toString()),
-                                                onTap: () {
-                                                  homePageController.addTags(
-                                                      option.toString().trim());
-                                                  homePageController.tagName
-                                                      .clear();
-                                                  FocusScope.of(context)
-                                                      .unfocus();
-                                                },
-                                              );
-                                            },
-                                            separatorBuilder:
-                                                (context, index) =>
-                                                    const Divider(),
-                                            itemCount: options.length,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              20,
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            'assets/icons/UpDownArrow.png',
+                                            width: 20,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                20,
                                           ),
-                                        );
-                                      },
-                                      onSelected: (selectedString) {
-                                        homePageController.addTags(
-                                            selectedString.toString().trim());
-                                        homePageController.tagName.clear();
-                                        FocusScope.of(context).unfocus();
-                                      },
-                                      fieldViewBuilder: (context, controller,
-                                          focusNode, onEditingComplete) {
-                                        homePageController.tagName = controller;
-
-                                        return TextField(
-                                          controller: controller,
-                                          focusNode: focusNode,
-                                          onEditingComplete: onEditingComplete,
-                                          onSubmitted: (value) {
-                                            if (value.isNotEmpty) {
-                                              // Split if input contains ,
-                                              if (value.contains(',')) {
-                                                List<String> splitedString =
-                                                    value.split(',');
-                                                splitedString
-                                                    .forEach((element) {
-                                                  homePageController
-                                                      .addTags(element.trim());
-                                                });
-                                              } else {
-                                                homePageController
-                                                    .addTags(value.trim());
-                                              }
-                                            }
-                                            homePageController.tagName.clear();
-                                          },
-                                          decoration: InputDecoration(
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30.0),
-                                              ),
-                                              filled: true,
-                                              hintStyle: TextStyle(
-                                                  color: Colors.grey[800]),
-                                              hintText:
-                                                  ''' “At least one tag (food, music, etc.)”''',
-                                              fillColor: Colors.white70,
-                                              suffixIcon: IconButton(
-                                                onPressed: () {
-                                                  controller.clear();
-                                                },
-                                                icon: const Icon(
-                                                    Icons.close_rounded),
-                                              )),
-                                        );
-                                      },
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          const Text(
+                                            'Most recent',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : InkWell(
+                                    onTap: () {
+                                      homePageController.sort(true);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              20,
+                                      child: Row(
+                                        children: [
+                                          FaIcon(
+                                            FontAwesomeIcons.arrowUpAZ,
+                                            color: Colors.white,
+                                            size: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                40,
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          const Text(
+                                            'Alphabetical',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   )),
-
-                            const SizedBox(
-                              width: 10,
-                            ),
                             // Show Filtered tags
                             Obx(() {
                               return homePageController.filteredTags.isNotEmpty
@@ -767,16 +818,20 @@ class _FavouritePageState extends State<FavouritePage> {
                                       itemBuilder: (context, index) {
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 5, vertical: 5),
+                                            horizontal: 5,
+                                          ),
                                           child: Stack(
-                                            alignment: Alignment.topLeft,
+                                            alignment: Alignment.topRight,
                                             children: [
                                               Container(
-                                                height: 40,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey.shade800,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    20,
+                                                decoration: const BoxDecoration(
+                                                    color: Color(bgColor),
                                                     borderRadius:
-                                                        const BorderRadius.all(
+                                                        BorderRadius.all(
                                                             Radius.circular(
                                                                 30))),
                                                 padding:
@@ -800,15 +855,15 @@ class _FavouritePageState extends State<FavouritePage> {
                                                 },
                                                 child: const Align(
                                                     alignment:
-                                                        Alignment.topLeft,
+                                                        Alignment.topRight,
                                                     child: CircleAvatar(
-                                                      radius: 10,
+                                                      radius: 8,
                                                       backgroundColor:
                                                           Colors.white70,
                                                       child: Icon(
                                                         Icons.close,
                                                         color: Colors.black,
-                                                        size: 8,
+                                                        size: 10,
                                                       ),
                                                     )),
                                               )
@@ -821,61 +876,6 @@ class _FavouritePageState extends State<FavouritePage> {
                           ],
                         ),
                       ),
-
-                      // Sorting Container
-                      Obx(() => homePageController.sortByRecent.value
-                          ? InkWell(
-                              onTap: () {
-                                homePageController.sort(false);
-                              },
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                height: 50,
-                                child: Row(
-                                  children: [
-                                    Image.asset(
-                                      'assets/icons/UpDownArrow.png',
-                                      width: 20,
-                                      height: 15,
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Text(
-                                      'Most recent',
-                                      style: TextStyle(color: Colors.white),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )
-                          : InkWell(
-                              onTap: () {
-                                homePageController.sort(true);
-                              },
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                height: 50,
-                                child: Row(
-                                  children: const [
-                                    FaIcon(
-                                      FontAwesomeIcons.arrowUpAZ,
-                                      color: Colors.white,
-                                      size: 15,
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Text(
-                                      'Alphabetical',
-                                      style: TextStyle(color: Colors.white),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )),
 
                       ///
                       const Divider(
@@ -935,12 +935,6 @@ class _FavouritePageState extends State<FavouritePage> {
                                       itemBuilder: (context, index) {
                                         List<Post> currentPosts =
                                             homePageController.posts;
-
-                                        if (homePageController.posts.length <
-                                            homePageController
-                                                .postLimit.value) {
-                                          _refreshController.loadNoData();
-                                        }
                                         TextEditingController
                                             commentController =
                                             TextEditingController();
@@ -1043,6 +1037,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                       isFromGroup:
                                                                           false,
                                                                       isFromFullScreenPage:
+                                                                          false,
+                                                                      isFromAddGroup:
                                                                           false,
                                                                     ))!
                                                                 .then((value) =>
@@ -1234,6 +1230,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                   isFromGroup:
                                                                       false,
                                                                   isFromFullScreenPage:
+                                                                      false,
+                                                                  isFromAddGroup:
                                                                       false,
                                                                 ))!
                                                             .then((value) =>
@@ -1458,6 +1456,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                           false,
                                                                       isFromFullScreenPage:
                                                                           false,
+                                                                      isFromAddGroup:
+                                                                          false,
                                                                     ))!
                                                                 .then((value) =>
                                                                     _pullRefresh());
@@ -1648,6 +1648,8 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                   isFromGroup:
                                                                       false,
                                                                   isFromFullScreenPage:
+                                                                      false,
+                                                                  isFromAddGroup:
                                                                       false,
                                                                 ))!
                                                             .then((value) =>

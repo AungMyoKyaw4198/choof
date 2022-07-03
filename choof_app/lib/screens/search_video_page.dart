@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -54,53 +53,57 @@ class _SearchVideoPageState extends State<SearchVideoPage> {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: TextFormField(
-                      controller: controller.searchController,
-                      enableInteractiveSelection: true,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(color: Colors.grey[800]),
-                          hintText: "Search Videos here",
-                          fillColor: Colors.white70,
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              controller.searchController.clear();
-                            },
-                            icon: const Icon(Icons.close_rounded),
-                          )),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
-                      onFieldSubmitted: (value) {
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height / 20,
+                      child: TextFormField(
+                        style: const TextStyle(color: Colors.white),
+                        controller: controller.searchController,
+                        enableInteractiveSelection: true,
+                        decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(left: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                            filled: true,
+                            hintStyle: const TextStyle(color: Colors.white70),
+                            hintText: "Search Videos here",
+                            fillColor: const Color(bgColor),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                controller.searchController.clear();
+                              },
+                              icon: const Icon(Icons.close_rounded),
+                            )),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter some text';
+                          }
+                          return null;
+                        },
+                        onFieldSubmitted: (value) {
+                          controller.clearResults();
+                          controller.searchVideos();
+                        },
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                      onPressed: () async {
                         controller.clearResults();
                         controller.searchVideos();
                       },
-                    ),
-                  ),
-                ),
-                IconButton(
-                    onPressed: () async {
-                      controller.clearResults();
-                      controller.searchVideos();
-                    },
-                    icon: const FaIcon(
-                      FontAwesomeIcons.magnifyingGlass,
-                      color: Colors.white,
-                      size: 30,
-                    ))
-              ],
+                      icon: Image.asset(
+                        'assets/icons/Search.png',
+                        height: 20,
+                        color: Colors.white,
+                      ))
+                ],
+              ),
             ),
             Expanded(
               child: Obx(() {

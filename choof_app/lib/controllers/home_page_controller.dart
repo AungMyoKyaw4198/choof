@@ -62,14 +62,16 @@ class HomePageController extends GetxController {
       int index = 1;
       List<Group> userGroups = [];
       List<Profile> allOwners = [];
-      QuerySnapshot<Object?> groups = await _allGroups.get();
+      List<String> allGroupsTag = [];
+      QuerySnapshot<Object?> groups =
+          await _allGroups.orderBy('lastUpdatedTime', descending: true).get();
       for (var element in groups.docs) {
         final Group meta =
             Group.fromJson(element.data() as Map<String, dynamic>);
         meta.docId = element.id;
 
         meta.tags.forEach((tag) {
-          landingPagecontroller.addAutoTags(tag);
+          allGroupsTag.add(tag.trim());
         });
 
         meta.members.forEach((element) {
@@ -92,15 +94,23 @@ class HomePageController extends GetxController {
               .where((creator) => set.add(creator.name.trim()))
               .toList();
           creators(uniquelist);
+
+          // Remove Duplicate From Tags
+          var set2 = Set<String>();
+          List<String> uniquelist2 =
+              allGroupsTag.where((tag) => set2.add(tag.trim())).toList();
+          landingPagecontroller.setAutoTags(uniquelist2);
+
           return userGroups;
         } else {
           index++;
         }
       }
 
+      print('doing');
+
       return userGroups;
     } catch (e) {
-      loaded(true);
       Get.snackbar(
         "Something went wrong!",
         "Please try again later.",
@@ -114,11 +124,10 @@ class HomePageController extends GetxController {
   // Get posts of membered group
   getAllPost() async {
     try {
-      // final stopwatch = Stopwatch()..start();
-
       loaded(false);
       List<String> metaAllTags = [];
-      QuerySnapshot<Object?> allposts = await _allPosts.get();
+      QuerySnapshot<Object?> allposts =
+          await _allPosts.orderBy('addedTime', descending: true).get();
       await getMemberedGroup().then((userGroups) async {
         if (userGroups.isNotEmpty) {
           for (int i = 0; i < userGroups.length; i++) {
@@ -148,9 +157,11 @@ class HomePageController extends GetxController {
                 currentPost.comments = metaCmts;
                 //  ----
                 posts.add(currentPost);
+                loaded(true);
                 allpost.add(currentPost);
+
                 currentPost.tags.forEach((tag) {
-                  metaAllTags.add(tag);
+                  metaAllTags.add(tag.trim());
                 });
               }
             }
@@ -160,14 +171,10 @@ class HomePageController extends GetxController {
           List<String> uniquelist =
               metaAllTags.where((tag) => set.add(tag.trim())).toList();
           allTags(uniquelist);
-          // ---------------------
-          sort(true);
-          loaded(true);
         } else {
           loaded(true);
         }
       });
-      // print('doSomething() executed in ${stopwatch.elapsed}');
     } catch (e) {
       loaded(true);
       Get.snackbar(
@@ -238,14 +245,19 @@ class HomePageController extends GetxController {
 
       for (var post in posts) {
         List<bool> checker = [];
+        // Remove Duplicate From Tags
+        var set = Set<String>();
+        List<String> uniquelist =
+            post.tags.where((tag) => set.add(tag.trim())).toList();
+        // ---------------------
         // OR Operation
         // if (post.tags.any((element) => filteredTags.contains(element))) {
         //   filteredTagResult.add(post);
         // }
 
         // AND Operation
-        post.tags.forEach((postTag) {
-          if (filteredTags.contains(postTag)) {
+        uniquelist.forEach((postTag) {
+          if (filteredTags.contains(postTag.trim())) {
             checker.add(true);
           } else {
             checker.add(false);
@@ -256,8 +268,6 @@ class HomePageController extends GetxController {
           filteredTagResult.add(post);
         }
       }
-
-      // reloadControllerList(posts);
       loaded(true);
     } else {
       isFilter(false);
@@ -326,6 +336,13 @@ class HomePageController extends GetxController {
                 senderNames = uniquelist;
 
                 if (notiList.isNotEmpty) {
+                  // remove deuplicate groups
+                  var seen = Set<String>();
+                  List<Noti> uniquelist2 = notiList
+                      .where((noti) => seen.add(noti.groupName))
+                      .toList();
+                  notiList = uniquelist2;
+                  // ---------------------
                   for (int i = 0; i < senderNames.length; i++) {
                     groupNames = '';
                     notiList.forEach((noti) {
@@ -336,10 +353,17 @@ class HomePageController extends GetxController {
                     String payloadName = 'Notification';
                     if (landingPagecontroller
                         .userProfile.value.allowNotifications) {
-                      NotificationService.showNotification(
-                          body:
-                              '${senderNames[i]} has some recommendation for you in the Choof group(s): ${groupNames.substring(0, groupNames.length - 1)}',
-                          payload: payloadName);
+                      if (groupNames.length > 1) {
+                        NotificationService.showNotification(
+                            body:
+                                '${senderNames[i]} has some recommendation for you in the Choof groups: ${groupNames.substring(0, groupNames.length - 1)}',
+                            payload: payloadName);
+                      } else {
+                        NotificationService.showNotification(
+                            body:
+                                '${senderNames[i]} has some recommendation for you in the Choof group: ${groupNames.substring(0, groupNames.length - 1)}',
+                            payload: payloadName);
+                      }
                     }
                   }
                 }

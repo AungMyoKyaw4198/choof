@@ -1,6 +1,5 @@
 import 'package:choof_app/screens/add_group_page.dart';
 import 'package:choof_app/screens/widgets/shared_widgets.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -20,7 +19,7 @@ class YourGroupsPage extends StatefulWidget {
 }
 
 class _YourGroupsPageState extends State<YourGroupsPage> {
-  final controller = Get.find<YourGroupController>();
+  final yourGroupsController = Get.find<YourGroupController>();
   final landingPagecontroller = Get.find<LandingPageController>();
 
   final tagName = TextEditingController();
@@ -31,14 +30,14 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
   @override
   void initState() {
     if (widget.isFirstTime) {
-      controller.getGroupsData();
+      yourGroupsController.getGroupsData();
     }
 
     super.initState();
   }
 
   Future<void> _pullRefresh() async {
-    controller.refreshGroups();
+    yourGroupsController.refreshGroups();
     _refreshController.refreshCompleted();
     _refreshController.resetNoData();
   }
@@ -47,7 +46,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size(60, 60),
+        preferredSize: const Size(50, 50),
         child: Obx(() => landingPagecontroller.isDeviceTablet.value
             ? const SizedBox.shrink()
             : landingPagecontroller.tabIndex.value == 1
@@ -115,21 +114,21 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                         controller: _refreshController,
                         pullrefreshFunction: _pullRefresh,
                         onLoadingFunction: () {
-                          if (controller.allGroups.length -
-                                  controller.groupLimit.value >
+                          if (yourGroupsController.allGroups.length -
+                                  yourGroupsController.groupLimit.value >
                               0) {
-                            if (controller.allGroups.length -
-                                    controller.groupLimit.value <=
+                            if (yourGroupsController.allGroups.length -
+                                    yourGroupsController.groupLimit.value <=
                                 15) {
-                              controller
-                                  .setGroupLimit(controller.allGroups.length);
+                              yourGroupsController.setGroupLimit(
+                                  yourGroupsController.allGroups.length);
                             } else {
-                              controller.addGroupLimit();
+                              yourGroupsController.addGroupLimit();
                             }
                             _refreshController.loadComplete();
                           } else {
-                            controller
-                                .setGroupLimit(controller.allGroups.length);
+                            yourGroupsController.setGroupLimit(
+                                yourGroupsController.allGroups.length);
                             _refreshController.loadNoData();
                           }
                         },
@@ -144,7 +143,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                               // All Profiles
                               Obx((() => InkWell(
                                     onTap: () {
-                                      controller.selectProfile('all');
+                                      yourGroupsController.selectProfile('all');
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -158,7 +157,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                               height: 60,
                                               decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  border: controller
+                                                  border: yourGroupsController
                                                               .selectedFriend
                                                               .value ==
                                                           'all'
@@ -180,7 +179,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                               'All',
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
-                                                  color: controller
+                                                  color: yourGroupsController
                                                               .selectedFriend
                                                               .value ==
                                                           'all'
@@ -198,7 +197,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                               Obx(
                                 () => InkWell(
                                   onTap: () {
-                                    controller.selectProfile(
+                                    yourGroupsController.selectProfile(
                                         landingPagecontroller
                                             .userProfile.value.name);
                                   },
@@ -214,7 +213,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                             height: 60,
                                             decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                border: controller
+                                                border: yourGroupsController
                                                             .selectedFriend
                                                             .value ==
                                                         landingPagecontroller
@@ -243,7 +242,8 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                 .userProfile.value.name,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                                color: controller.selectedFriend
+                                                color: yourGroupsController
+                                                            .selectedFriend
                                                             .value ==
                                                         landingPagecontroller
                                                             .userProfile
@@ -262,7 +262,8 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                               // Rest of the creators
                               Obx(() {
                                 List<Profile> creators = [];
-                                for (var creator in controller.owners) {
+                                for (var creator
+                                    in yourGroupsController.owners) {
                                   if (creator.name.trim() !=
                                       landingPagecontroller
                                           .userProfile.value.name
@@ -289,8 +290,9 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                         itemBuilder: (context, index) {
                                           return Obx(() => InkWell(
                                                 onTap: () {
-                                                  controller.selectProfile(
-                                                      creators[index].name);
+                                                  yourGroupsController
+                                                      .selectProfile(
+                                                          creators[index].name);
                                                 },
                                                 child: Padding(
                                                   padding: const EdgeInsets
@@ -308,7 +310,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                               BoxDecoration(
                                                                   shape: BoxShape
                                                                       .circle,
-                                                                  border: controller
+                                                                  border: yourGroupsController
                                                                               .selectedFriend
                                                                               .value ==
                                                                           creators[index]
@@ -336,7 +338,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                           overflow: TextOverflow
                                                               .ellipsis,
                                                           style: TextStyle(
-                                                              color: controller
+                                                              color: yourGroupsController
                                                                           .selectedFriend
                                                                           .value ==
                                                                       creators[
@@ -375,19 +377,21 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                   controller: _refreshController,
                   pullrefreshFunction: _pullRefresh,
                   onLoadingFunction: () {
-                    if (controller.allGroups.length -
-                            controller.groupLimit.value >
+                    if (yourGroupsController.allGroups.length -
+                            yourGroupsController.groupLimit.value >
                         0) {
-                      if (controller.allGroups.length -
-                              controller.groupLimit.value <=
+                      if (yourGroupsController.allGroups.length -
+                              yourGroupsController.groupLimit.value <=
                           15) {
-                        controller.setGroupLimit(controller.allGroups.length);
+                        yourGroupsController.setGroupLimit(
+                            yourGroupsController.allGroups.length);
                       } else {
-                        controller.addGroupLimit();
+                        yourGroupsController.addGroupLimit();
                       }
                       _refreshController.loadComplete();
                     } else {
-                      controller.setGroupLimit(controller.allGroups.length);
+                      yourGroupsController
+                          .setGroupLimit(yourGroupsController.allGroups.length);
                       _refreshController.loadNoData();
                     }
                   },
@@ -430,8 +434,10 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                         () => landingPagecontroller.isDeviceTablet.value
                             ? const SizedBox.shrink()
                             : Container(
-                                margin: const EdgeInsets.symmetric(vertical: 6),
-                                height: MediaQuery.of(context).size.height / 9,
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 15),
+                                height:
+                                    MediaQuery.of(context).size.height / 8.5,
                                 child: ListView(
                                     shrinkWrap: true,
                                     scrollDirection: Axis.horizontal,
@@ -439,7 +445,8 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                       // All Profiles
                                       Obx((() => InkWell(
                                             onTap: () {
-                                              controller.selectProfile('all');
+                                              yourGroupsController
+                                                  .selectProfile('all');
                                             },
                                             child: Padding(
                                               padding:
@@ -450,7 +457,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                 imageUrl:
                                                     'https://media.istockphoto.com/photos/group-multiracial-people-having-fun-outdoor-happy-mixed-race-friends-picture-id1211345565?k=20&m=1211345565&s=612x612&w=0&h=Gg65DvzedP7YDo6XFbB-8-f7U7m5zHm1OPO3uIiVFgo=',
                                                 size: 60,
-                                                isSelected: controller
+                                                isSelected: yourGroupsController
                                                         .selectedFriend.value ==
                                                     'all',
                                               ),
@@ -460,7 +467,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                       Obx(
                                         () => InkWell(
                                           onTap: () {
-                                            controller.selectProfile(
+                                            yourGroupsController.selectProfile(
                                                 landingPagecontroller
                                                     .userProfile.value.name);
                                           },
@@ -473,7 +480,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                               imageUrl: landingPagecontroller
                                                   .userProfile.value.imageUrl,
                                               size: 60,
-                                              isSelected: controller
+                                              isSelected: yourGroupsController
                                                       .selectedFriend.value ==
                                                   landingPagecontroller
                                                       .userProfile.value.name,
@@ -484,7 +491,8 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                       // Rest of the creators
                                       Obx(() {
                                         List<Profile> owners = [];
-                                        for (var owner in controller.owners) {
+                                        for (var owner
+                                            in yourGroupsController.owners) {
                                           if (owner.name.trim() !=
                                               landingPagecontroller
                                                   .userProfile.value.name
@@ -518,7 +526,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                 itemBuilder: (context, index) {
                                                   return Obx(() => InkWell(
                                                         onTap: () {
-                                                          controller
+                                                          yourGroupsController
                                                               .selectProfile(
                                                                   owners[index]
                                                                       .name);
@@ -537,11 +545,12 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                                 owners[index]
                                                                     .imageUrl,
                                                             size: 60,
-                                                            isSelected: controller
-                                                                    .selectedFriend
-                                                                    .value ==
-                                                                owners[index]
-                                                                    .name,
+                                                            isSelected:
+                                                                yourGroupsController
+                                                                        .selectedFriend
+                                                                        .value ==
+                                                                    owners[index]
+                                                                        .name,
                                                           ),
                                                         ),
                                                       ));
@@ -554,128 +563,218 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
 
                       // Filter tag
                       Container(
-                        height: MediaQuery.of(context).size.height / 16,
+                        height: MediaQuery.of(context).size.height / 20,
+                        width: MediaQuery.of(context).size.width / 1.05,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Autocomplete(
+                          optionsBuilder: (TextEditingValue textEditingValue) {
+                            if (textEditingValue.text.isEmpty) {
+                              return const Iterable<String>.empty();
+                            } else {
+                              return yourGroupsController.allTags
+                                  .where((String option) {
+                                return option.trim().toLowerCase().startsWith(
+                                    textEditingValue.text.trim().toLowerCase());
+                              });
+                            }
+                          },
+                          optionsViewBuilder:
+                              (context, Function(String) onSelected, options) {
+                            return Material(
+                              elevation: 4,
+                              child: ListView.separated(
+                                padding: EdgeInsets.zero,
+                                itemBuilder: (context, index) {
+                                  final option = options.elementAt(index);
+                                  return ListTile(
+                                    title: Text(option.toString().trim()),
+                                    onTap: () {
+                                      yourGroupsController
+                                          .addTags(option.toString().trim());
+                                      yourGroupsController.tagName.clear();
+                                      FocusScope.of(context).unfocus();
+                                    },
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const Divider(),
+                                itemCount: options.length,
+                              ),
+                            );
+                          },
+                          onSelected: (selectedString) {
+                            yourGroupsController
+                                .addTags(selectedString.toString().trim());
+                            yourGroupsController.tagName.clear();
+                            FocusScope.of(context).unfocus();
+                          },
+                          fieldViewBuilder: (context, controller, focusNode,
+                              onEditingComplete) {
+                            yourGroupsController.tagName = controller;
+
+                            return TextField(
+                                style: const TextStyle(color: Colors.white),
+                                controller: controller,
+                                focusNode: focusNode,
+                                onEditingComplete: onEditingComplete,
+                                onSubmitted: (value) {
+                                  if (value.isNotEmpty) {
+                                    // Split if input contains ,
+                                    if (value.contains(',')) {
+                                      List<String> splitedString =
+                                          value.split(',');
+                                      splitedString.forEach((element) {
+                                        yourGroupsController
+                                            .addTags(element.trim());
+                                      });
+                                    } else {
+                                      yourGroupsController
+                                          .addTags(value.trim());
+                                    }
+                                  }
+                                  yourGroupsController.tagName.clear();
+                                },
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        30.0,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(
+                                          color: Colors.transparent),
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    filled: true,
+                                    fillColor: const Color(bgColor),
+                                    hintText: 'Filter by tag',
+                                    hintStyle:
+                                        const TextStyle(color: Colors.white70),
+                                    prefixIcon: InkWell(
+                                      onTap: () {
+                                        yourGroupsController.setFilterOn();
+                                      },
+                                      child: const Icon(
+                                        Icons.search,
+                                        size: 25,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        yourGroupsController.tagName.clear();
+                                      },
+                                      icon: const CircleAvatar(
+                                        backgroundColor: Colors.white24,
+                                        child: Icon(
+                                          Icons.close_rounded,
+                                          size: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )));
+                          },
+                        ),
+                      ),
+                      // Sorting Container
+                      Container(
+                        height: MediaQuery.of(context).size.height / 20,
+                        margin: const EdgeInsets.symmetric(vertical: 10),
                         child: ListView(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           children: [
-                            Obx(
-                              () => controller.filteredTags.isNotEmpty &&
-                                      controller.isFilterOn.value
-                                  ? IconButton(
-                                      onPressed: () {
-                                        controller.setFilterOn();
-                                      },
-                                      icon: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 5),
-                                        child: CircleAvatar(
-                                          radius: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              30,
-                                          backgroundColor: Colors.white,
-                                          child: Icon(
-                                            Icons.search,
+                            Obx(() => yourGroupsController.sortByRecent.value
+                                ? InkWell(
+                                    onTap: () {
+                                      yourGroupsController.sort(false);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              20,
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            'assets/icons/UpDownArrow.png',
+                                            width: 20,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                20,
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          const Text(
+                                            'Last Updated',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : InkWell(
+                                    onTap: () {
+                                      yourGroupsController.sort(true);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              20,
+                                      child: Row(
+                                        children: [
+                                          FaIcon(
+                                            FontAwesomeIcons.arrowUpAZ,
+                                            color: Colors.white,
                                             size: MediaQuery.of(context)
                                                     .size
                                                     .height /
-                                                50,
-                                            color: Colors.black,
+                                                40,
                                           ),
-                                        ),
-                                      ))
-                                  : Container(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      height:
-                                          MediaQuery.of(context).size.height /
-                                              15,
-                                      width: MediaQuery.of(context).size.width /
-                                          1.8,
-                                      child: InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.all(10),
-                                            filled: true,
-                                            fillColor: Colors.white70,
-                                            prefixIcon: InkWell(
-                                              onTap: () {
-                                                controller.setFilterOn();
-                                              },
-                                              child: const Icon(
-                                                Icons.search,
-                                                color: Colors.black,
-                                              ),
-                                            ),
+                                          const SizedBox(
+                                            width: 10,
                                           ),
-                                          child: Stack(
-                                            children: [
-                                              Autocomplete<String>(
-                                                displayStringForOption: (c) =>
-                                                    c.toString(),
-                                                optionsBuilder:
-                                                    (TextEditingValue
-                                                        textEditingValue) {
-                                                  if (textEditingValue.text ==
-                                                      '') {
-                                                    return const Iterable<
-                                                        String>.empty();
-                                                  }
-                                                  return controller.allTags
-                                                      .where((String option) {
-                                                    return option
-                                                        .trim()
-                                                        .toLowerCase()
-                                                        .contains(
-                                                            textEditingValue
-                                                                .text
-                                                                .trim()
-                                                                .toLowerCase());
-                                                  });
-                                                },
-                                                onSelected: (String selection) {
-                                                  controller.addTags(selection);
-                                                  tagName.clear();
-                                                  FocusScope.of(context)
-                                                      .unfocus();
-                                                },
-                                              ),
-                                              const Text(
-                                                'Filter by tag',
-                                                style: TextStyle(fontSize: 10),
-                                              ),
-                                            ],
-                                          )),
+                                          const Text(
+                                            'Alphabetical',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                            ),
-
-                            const SizedBox(
-                              width: 10,
-                            ),
+                                  )),
                             // Show Filtered tags
                             Obx(
-                              () => controller.filteredTags.isNotEmpty
+                              () => yourGroupsController.filteredTags.isNotEmpty
                                   ? ListView.builder(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
-                                      itemCount: controller.filteredTags.length,
+                                      itemCount: yourGroupsController
+                                          .filteredTags.length,
                                       itemBuilder: (context, index) {
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 5, vertical: 10),
+                                              horizontal: 5),
                                           child: Stack(
-                                            alignment: Alignment.topLeft,
+                                            alignment: Alignment.topRight,
                                             children: [
                                               Container(
-                                                height: 40,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey.shade800,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    20,
+                                                decoration: const BoxDecoration(
+                                                    color: Color(bgColor),
                                                     borderRadius:
-                                                        const BorderRadius.all(
+                                                        BorderRadius.all(
                                                             Radius.circular(
                                                                 30))),
                                                 padding:
@@ -683,7 +782,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                         vertical: 10,
                                                         horizontal: 20),
                                                 child: Text(
-                                                  controller
+                                                  yourGroupsController
                                                       .filteredTags[index],
                                                   style: const TextStyle(
                                                       color: Colors.white,
@@ -693,21 +792,23 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                               ),
                                               InkWell(
                                                 onTap: () {
-                                                  controller.removeTag(
-                                                      controller
-                                                          .filteredTags[index]);
+                                                  yourGroupsController
+                                                      .removeTag(
+                                                          yourGroupsController
+                                                                  .filteredTags[
+                                                              index]);
                                                 },
                                                 child: const Align(
                                                     alignment:
-                                                        Alignment.topLeft,
+                                                        Alignment.topRight,
                                                     child: CircleAvatar(
-                                                      radius: 10,
+                                                      radius: 8,
                                                       backgroundColor:
                                                           Colors.white70,
                                                       child: Icon(
                                                         Icons.close,
                                                         color: Colors.black,
-                                                        size: 8,
+                                                        size: 10,
                                                       ),
                                                     )),
                                               )
@@ -721,61 +822,6 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                         ),
                       ),
 
-                      // Sorting Container
-                      Obx(() => controller.sortByRecent.value
-                          ? InkWell(
-                              onTap: () {
-                                controller.sort(false);
-                              },
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                height: 50,
-                                child: Row(
-                                  children: [
-                                    Image.asset(
-                                      'assets/icons/UpDownArrow.png',
-                                      width: 20,
-                                      height: 15,
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Text(
-                                      'Last Updated',
-                                      style: TextStyle(color: Colors.white),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )
-                          : InkWell(
-                              onTap: () {
-                                controller.sort(true);
-                              },
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                height: 50,
-                                child: Row(
-                                  children: const [
-                                    FaIcon(
-                                      FontAwesomeIcons.arrowUpAZ,
-                                      color: Colors.white,
-                                      size: 15,
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Text(
-                                      'Alphabetical',
-                                      style: TextStyle(color: Colors.white),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )),
-
                       ///
                       const Divider(
                         color: Colors.white,
@@ -783,12 +829,12 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                       ),
 
                       // group Cards
-                      Obx(() => !controller.loaded.value
+                      Obx(() => !yourGroupsController.loaded.value
                           ? const Center(child: CircularProgressIndicator())
-                          : !controller.isFilter.value
+                          : !yourGroupsController.isFilter.value
                               ?
                               // NO filter
-                              controller.groups.isEmpty
+                              yourGroupsController.groups.isEmpty
                                   ? Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -829,17 +875,19 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                           horizontal: 10),
                                       child: Column(
                                         children: List.generate(
-                                          controller.groups.length,
+                                          yourGroupsController.groups.length,
                                           (index) => InkWell(
                                               onTap: () {
                                                 Get.to(() => ViewGroup(
                                                           index: 1,
                                                           currentGroup:
-                                                              controller.groups[
+                                                              yourGroupsController
+                                                                      .groups[
                                                                   index],
                                                           isFromGroup: true,
                                                           isFromFullScreenPage:
                                                               false,
+                                                          isFromAddGroup: false,
                                                         ))!
                                                     .then((value) =>
                                                         _pullRefresh());
@@ -853,22 +901,26 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                           .userProfile
                                                           .value
                                                           .blockedUsers!
-                                                          .contains(controller
-                                                              .groups[index]
-                                                              .owner)
+                                                          .contains(
+                                                              yourGroupsController
+                                                                  .groups[index]
+                                                                  .owner)
                                                       ? const SizedBox.shrink()
                                                       : GroupWidget(
-                                                          group: controller
-                                                              .groups[index],
+                                                          group:
+                                                              yourGroupsController
+                                                                      .groups[
+                                                                  index],
                                                         )
                                                   : GroupWidget(
-                                                      group: controller
-                                                          .groups[index],
+                                                      group:
+                                                          yourGroupsController
+                                                              .groups[index],
                                                     )),
                                         ),
                                       ),
                                     )
-                              : controller.filteredTagResult.isEmpty
+                              : yourGroupsController.filteredTagResult.isEmpty
                                   ? const Center(
                                       child: Text(
                                         'No Result Found',
@@ -880,17 +932,20 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                           horizontal: 10),
                                       child: Column(
                                         children: List.generate(
-                                          controller.filteredTagResult.length,
+                                          yourGroupsController
+                                              .filteredTagResult.length,
                                           (index) => InkWell(
                                             onTap: () {
                                               Get.to(() => ViewGroup(
                                                         index: 1,
-                                                        currentGroup: controller
-                                                                .filteredTagResult[
-                                                            index],
+                                                        currentGroup:
+                                                            yourGroupsController
+                                                                    .filteredTagResult[
+                                                                index],
                                                         isFromGroup: true,
                                                         isFromFullScreenPage:
                                                             false,
+                                                        isFromAddGroup: false,
                                                       ))!
                                                   .then((value) =>
                                                       _pullRefresh());
@@ -904,17 +959,18 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                         .userProfile
                                                         .value
                                                         .blockedUsers!
-                                                        .contains(controller
-                                                            .groups[index]
-                                                            .owner)
+                                                        .contains(
+                                                            yourGroupsController
+                                                                .groups[index]
+                                                                .owner)
                                                     ? const SizedBox.shrink()
                                                     : GroupWidget(
-                                                        group: controller
+                                                        group: yourGroupsController
                                                                 .filteredTagResult[
                                                             index],
                                                       )
                                                 : GroupWidget(
-                                                    group: controller
+                                                    group: yourGroupsController
                                                             .filteredTagResult[
                                                         index],
                                                   ),
