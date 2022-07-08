@@ -40,6 +40,8 @@ class _EditGroupPageState extends State<EditGroupPage> {
                 .substring(0, widget.currentGroup.name.indexOf('#'))
             : widget.currentGroup.name,
         tags);
+    landingPagecontroller.incrementBackIndex();
+
     super.initState();
   }
 
@@ -176,11 +178,11 @@ class _EditGroupPageState extends State<EditGroupPage> {
                   )),
       ),
       // Bottom Navigation
-      bottomNavigationBar: Obx(
-        () => landingPagecontroller.isDeviceTablet.value
+      bottomNavigationBar: Obx(() {
+        return landingPagecontroller.isDeviceTablet.value
             ? const SizedBox.shrink()
-            : BottomMenu(),
-      ),
+            : BottomMenu(deactivatedIndex: widget.index);
+      }),
       body: Obx(() {
         return IndexedStack(
           index: landingPagecontroller.tabIndex.value,
@@ -314,29 +316,49 @@ class _EditGroupPageState extends State<EditGroupPage> {
                                     },
                                     optionsViewBuilder: (context,
                                         Function(String) onSelected, options) {
-                                      return Material(
-                                        elevation: 4,
-                                        child: ListView.separated(
-                                          padding: EdgeInsets.zero,
-                                          itemBuilder: (context, index) {
-                                            final option =
-                                                options.elementAt(index);
-                                            return ListTile(
-                                              title: Text(
-                                                  option.toString().trim()),
-                                              onTap: () {
-                                                editGroupController.addTags(
-                                                    option.toString().trim());
-                                                editGroupController.tagName
-                                                    .clear();
-                                                FocusScope.of(context)
-                                                    .unfocus();
+                                      return Align(
+                                        alignment: Alignment.topCenter,
+                                        child: Material(
+                                          color: const Color(bgColor),
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                                bottom: Radius.circular(4.0)),
+                                          ),
+                                          elevation: 4,
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width -
+                                                40,
+                                            child: ListView.separated(
+                                              padding: EdgeInsets.zero,
+                                              itemBuilder: (context, index) {
+                                                final option =
+                                                    options.elementAt(index);
+                                                return ListTile(
+                                                  title: Text(
+                                                    option.toString().trim(),
+                                                    style: const TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                  onTap: () {
+                                                    editGroupController.addTags(
+                                                        option
+                                                            .toString()
+                                                            .trim());
+                                                    editGroupController.tagName
+                                                        .clear();
+                                                    FocusScope.of(context)
+                                                        .unfocus();
+                                                  },
+                                                );
                                               },
-                                            );
-                                          },
-                                          separatorBuilder: (context, index) =>
-                                              const Divider(),
-                                          itemCount: options.length,
+                                              separatorBuilder:
+                                                  (context, index) =>
+                                                      const Divider(),
+                                              itemCount: options.length,
+                                            ),
+                                          ),
                                         ),
                                       );
                                     },
@@ -499,7 +521,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
                             ),
                           ),
                           const SizedBox(
-                            height: 50,
+                            height: 30,
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -558,7 +580,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
                             ],
                           ),
                           const SizedBox(
-                            height: 50,
+                            height: 10,
                           ),
                           IconButton(
                               onPressed: () {
@@ -716,29 +738,49 @@ class _EditGroupPageState extends State<EditGroupPage> {
                                     },
                                     optionsViewBuilder: (context,
                                         Function(String) onSelected, options) {
-                                      return Material(
-                                        elevation: 4,
-                                        child: ListView.separated(
-                                          padding: EdgeInsets.zero,
-                                          itemBuilder: (context, index) {
-                                            final option =
-                                                options.elementAt(index);
-                                            return ListTile(
-                                              title: Text(
-                                                  option.toString().trim()),
-                                              onTap: () {
-                                                editGroupController.addTags(
-                                                    option.toString().trim());
-                                                editGroupController.tagName
-                                                    .clear();
-                                                FocusScope.of(context)
-                                                    .unfocus();
+                                      return Align(
+                                        alignment: Alignment.topCenter,
+                                        child: Material(
+                                          color: const Color(bgColor),
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                                bottom: Radius.circular(4.0)),
+                                          ),
+                                          elevation: 4,
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width -
+                                                40,
+                                            child: ListView.separated(
+                                              padding: EdgeInsets.zero,
+                                              itemBuilder: (context, index) {
+                                                final option =
+                                                    options.elementAt(index);
+                                                return ListTile(
+                                                  title: Text(
+                                                    option.toString().trim(),
+                                                    style: const TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                  onTap: () {
+                                                    editGroupController.addTags(
+                                                        option
+                                                            .toString()
+                                                            .trim());
+                                                    editGroupController.tagName
+                                                        .clear();
+                                                    FocusScope.of(context)
+                                                        .unfocus();
+                                                  },
+                                                );
                                               },
-                                            );
-                                          },
-                                          separatorBuilder: (context, index) =>
-                                              const Divider(),
-                                          itemCount: options.length,
+                                              separatorBuilder:
+                                                  (context, index) =>
+                                                      const Divider(),
+                                              itemCount: options.length,
+                                            ),
+                                          ),
                                         ),
                                       );
                                     },
@@ -903,7 +945,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
                             ),
                           ),
                           const SizedBox(
-                            height: 50,
+                            height: 30,
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -962,7 +1004,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
                             ],
                           ),
                           const SizedBox(
-                            height: 50,
+                            height: 10,
                           ),
                           IconButton(
                               onPressed: () {

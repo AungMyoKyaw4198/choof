@@ -437,7 +437,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                 margin:
                                     const EdgeInsets.symmetric(vertical: 15),
                                 height:
-                                    MediaQuery.of(context).size.height / 8.5,
+                                    MediaQuery.of(context).size.height / 9.8,
                                 child: ListView(
                                     shrinkWrap: true,
                                     scrollDirection: Axis.horizontal,
@@ -580,25 +580,40 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                           },
                           optionsViewBuilder:
                               (context, Function(String) onSelected, options) {
-                            return Material(
-                              elevation: 4,
-                              child: ListView.separated(
-                                padding: EdgeInsets.zero,
-                                itemBuilder: (context, index) {
-                                  final option = options.elementAt(index);
-                                  return ListTile(
-                                    title: Text(option.toString().trim()),
-                                    onTap: () {
-                                      yourGroupsController
-                                          .addTags(option.toString().trim());
-                                      yourGroupsController.tagName.clear();
-                                      FocusScope.of(context).unfocus();
+                            return Align(
+                              alignment: Alignment.topCenter,
+                              child: Material(
+                                color: const Color(bgColor),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                      bottom: Radius.circular(4.0)),
+                                ),
+                                elevation: 4,
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width - 40,
+                                  child: ListView.separated(
+                                    padding: EdgeInsets.zero,
+                                    itemBuilder: (context, index) {
+                                      final option = options.elementAt(index);
+                                      return ListTile(
+                                        title: Text(
+                                          option.toString().trim(),
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
+                                        onTap: () {
+                                          yourGroupsController.addTags(
+                                              option.toString().trim());
+                                          yourGroupsController.tagName.clear();
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                      );
                                     },
-                                  );
-                                },
-                                separatorBuilder: (context, index) =>
-                                    const Divider(),
-                                itemCount: options.length,
+                                    separatorBuilder: (context, index) =>
+                                        const Divider(),
+                                    itemCount: options.length,
+                                  ),
+                                ),
                               ),
                             );
                           },
@@ -680,8 +695,8 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                       ),
                       // Sorting Container
                       Container(
-                        height: MediaQuery.of(context).size.height / 20,
-                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        height: MediaQuery.of(context).size.height / 30,
+                        margin: const EdgeInsets.symmetric(vertical: 15),
                         child: ListView(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
@@ -770,7 +785,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                 height: MediaQuery.of(context)
                                                         .size
                                                         .height /
-                                                    20,
+                                                    30,
                                                 decoration: const BoxDecoration(
                                                     color: Color(bgColor),
                                                     borderRadius:
@@ -779,15 +794,16 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                                                 30))),
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                        vertical: 10,
                                                         horizontal: 20),
-                                                child: Text(
-                                                  yourGroupsController
-                                                      .filteredTags[index],
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold),
+                                                child: Center(
+                                                  child: Text(
+                                                    yourGroupsController
+                                                        .filteredTags[index],
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
                                                 ),
                                               ),
                                               InkWell(

@@ -35,6 +35,8 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
   @override
   void initState() {
     editVideoController.setInitialPost(widget.post);
+    landingPagecontroller.incrementBackIndex();
+
     super.initState();
   }
 
@@ -174,11 +176,11 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                     )),
         ),
         // Bottom Navigation
-        bottomNavigationBar: Obx(
-          () => landingPagecontroller.isDeviceTablet.value
+        bottomNavigationBar: Obx(() {
+          return landingPagecontroller.isDeviceTablet.value
               ? const SizedBox.shrink()
-              : BottomMenu(),
-        ),
+              : BottomMenu(deactivatedIndex: widget.index);
+        }),
         body: Obx(() => IndexedStack(
               index: landingPagecontroller.tabIndex.value,
               children: [
@@ -589,7 +591,7 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                 ),
                               ),
                               const SizedBox(
-                                height: 50,
+                                height: 30,
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -633,7 +635,7 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                               ),
 
                               const SizedBox(
-                                height: 50,
+                                height: 10,
                               ),
                               IconButton(
                                   onPressed: () {
@@ -1068,7 +1070,7 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                 ),
                               ),
                               const SizedBox(
-                                height: 50,
+                                height: 30,
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1111,7 +1113,7 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                 ],
                               ),
                               const SizedBox(
-                                height: 50,
+                                height: 10,
                               ),
                               IconButton(
                                   onPressed: () {

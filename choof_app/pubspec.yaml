@@ -43,7 +43,7 @@ dependencies:
   flutter_launcher_icons: ^0.9.3
   
 flutter_icons:
-  android: true
+  android: false
   ios: false
   image_path: "assets/logos/ic_launcher.png"
   # adaptive_icon_foreground: "assets/logos/ic_launcher.png"

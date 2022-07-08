@@ -72,6 +72,7 @@ class _FullScreenPageState extends State<FullScreenPage>
         mute: false,
       ),
     );
+    landingPagecontroller.incrementBackIndex();
 
     super.initState();
   }
@@ -119,11 +120,11 @@ class _FullScreenPageState extends State<FullScreenPage>
       ),
       builder: (context, player) => Scaffold(
         // Bottom Navigation
-        bottomNavigationBar: Obx(
-          () => landingPagecontroller.isDeviceTablet.value
+        bottomNavigationBar: Obx(() {
+          return landingPagecontroller.isDeviceTablet.value
               ? const SizedBox.shrink()
-              : BottomMenu(),
-        ),
+              : BottomMenu(deactivatedIndex: widget.index);
+        }),
         body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
@@ -870,10 +871,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                           children: [
                                                                             TextButton(
                                                                                 onPressed: () {
-                                                                                  fullScreenController.deleteComment();
-                                                                                  fullScreenController.clearEditingMode();
-                                                                                  FocusScope.of(context).unfocus();
-                                                                                  widget.commentController.clear();
+                                                                                  fullScreenController.deleteComment(widget.commentController, context);
                                                                                   setState(() {});
                                                                                 },
                                                                                 child: const Text('Delete', style: TextStyle(color: Colors.red))),
@@ -886,11 +884,9 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                             TextButton(
                                                                                 onPressed: () {
                                                                                   if (fullScreenController.editingController.text != fullScreenController.editingComment.value.commentText) {
-                                                                                    fullScreenController.editComment();
+                                                                                    fullScreenController.editComment(widget.commentController, context);
                                                                                   }
-                                                                                  fullScreenController.clearEditingMode();
-                                                                                  FocusScope.of(context).unfocus();
-                                                                                  widget.commentController.clear();
+
                                                                                   setState(() {});
                                                                                 },
                                                                                 child: const Text(
@@ -1715,10 +1711,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                           children: [
                                                                             TextButton(
                                                                                 onPressed: () {
-                                                                                  fullScreenController.deleteComment();
-                                                                                  fullScreenController.clearEditingMode();
-                                                                                  FocusScope.of(context).unfocus();
-                                                                                  widget.commentController.clear();
+                                                                                  fullScreenController.deleteComment(widget.commentController, context);
                                                                                   setState(() {});
                                                                                 },
                                                                                 child: const Text('Delete', style: TextStyle(color: Colors.red))),
@@ -1731,7 +1724,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                             TextButton(
                                                                                 onPressed: () {
                                                                                   if (fullScreenController.editingController.text != fullScreenController.editingComment.value.commentText) {
-                                                                                    fullScreenController.editComment();
+                                                                                    fullScreenController.editComment(widget.commentController, context);
                                                                                   }
                                                                                   fullScreenController.clearEditingMode();
                                                                                   FocusScope.of(context).unfocus();

@@ -49,6 +49,17 @@ class LandingPageController extends GetxController {
 
   final autoTags = <String>[].obs;
 
+  final backIndex = 0.obs;
+
+  incrementBackIndex() {
+    int value = backIndex.value + 1;
+    backIndex(value);
+  }
+
+  setBackIndex(int index) {
+    backIndex(index);
+  }
+
   setIsDeviceTablet(bool value) {
     isDeviceTablet(value);
   }
@@ -256,12 +267,19 @@ class LandingPageController extends GetxController {
   }
 
   unBlockUser(String name) async {
+    Get.back();
     loadingDialog();
     // Update current user
     Profile newProfile = userProfile.value;
-    newProfile.blockedUsers!.remove(name);
+    List<String> metaBlockedUsers = newProfile.blockedUsers!;
+    for (int i = 0; i < newProfile.blockedUsers!.length; i++) {
+      if (newProfile.blockedUsers![i].trim() == name) {
+        metaBlockedUsers.removeAt(i);
+      }
+    }
+    newProfile.blockedUsers = metaBlockedUsers;
     userProfile(newProfile);
-    _registeredUsers.doc(newProfile.docId).update(newProfile.toJson());
+    await _registeredUsers.doc(newProfile.docId).update(newProfile.toJson());
 
     // Update blocked User
     QuerySnapshot<Object?> querySnapshot =
@@ -271,13 +289,23 @@ class LandingPageController extends GetxController {
         Profile reportedUser =
             Profile.fromJson(element.data() as Map<String, dynamic>);
         reportedUser.docId = element.id;
+
         if (reportedUser.blockByUsers != null) {
-          reportedUser.blockByUsers!.remove(name);
+          List<String> metaUsers = reportedUser.blockByUsers!;
+          for (int i = 0; i < reportedUser.blockByUsers!.length; i++) {
+            if (reportedUser.blockByUsers![i].trim() ==
+                userProfile.value.name.trim()) {
+              metaUsers.removeAt(i);
+            }
+          }
+          reportedUser.blockByUsers = metaUsers;
         } else {
           reportedUser.blockByUsers = [];
         }
         storeUserProfile(reportedUser);
-        _registeredUsers.doc(reportedUser.docId).update(reportedUser.toJson());
+        await _registeredUsers
+            .doc(reportedUser.docId)
+            .update(reportedUser.toJson());
       }
     }
 
@@ -461,7 +489,7 @@ class LandingPageController extends GetxController {
             imageUrl: 'https://graph.facebook.com/4892879454127549/picture',
             allowNotifications: true,
             isInvited: true);
-        _registeredUsers.add(invitedUser.toJson());
+        await _registeredUsers.add(invitedUser.toJson());
         currentGroup.members.add(email);
         updateGroupUser(currentGroup);
       } else {
@@ -504,7 +532,7 @@ class LandingPageController extends GetxController {
     setData('allow', '');
     setData('isInvited', '');
     setData('blockByUsers', '');
-    setData('blockedUsers', '');
+    setData('notiTime', '');
   }
 
   setUserFromStorage() {
@@ -601,10 +629,23 @@ class LandingPageController extends GetxController {
 
   updateGroupUser(Group group) async {
     try {
+      loadingDialog();
       isFilter(false);
-      _groups.doc(group.docId).update(group.toJson());
-      getAllUsers(group);
+      Group currentGroup = group;
+      QuerySnapshot<Object?> postSnapshot =
+          await _groups.where('name', isEqualTo: group.name).get();
+      if (postSnapshot.docs.isNotEmpty) {
+        currentGroup.docId = postSnapshot.docs.first.id;
+        await _groups
+            .doc(currentGroup.docId)
+            .update(currentGroup.toJson())
+            .then((value) {
+          Get.back();
+          getAllUsers(currentGroup);
+        });
+      }
     } catch (e) {
+      Get.back();
       Get.snackbar(
         "Something went wrong!",
         "Please try again later.",

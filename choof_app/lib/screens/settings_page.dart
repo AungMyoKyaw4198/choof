@@ -46,10 +46,13 @@ class SettingsPage extends StatelessWidget {
         height: MediaQuery.of(context).size.height,
         color: const Color(mainBgColor),
         child: Obx(() => Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Padding(
+                Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                  margin: const EdgeInsets.symmetric(vertical: 30),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -72,9 +75,6 @@ class SettingsPage extends StatelessWidget {
                       )
                     ],
                   ),
-                ),
-                const SizedBox(
-                  height: 50,
                 ),
                 // Sign Out
                 Padding(

@@ -25,8 +25,7 @@ class VideoWidget extends StatefulWidget {
   final bool isInsideGroup;
   final Function reportFunction;
   final List<Comment> commentList;
-  final TextEditingController textController;
-  final Function commentFunction;
+  final Function(String) commentFunction;
   final Function viewCommentFunction;
   const VideoWidget(
       {Key? key,
@@ -37,7 +36,6 @@ class VideoWidget extends StatefulWidget {
       required this.isInsideGroup,
       required this.reportFunction,
       required this.commentList,
-      required this.textController,
       required this.commentFunction,
       required this.viewCommentFunction})
       : super(key: key);
@@ -47,6 +45,7 @@ class VideoWidget extends StatefulWidget {
 }
 
 class _VideoWidgetState extends State<VideoWidget> {
+  final TextEditingController controller = TextEditingController();
   bool isHide = true;
   bool textFieldExpanded = false;
 
@@ -901,6 +900,8 @@ class _VideoWidgetState extends State<VideoWidget> {
                         Expanded(
                           child: InkWell(
                             onTap: () {
+                              controller.clear();
+                              // widget.textController.clear();
                               widget.viewGroupFunc();
                             },
                             child: Text(
@@ -1019,7 +1020,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                     expands: true,
                     maxLines: null,
                     style: const TextStyle(color: Colors.white),
-                    controller: widget.textController,
+                    controller: controller,
                     onChanged: (e) {
                       int numLines = '\n'.allMatches(e).length + 1;
                       if (numLines > 1 || e.length > 30) {
@@ -1033,7 +1034,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                       }
                     },
                     onSubmitted: (value) {
-                      widget.commentFunction();
+                      widget.commentFunction(controller.text);
                       setState(() {
                         textFieldExpanded = false;
                       });
@@ -1041,7 +1042,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                     decoration: InputDecoration(
                       hintText: 'Add a comment...',
                       hintStyle: const TextStyle(color: Colors.white70),
-                      contentPadding: const EdgeInsets.all(3),
+                      contentPadding: const EdgeInsets.only(top: 6, left: 3),
                       filled: true,
                       fillColor: const Color(bgColor),
                       suffixIcon: Padding(
@@ -1056,9 +1057,10 @@ class _VideoWidgetState extends State<VideoWidget> {
                             color: Colors.white24,
                           ),
                           onTap: () {
-                            widget.commentFunction();
+                            widget.commentFunction(controller.text);
                             setState(() {
                               textFieldExpanded = false;
+                              controller.clear();
                             });
                           },
                         ),
@@ -1363,7 +1365,8 @@ infoDialog(
 }
 
 class BottomMenu extends StatelessWidget {
-  BottomMenu({Key? key}) : super(key: key);
+  final int? deactivatedIndex;
+  BottomMenu({Key? key, this.deactivatedIndex}) : super(key: key);
   final landingPagecontroller = Get.find<LandingPageController>();
 
   @override
@@ -1375,11 +1378,25 @@ class BottomMenu extends StatelessWidget {
             child: BottomNavigationBar(
               showUnselectedLabels: true,
               showSelectedLabels: true,
-              onTap: landingPagecontroller.changeTabIndex,
+              onTap: (index) {
+                landingPagecontroller.changeTabIndex(index);
+                if (index == deactivatedIndex) {
+                  for (int i = 0;
+                      i < landingPagecontroller.backIndex.value;
+                      i++) {
+                    Get.back();
+                  }
+                  landingPagecontroller.setBackIndex(0);
+                }
+              },
               currentIndex: landingPagecontroller.tabIndex.value,
               backgroundColor: const Color(bgColor),
               unselectedItemColor: Colors.white.withOpacity(0.5),
-              selectedItemColor: const Color(mainColor),
+              selectedItemColor: deactivatedIndex != null
+                  ? landingPagecontroller.tabIndex.value == deactivatedIndex
+                      ? Colors.white.withOpacity(0.5)
+                      : const Color(mainColor)
+                  : const Color(mainColor),
               items: [
                 BottomNavigationBarItem(
                   icon: Image.asset(
@@ -1387,12 +1404,22 @@ class BottomMenu extends StatelessWidget {
                     width: 30,
                     height: 30,
                   ),
-                  activeIcon: Image.asset(
-                    'assets/icons/Favorite.png',
-                    width: 30,
-                    height: 30,
-                    color: const Color(mainColor),
-                  ),
+                  activeIcon: deactivatedIndex != null
+                      ? deactivatedIndex == 0
+                          ? Image.asset('assets/icons/Favorite.png',
+                              width: 30, height: 30)
+                          : Image.asset(
+                              'assets/icons/Favorite.png',
+                              width: 30,
+                              height: 30,
+                              color: const Color(mainColor),
+                            )
+                      : Image.asset(
+                          'assets/icons/Favorite.png',
+                          width: 30,
+                          height: 30,
+                          color: const Color(mainColor),
+                        ),
                   label: 'Favorites',
                 ),
                 BottomNavigationBarItem(
@@ -1401,12 +1428,25 @@ class BottomMenu extends StatelessWidget {
                     width: 30,
                     height: 30,
                   ),
-                  activeIcon: Image.asset(
-                    'assets/icons/Users.png',
-                    width: 30,
-                    height: 30,
-                    color: const Color(mainColor),
-                  ),
+                  activeIcon: deactivatedIndex != null
+                      ? deactivatedIndex == 1
+                          ? Image.asset(
+                              'assets/icons/Users.png',
+                              width: 30,
+                              height: 30,
+                            )
+                          : Image.asset(
+                              'assets/icons/Users.png',
+                              width: 30,
+                              height: 30,
+                              color: const Color(mainColor),
+                            )
+                      : Image.asset(
+                          'assets/icons/Users.png',
+                          width: 30,
+                          height: 30,
+                          color: const Color(mainColor),
+                        ),
                   label: 'Groups',
                 ),
                 BottomNavigationBarItem(

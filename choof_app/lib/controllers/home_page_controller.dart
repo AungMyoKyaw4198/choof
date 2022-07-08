@@ -299,92 +299,91 @@ class HomePageController extends GetxController {
     List<DateTime> dates = [];
 
     if (landingPagecontroller.userProfile.value.name != 'test') {
-      Stream<QuerySnapshot<Object?>> querySnapshot = _notifications.snapshots();
-      querySnapshot.forEach((QuerySnapshot snapshot) {
-        if (snapshot.docs.isNotEmpty) {
-          for (int i = 0; i < snapshot.docs.length; i++) {
-            // Notifications has for you
-            if (snapshot.docs[i]['groupMembers']
-                    .toString()
-                    .contains(landingPagecontroller.userProfile.value.name) &&
-                snapshot.docs[i]['sender'] !=
-                    landingPagecontroller.userProfile.value.name) {
-              final currentNotis = Noti.fromJson(
-                  snapshot.docs[i].data() as Map<String, dynamic>);
-              // Check time is after
-              if (latest != '') {
-                DateTime latestDateTime = DateTime.parse(latest);
-                if (currentNotis.sentTime.isAfter(latestDateTime)) {
-                  senderNames.add(currentNotis.sender.trim());
-                  notiList.add(currentNotis);
-                  dates.add(currentNotis.sentTime);
-                }
-              } else {
+      QuerySnapshot<Object?> snapshot = await _notifications.get();
+      if (snapshot.docs.isNotEmpty) {
+        // querySnapshot.docs.forEach((snapshot) {
+        for (int i = 0; i < snapshot.docs.length; i++) {
+          // Notifications has for you
+          if (snapshot.docs[i]['groupMembers']
+                  .toString()
+                  .contains(landingPagecontroller.userProfile.value.name) &&
+              snapshot.docs[i]['sender'] !=
+                  landingPagecontroller.userProfile.value.name.trim()) {
+            final currentNotis =
+                Noti.fromJson(snapshot.docs[i].data() as Map<String, dynamic>);
+            // Check time is after
+            if (latest != '') {
+              DateTime latestDateTime = DateTime.parse(latest);
+              if (currentNotis.sentTime.isAfter(latestDateTime)) {
                 senderNames.add(currentNotis.sender.trim());
                 notiList.add(currentNotis);
                 dates.add(currentNotis.sentTime);
               }
+            } else {
+              senderNames.add(currentNotis.sender.trim());
+              notiList.add(currentNotis);
+              dates.add(currentNotis.sentTime);
             }
+          }
 
-            if (i == snapshot.docs.length - 1) {
-              if (senderNames.isNotEmpty) {
-                List<String> metaSenders = senderNames;
-                var set = Set<String>();
-                List<String> uniquelist = metaSenders
-                    .where((creator) => set.add(creator.trim()))
-                    .toList();
-                senderNames = uniquelist;
+          if (i == snapshot.docs.length - 1) {
+            if (senderNames.isNotEmpty) {
+              List<String> metaSenders = senderNames;
+              var set = Set<String>();
+              List<String> uniquelist = metaSenders
+                  .where((creator) => set.add(creator.trim()))
+                  .toList();
+              senderNames = uniquelist;
 
-                if (notiList.isNotEmpty) {
-                  // remove deuplicate groups
-                  var seen = Set<String>();
-                  List<Noti> uniquelist2 = notiList
-                      .where((noti) => seen.add(noti.groupName))
-                      .toList();
-                  notiList = uniquelist2;
-                  // ---------------------
-                  for (int i = 0; i < senderNames.length; i++) {
-                    groupNames = '';
-                    notiList.forEach((noti) {
-                      if (noti.sender.trim() == senderNames[i]) {
-                        groupNames += noti.groupName + ';';
-                      }
-                    });
-                    String payloadName = 'Notification';
-                    if (landingPagecontroller
-                        .userProfile.value.allowNotifications) {
-                      if (groupNames.length > 1) {
-                        NotificationService.showNotification(
-                            body:
-                                '${senderNames[i]} has some recommendation for you in the Choof groups: ${groupNames.substring(0, groupNames.length - 1)}',
-                            payload: payloadName);
-                      } else {
-                        NotificationService.showNotification(
-                            body:
-                                '${senderNames[i]} has some recommendation for you in the Choof group: ${groupNames.substring(0, groupNames.length - 1)}',
-                            payload: payloadName);
-                      }
+              if (notiList.isNotEmpty) {
+                // remove deuplicate groups
+                var seen = Set<String>();
+                List<Noti> uniquelist2 =
+                    notiList.where((noti) => seen.add(noti.groupName)).toList();
+                notiList = uniquelist2;
+                // ---------------------
+                for (int i = 0; i < senderNames.length; i++) {
+                  groupNames = '';
+                  notiList.forEach((noti) {
+                    if (noti.sender.trim() == senderNames[i]) {
+                      groupNames += noti.groupName.contains('#')
+                          ? noti.groupName
+                              .substring(0, noti.groupName.indexOf('#'))
+                          : noti.groupName + ';';
+                    }
+                  });
+                  String payloadName = 'Notification';
+                  if (landingPagecontroller
+                      .userProfile.value.allowNotifications) {
+                    if (notiList.length > 1) {
+                      NotificationService.showNotification(
+                          body:
+                              '${senderNames[i]} has some recommendations for you in the Choof groups: ${groupNames.substring(0, groupNames.length - 1)}',
+                          payload: payloadName);
+                    } else {
+                      NotificationService.showNotification(
+                          body:
+                              '${senderNames[i]} has some recommendations for you in the Choof group: ${groupNames.substring(0, groupNames.length - 1)}',
+                          payload: payloadName);
                     }
                   }
                 }
               }
             }
           }
-          if (dates.isNotEmpty) {
-            final maxDate = dates.reduce((a, b) => a.isAfter(b) ? a : b);
-            GetStorage().write('notiTime', maxDate.toString());
-          }
         }
-      });
+        if (dates.isNotEmpty) {
+          final maxDate = dates.reduce((a, b) => a.isAfter(b) ? a : b);
+          GetStorage().write('notiTime', maxDate.toString());
+        }
+      }
     }
   }
 
   // Add Comment
   addComment(Comment commet) async {
     try {
-      loadingDialog();
       await _allComments.add(commet.toJson());
-      Get.back();
     } catch (e) {
       Get.back();
       Get.snackbar(

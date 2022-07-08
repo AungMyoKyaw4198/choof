@@ -157,7 +157,7 @@ class AddVideoContoller extends GetxController {
           creatorImageUrl: landingPagecontroller.userProfile.value.imageUrl,
           addedTime: DateTime.now(),
           groupName: groupName.value);
-      await _allPosts.add(currentPost.toJson());
+
       // Get current Group
       QuerySnapshot<Object?> groupSnapshot = await _groups
           .where('name', isEqualTo: currentGroup.value.name)
@@ -180,13 +180,17 @@ class AddVideoContoller extends GetxController {
               groupMembers: groupMembers,
               sentTime: DateTime.now())
           .toJson());
-      Get.back();
-      if (isFromFavPage) {
-        setCurrentGroup(usergroupList.first);
-      }
-      Get.back();
-      favController.refreshPosts();
-      yourGroupsController.refreshGroups();
+
+      // Add Function
+      await _allPosts.add(currentPost.toJson()).then((value) {
+        Get.back();
+        if (isFromFavPage) {
+          setCurrentGroup(usergroupList.first);
+        }
+        Get.back();
+        favController.refreshPosts();
+        yourGroupsController.refreshGroups();
+      });
 
       return true;
     } catch (e) {

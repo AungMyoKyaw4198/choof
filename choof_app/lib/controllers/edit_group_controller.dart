@@ -60,6 +60,7 @@ class EditGroupContoller extends GetxController {
       if (groupName.text.trim() != realName.trim()) {
         await whenNameisEdited(initialGroup, currGroup, finalName)
             .then((value) {
+          print(value);
           if (value) {
             favController.refreshPosts();
             yourGroupsController.refreshGroups();
@@ -162,7 +163,7 @@ class EditGroupContoller extends GetxController {
       }
       //-----------
 
-      if (currGroup.docId!.isNotEmpty) {
+      if (currGroup.docId != null) {
         currGroup.name = finalName;
         currGroup.tags = tags;
         currGroup.lastUpdatedTime = DateTime.now();
@@ -231,7 +232,7 @@ class EditGroupContoller extends GetxController {
       }
       // -------------------
 
-      if (currGroup.docId!.isNotEmpty) {
+      if (currGroup.docId != null) {
         currGroup.name = initialGroup.name;
         currGroup.tags = tags;
         currGroup.lastUpdatedTime = DateTime.now();

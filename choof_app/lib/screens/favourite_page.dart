@@ -39,8 +39,8 @@ class _FavouritePageState extends State<FavouritePage> {
 
   @override
   void initState() {
+    homePageController.getNotifications();
     if (widget.isFirstTime) {
-      homePageController.getNotifications();
       homePageController.getAllPost();
     }
 
@@ -488,7 +488,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                 margin:
                                     const EdgeInsets.symmetric(vertical: 15),
                                 height:
-                                    MediaQuery.of(context).size.height / 8.5,
+                                    MediaQuery.of(context).size.height / 9.8,
                                 child: ListView(
                                     shrinkWrap: true,
                                     scrollDirection: Axis.horizontal,
@@ -635,25 +635,40 @@ class _FavouritePageState extends State<FavouritePage> {
                           },
                           optionsViewBuilder:
                               (context, Function(String) onSelected, options) {
-                            return Material(
-                              elevation: 4,
-                              child: ListView.separated(
-                                padding: EdgeInsets.zero,
-                                itemBuilder: (context, index) {
-                                  final option = options.elementAt(index);
-                                  return ListTile(
-                                    title: Text(option.toString().trim()),
-                                    onTap: () {
-                                      homePageController
-                                          .addTags(option.toString());
-                                      homePageController.tagName.clear();
-                                      FocusScope.of(context).unfocus();
+                            return Align(
+                              alignment: Alignment.topCenter,
+                              child: Material(
+                                color: const Color(bgColor),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                      bottom: Radius.circular(4.0)),
+                                ),
+                                elevation: 4,
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width - 40,
+                                  child: ListView.separated(
+                                    padding: EdgeInsets.zero,
+                                    itemBuilder: (context, index) {
+                                      final option = options.elementAt(index);
+                                      return ListTile(
+                                        title: Text(
+                                          option.toString().trim(),
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
+                                        onTap: () {
+                                          homePageController
+                                              .addTags(option.toString());
+                                          homePageController.tagName.clear();
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                      );
                                     },
-                                  );
-                                },
-                                separatorBuilder: (context, index) =>
-                                    const Divider(),
-                                itemCount: options.length,
+                                    separatorBuilder: (context, index) =>
+                                        const Divider(),
+                                    itemCount: options.length,
+                                  ),
+                                ),
                               ),
                             );
                           },
@@ -736,8 +751,8 @@ class _FavouritePageState extends State<FavouritePage> {
 
                       // Sorting Container
                       Container(
-                        height: MediaQuery.of(context).size.height / 20,
-                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        height: MediaQuery.of(context).size.height / 30,
+                        margin: const EdgeInsets.symmetric(vertical: 15),
                         child: ListView(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
@@ -827,7 +842,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                                 height: MediaQuery.of(context)
                                                         .size
                                                         .height /
-                                                    20,
+                                                    30,
                                                 decoration: const BoxDecoration(
                                                     color: Color(bgColor),
                                                     borderRadius:
@@ -836,15 +851,16 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                 30))),
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                        vertical: 10,
                                                         horizontal: 20),
-                                                child: Text(
-                                                  homePageController
-                                                      .filteredTags[index],
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold),
+                                                child: Center(
+                                                  child: Text(
+                                                    homePageController
+                                                        .filteredTags[index],
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
                                                 ),
                                               ),
                                               InkWell(
@@ -1000,8 +1016,11 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                 isViewComment:
                                                                     false,
                                                               ))!
-                                                          .then((value) =>
-                                                              _pullRefresh());
+                                                          .then((value) {
+                                                        _pullRefresh();
+                                                        commentController
+                                                            .clear();
+                                                      });
                                                     },
                                                     child: VideoWidget(
                                                       post: currentPosts[index],
@@ -1056,11 +1075,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                                           currentPosts[index]
                                                                   .comments ??
                                                               [],
-                                                      textController:
-                                                          commentController,
-                                                      commentFunction: () {
+                                                      commentFunction: (value) {
                                                         homePageController.addComment(Comment(
-                                                            postName: currentPosts[index]
+                                                            postName: currentPosts[
+                                                                    index]
                                                                 .name,
                                                             postLink:
                                                                 currentPosts[index]
@@ -1081,16 +1099,14 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                     .userProfile
                                                                     .value
                                                                     .imageUrl,
-                                                            commentText:
-                                                                commentController
-                                                                    .text,
+                                                            commentText: value,
                                                             addedTime: DateTime
                                                                 .now()));
-                                                        commentController
-                                                            .clear();
                                                         _pullRefresh();
                                                       },
                                                       viewCommentFunction: () {
+                                                        commentController
+                                                            .clear();
                                                         Get.to(() =>
                                                                 FullScreenPage(
                                                                   index: 0,
@@ -1140,13 +1156,17 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                   isViewComment:
                                                                       true,
                                                                 ))!
-                                                            .then((value) =>
-                                                                _pullRefresh());
+                                                            .then((value) {
+                                                          _pullRefresh();
+                                                          commentController
+                                                              .clear();
+                                                        });
                                                       },
                                                     ),
                                                   )
                                             : InkWell(
                                                 onTap: () {
+                                                  commentController.clear();
                                                   Get.to(() => FullScreenPage(
                                                             index: 0,
                                                             post: currentPosts[
@@ -1197,8 +1217,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                                             isViewComment:
                                                                 false,
                                                           ))!
-                                                      .then((value) =>
-                                                          _pullRefresh());
+                                                      .then((value) {
+                                                    _pullRefresh();
+                                                    commentController.clear();
+                                                  });
                                                 },
                                                 child: VideoWidget(
                                                   post: currentPosts[index],
@@ -1249,9 +1271,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                                       currentPosts[index]
                                                               .comments ??
                                                           [],
-                                                  textController:
-                                                      commentController,
-                                                  commentFunction: () {
+                                                  commentFunction: (value) {
                                                     homePageController.addComment(Comment(
                                                         postName: currentPosts[
                                                                 index]
@@ -1262,8 +1282,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                                         postCreator:
                                                             currentPosts[index]
                                                                 .creator,
-                                                        postGroup: currentPosts[index]
-                                                            .groupName,
+                                                        postGroup:
+                                                            currentPosts[
+                                                                    index]
+                                                                .groupName,
                                                         commenter:
                                                             landingPagecontroller
                                                                 .userProfile
@@ -1274,15 +1296,13 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                 .userProfile
                                                                 .value
                                                                 .imageUrl,
-                                                        commentText:
-                                                            commentController
-                                                                .text,
+                                                        commentText: value,
                                                         addedTime:
                                                             DateTime.now()));
-                                                    commentController.clear();
                                                     _pullRefresh();
                                                   },
                                                   viewCommentFunction: () {
+                                                    commentController.clear();
                                                     Get.to(() => FullScreenPage(
                                                               index: 0,
                                                               post:
@@ -1331,8 +1351,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                                               isViewComment:
                                                                   true,
                                                             ))!
-                                                        .then((value) =>
-                                                            _pullRefresh());
+                                                        .then((value) {
+                                                      _pullRefresh();
+                                                      commentController.clear();
+                                                    });
                                                   },
                                                 ),
                                               );
@@ -1368,6 +1390,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                                 ? const SizedBox.shrink()
                                                 : InkWell(
                                                     onTap: () {
+                                                      commentController.clear();
                                                       Get.to(() =>
                                                               FullScreenPage(
                                                                 index: 0,
@@ -1418,8 +1441,11 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                 isViewComment:
                                                                     false,
                                                               ))!
-                                                          .then((value) =>
-                                                              _pullRefresh());
+                                                          .then((value) {
+                                                        _pullRefresh();
+                                                        commentController
+                                                            .clear();
+                                                      });
                                                     },
                                                     child: VideoWidget(
                                                       post: currentPosts[index],
@@ -1474,11 +1500,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                                           currentPosts[index]
                                                                   .comments ??
                                                               [],
-                                                      textController:
-                                                          commentController,
-                                                      commentFunction: () {
+                                                      commentFunction: (value) {
                                                         homePageController.addComment(Comment(
-                                                            postName: currentPosts[index]
+                                                            postName: currentPosts[
+                                                                    index]
                                                                 .name,
                                                             postLink:
                                                                 currentPosts[index]
@@ -1499,16 +1524,14 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                     .userProfile
                                                                     .value
                                                                     .imageUrl,
-                                                            commentText:
-                                                                commentController
-                                                                    .text,
+                                                            commentText: value,
                                                             addedTime: DateTime
                                                                 .now()));
-                                                        commentController
-                                                            .clear();
                                                         _pullRefresh();
                                                       },
                                                       viewCommentFunction: () {
+                                                        commentController
+                                                            .clear();
                                                         Get.to(() =>
                                                                 FullScreenPage(
                                                                   index: 0,
@@ -1558,13 +1581,17 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                   isViewComment:
                                                                       true,
                                                                 ))!
-                                                            .then((value) =>
-                                                                _pullRefresh());
+                                                            .then((value) {
+                                                          _pullRefresh();
+                                                          commentController
+                                                              .clear();
+                                                        });
                                                       },
                                                     ),
                                                   )
                                             : InkWell(
                                                 onTap: () {
+                                                  commentController.clear();
                                                   Get.to(() => FullScreenPage(
                                                             index: 0,
                                                             post: currentPosts[
@@ -1615,8 +1642,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                                             isViewComment:
                                                                 false,
                                                           ))!
-                                                      .then((value) =>
-                                                          _pullRefresh());
+                                                      .then((value) {
+                                                    _pullRefresh();
+                                                    commentController.clear();
+                                                  });
                                                 },
                                                 child: VideoWidget(
                                                   post: currentPosts[index],
@@ -1667,9 +1696,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                                       currentPosts[index]
                                                               .comments ??
                                                           [],
-                                                  textController:
-                                                      commentController,
-                                                  commentFunction: () {
+                                                  commentFunction: (value) {
                                                     homePageController.addComment(Comment(
                                                         postName: currentPosts[
                                                                 index]
@@ -1680,8 +1707,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                                         postCreator:
                                                             currentPosts[index]
                                                                 .creator,
-                                                        postGroup: currentPosts[index]
-                                                            .groupName,
+                                                        postGroup:
+                                                            currentPosts[
+                                                                    index]
+                                                                .groupName,
                                                         commenter:
                                                             landingPagecontroller
                                                                 .userProfile
@@ -1692,15 +1721,13 @@ class _FavouritePageState extends State<FavouritePage> {
                                                                 .userProfile
                                                                 .value
                                                                 .imageUrl,
-                                                        commentText:
-                                                            commentController
-                                                                .text,
+                                                        commentText: value,
                                                         addedTime:
                                                             DateTime.now()));
-                                                    commentController.clear();
                                                     _pullRefresh();
                                                   },
                                                   viewCommentFunction: () {
+                                                    commentController.clear();
                                                     Get.to(() => FullScreenPage(
                                                               index: 0,
                                                               post:
@@ -1749,8 +1776,10 @@ class _FavouritePageState extends State<FavouritePage> {
                                                               isViewComment:
                                                                   true,
                                                             ))!
-                                                        .then((value) =>
-                                                            _pullRefresh());
+                                                        .then((value) {
+                                                      _pullRefresh();
+                                                      commentController.clear();
+                                                    });
                                                   },
                                                 ),
                                               );

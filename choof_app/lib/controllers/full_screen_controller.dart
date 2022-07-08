@@ -90,26 +90,45 @@ class FullScreenController extends GetxController {
     editingTextFieldExpanded(false);
   }
 
-  editComment() async {
+  editComment(
+      TextEditingController commentController, BuildContext context) async {
     try {
       loadingDialog();
+
       // Edit Comment
       Comment metaComment = editingComment.value;
+      // If document id is empty
+      if (metaComment.docId == null) {
+        QuerySnapshot<Object?> querySnapshot = await _allComments
+            .where('postName', isEqualTo: post.value.name)
+            .where('postLink', isEqualTo: post.value.youtubeLink)
+            .where('postCreator', isEqualTo: post.value.creator)
+            .where('postGroup', isEqualTo: post.value.groupName)
+            .get();
+        if (querySnapshot.docs.isNotEmpty) {
+          metaComment.docId = querySnapshot.docs.first.id;
+        }
+      }
       metaComment.commentText = editingController.text;
       metaComment.addedTime = DateTime.now();
-      await _allComments.doc(metaComment.docId).update(metaComment.toJson());
-      // Modify Post Comments
-      Post currentPost = post.value;
-      currentPost.comments!.forEach((element) {
-        if (element.commentText == editingComment.value.commentText &&
-            element.commenter == editingComment.value.commenter) {
-          element = metaComment;
-        }
+      await _allComments
+          .doc(metaComment.docId)
+          .update(metaComment.toJson())
+          .then((value) {
+        // Modify Post Comments
+        Post currentPost = post.value;
+        currentPost.comments!.forEach((element) {
+          if (element.commentText == editingComment.value.commentText &&
+              element.commenter == editingComment.value.commenter) {
+            element = metaComment;
+          }
+        });
+        post(currentPost);
+        clearEditingMode();
+        FocusScope.of(context).unfocus();
+        commentController.clear();
+        Get.back();
       });
-      post(currentPost);
-      // Edit Finish
-      // clearEditingMode();
-      Get.back();
     } catch (e) {
       Get.back();
       Get.snackbar(
@@ -121,11 +140,24 @@ class FullScreenController extends GetxController {
     }
   }
 
-  deleteComment() async {
+  deleteComment(
+      TextEditingController commentController, BuildContext context) async {
     try {
       loadingDialog();
       // Edit Comment
       Comment metaComment = editingComment.value;
+      // If document id is empty
+      if (metaComment.docId == null) {
+        QuerySnapshot<Object?> querySnapshot = await _allComments
+            .where('postName', isEqualTo: post.value.name)
+            .where('postLink', isEqualTo: post.value.youtubeLink)
+            .where('postCreator', isEqualTo: post.value.creator)
+            .where('postGroup', isEqualTo: post.value.groupName)
+            .get();
+        if (querySnapshot.docs.isNotEmpty) {
+          metaComment.docId = querySnapshot.docs.first.id;
+        }
+      }
       metaComment.commentText = editingController.text;
       metaComment.commentText = editingController.text;
       // Modify Post Comments
@@ -140,13 +172,14 @@ class FullScreenController extends GetxController {
         if (i == currentPost.comments!.length - 1) {
           currentPost.comments = currentComments;
           post(currentPost);
-          await _allComments.doc(metaComment.docId).delete();
+          await _allComments.doc(metaComment.docId).delete().then((value) {
+            clearEditingMode();
+            FocusScope.of(context).unfocus();
+            commentController.clear();
+            Get.back();
+          });
         }
       }
-
-      // Edit Finish
-      // clearEditingMode();
-      Get.back();
     } catch (e) {
       Get.back();
       Get.snackbar(

@@ -45,6 +45,7 @@ class _AddVideoPageState extends State<AddVideoPage> {
       addVideoController.setGroupName(widget.group.name);
       addVideoController.setGroupMembers(widget.group.members);
     }
+    landingPagecontroller.incrementBackIndex();
 
     super.initState();
   }
@@ -182,11 +183,11 @@ class _AddVideoPageState extends State<AddVideoPage> {
                   )),
       ),
       // Bottom Navigation
-      bottomNavigationBar: Obx(
-        () => landingPagecontroller.isDeviceTablet.value
+      bottomNavigationBar: Obx(() {
+        return landingPagecontroller.isDeviceTablet.value
             ? const SizedBox.shrink()
-            : BottomMenu(),
-      ),
+            : BottomMenu(deactivatedIndex: widget.index);
+      }),
       body: Obx(
         () => IndexedStack(
             index: landingPagecontroller.tabIndex.value,

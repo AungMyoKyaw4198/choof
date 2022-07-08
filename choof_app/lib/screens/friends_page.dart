@@ -2,7 +2,6 @@ import 'package:choof_app/screens/widgets/shared_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/landing_page_controller.dart';
 import '../models/group.dart';
@@ -215,7 +214,7 @@ class _FriendsPageState extends State<FriendsPage> {
                   ),
                   // Friends horixontal view
                   Obx(
-                    () => landingPagecontroller.groupedUsers.length > 1
+                    () => landingPagecontroller.groupedUsers.isNotEmpty
                         ? ListView(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
@@ -527,9 +526,9 @@ Download from AppleStore : https://appstoreconnect.apple.com/apps/1621921507/app
                                       onConfirm: () {
                                         landingPagecontroller.unBlockUser(
                                             landingPagecontroller
-                                                .filteredUsersResult[index].name
-                                                .trim());
-                                        Get.back();
+                                                .filteredUsersResult[index]
+                                                .name);
+                                        setState(() {});
                                       });
                                 } else {
                                   Group newGroup = widget.group;
@@ -692,7 +691,7 @@ Download from AppleStore : https://appstoreconnect.apple.com/apps/1621921507/app
                                                   landingPagecontroller
                                                       .freeUsers[index].name
                                                       .trim());
-                                              Get.back();
+                                              setState(() {});
                                             });
                                       } else {
                                         Group newGroup = widget.group;
