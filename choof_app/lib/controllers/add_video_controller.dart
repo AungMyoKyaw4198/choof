@@ -141,6 +141,7 @@ class AddVideoContoller extends GetxController {
     try {
       loadingDialog();
       String postName = await getDetail(youtubeLink.text);
+      verifyYoutubeLink();
 
       // Get Thumbnail URL
       String videID = youtubeLink.text.replaceAll('https://youtu.be/', '');

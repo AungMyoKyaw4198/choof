@@ -486,13 +486,14 @@ class _AddGroupPageState extends State<AddGroupPage> {
                                                                           30))),
                                                   padding: const EdgeInsets
                                                           .symmetric(
-                                                      vertical: 10,
                                                       horizontal: 20),
-                                                  child: Text(
-                                                    addGroupController
-                                                        .tags[index],
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
+                                                  child: Center(
+                                                    child: Text(
+                                                      addGroupController
+                                                          .tags[index],
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -908,13 +909,14 @@ class _AddGroupPageState extends State<AddGroupPage> {
                                                                           30))),
                                                   padding: const EdgeInsets
                                                           .symmetric(
-                                                      vertical: 10,
                                                       horizontal: 20),
-                                                  child: Text(
-                                                    addGroupController
-                                                        .tags[index],
-                                                    style: const TextStyle(
-                                                        color: Colors.white),
+                                                  child: Center(
+                                                    child: Text(
+                                                      addGroupController
+                                                          .tags[index],
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                    ),
                                                   ),
                                                 ),
                                                 InkWell(

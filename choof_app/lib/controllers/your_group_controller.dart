@@ -87,13 +87,17 @@ class YourGroupController extends GetxController {
                 metaAllTags.add(tag.trim());
               }
             }
+            // else {
 
-            if (i < meta.members.length - 1) {
+            // }
+
+            if (i == meta.members.length - 1) {
               // Remove Duplicate From Tags
               var set = Set<String>();
               List<String> uniquelist =
                   metaAllTags.where((tag) => set.add(tag.trim())).toList();
               allTags(uniquelist);
+              loaded(true);
               // ---------------------
             }
           }
@@ -107,6 +111,7 @@ class YourGroupController extends GetxController {
         loaded(true);
       }
     } catch (e) {
+      // ignore: avoid_print
       print(e);
       loaded(true);
       Get.snackbar(

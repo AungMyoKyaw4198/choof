@@ -153,7 +153,7 @@ class HomePageController extends GetxController {
                     metaCmts.add(currentComment);
                   });
                 }
-                metaCmts.sort((a, b) => b.addedTime.compareTo(a.addedTime));
+                metaCmts.sort((a, b) => a.addedTime.compareTo(b.addedTime));
                 currentPost.comments = metaCmts;
                 //  ----
                 posts.add(currentPost);
@@ -163,6 +163,8 @@ class HomePageController extends GetxController {
                 currentPost.tags.forEach((tag) {
                   metaAllTags.add(tag.trim());
                 });
+              } else {
+                loaded(true);
               }
             }
           }
@@ -291,14 +293,15 @@ class HomePageController extends GetxController {
 
   // notofications test
   getNotifications() async {
-    String latest = GetStorage().read('notiTime') ?? '';
-
     String groupNames = '';
     List<String> senderNames = [];
     List<Noti> notiList = [];
     List<DateTime> dates = [];
 
     if (landingPagecontroller.userProfile.value.name != 'test') {
+      String latest = GetStorage().read(
+              'notiTime-${landingPagecontroller.userProfile.value.name}') ??
+          '';
       QuerySnapshot<Object?> snapshot = await _notifications.get();
       if (snapshot.docs.isNotEmpty) {
         // querySnapshot.docs.forEach((snapshot) {
@@ -374,7 +377,9 @@ class HomePageController extends GetxController {
         }
         if (dates.isNotEmpty) {
           final maxDate = dates.reduce((a, b) => a.isAfter(b) ? a : b);
-          GetStorage().write('notiTime', maxDate.toString());
+          GetStorage().write(
+              'notiTime-${landingPagecontroller.userProfile.value.name}',
+              maxDate.toString());
         }
       }
     }

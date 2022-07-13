@@ -63,6 +63,7 @@ Future<void> reportPost(
         ],
       );
     }).catchError((e) {
+      print(e);
       Get.snackbar(
         'Sorry. Actions cannot be fullfill this time.',
         '',
@@ -141,7 +142,7 @@ Future<void> blockUser({
     // Update Users
     QuerySnapshot<Object?> querySnapshot = await _registeredUsers.get();
     if (querySnapshot.docs.isNotEmpty) {
-      querySnapshot.docs.forEach((document) {
+      querySnapshot.docs.forEach((document) async {
         // Updating Current User
         if (document['name'].trim() == currentUser.name.trim()) {
           Profile user = currentUser;
@@ -151,9 +152,9 @@ Future<void> blockUser({
           } else {
             user.blockedUsers = [reportedName];
           }
-          _registeredUsers.doc(user.docId).update(user.toJson());
+          await _registeredUsers.doc(user.docId).update(user.toJson());
         }
-        // Updating reported user
+        // Updating block user
         else if (document['name'].trim() == reportedName.trim()) {
           Profile reportedUser =
               Profile.fromJson(document.data() as Map<String, dynamic>);
@@ -164,19 +165,27 @@ Future<void> blockUser({
             reportedUser.blockByUsers = [currentUser.name];
           }
           landingPagecontroller.storeUserProfile(reportedUser);
-          _registeredUsers
+          await _registeredUsers
               .doc(reportedUser.docId)
               .update(reportedUser.toJson());
         }
       });
     }
-    // Remove from groups
+    // Remove current user from groups
     List<Group> userGroups = await getUserGroup(currentUser: currentUser);
     userGroups.forEach((group) async {
+      // Remove current user from blocked group
       if (group.owner.trim() == reportedName.trim()) {
         Group meta = group;
         meta.members.removeWhere(
             (element) => element.trim() == currentUser.name.trim());
+        await _allGroups.doc(meta.docId).update(meta.toJson());
+      }
+      // Remove blocked user from user group
+      else if (group.owner.trim() == currentUser.name.trim()) {
+        Group meta = group;
+        meta.members
+            .removeWhere((element) => element.trim() == reportedName.trim());
         await _allGroups.doc(meta.docId).update(meta.toJson());
       }
     });

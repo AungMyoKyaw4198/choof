@@ -551,14 +551,16 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                                                     30))),
                                                     padding: const EdgeInsets
                                                             .symmetric(
-                                                        vertical: 10,
                                                         horizontal: 20),
-                                                    child: Text(
-                                                      editVideoController
-                                                          .tagList[index]
-                                                          .trim(),
-                                                      style: const TextStyle(
-                                                          color: Colors.white),
+                                                    child: Center(
+                                                      child: Text(
+                                                        editVideoController
+                                                            .tagList[index]
+                                                            .trim(),
+                                                        style: const TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      ),
                                                     ),
                                                   ),
                                                   InkWell(
@@ -1029,14 +1031,15 @@ class _EditFavoritePageState extends State<EditFavoritePage> {
                                                                     30))),
                                                     padding: const EdgeInsets
                                                             .symmetric(
-                                                        vertical: 10,
                                                         horizontal: 20),
-                                                    child: Text(
-                                                      editVideoController
-                                                          .tagList[index]
-                                                          .trim(),
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
+                                                    child: Center(
+                                                      child: Text(
+                                                        editVideoController
+                                                            .tagList[index]
+                                                            .trim(),
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),

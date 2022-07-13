@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/landing_page_controller.dart';
 import '../utils/app_constant.dart';
@@ -142,6 +143,37 @@ class SettingsPage extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(
+                  height: 40,
+                ),
+                // Help Button
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 43),
+                    child: InkWell(
+                      onTap: () {
+                        launchUrl(Uri.parse('http://choof.club/help/'))
+                            .then((value) {
+                          // ignore: avoid_print
+                          print(value);
+                        });
+                      },
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.help,
+                            size: 30,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 37,
+                          ),
+                          Text(
+                            'Help',
+                            style: TextStyle(color: Colors.white),
+                          )
+                        ],
+                      ),
+                    ))
               ],
             )),
       ),

@@ -532,7 +532,6 @@ class LandingPageController extends GetxController {
     setData('allow', '');
     setData('isInvited', '');
     setData('blockByUsers', '');
-    setData('notiTime', '');
   }
 
   setUserFromStorage() {
@@ -543,8 +542,12 @@ class LandingPageController extends GetxController {
       imageUrl: GetStorage().read('imageUrl'),
       allowNotifications: GetStorage().read('allow'),
       isInvited: GetStorage().read('isInvited') ?? false,
-      blockByUsers: GetStorage().read('blockByUsers').cast<String>() ?? [],
-      blockedUsers: GetStorage().read('blockedUsers').cast<String>() ?? [],
+      blockByUsers: GetStorage().read('blockByUsers') == null
+          ? []
+          : GetStorage().read('blockByUsers').cast<String>(),
+      blockedUsers: GetStorage().read('blockedUsers') == null
+          ? []
+          : GetStorage().read('blockedUsers').cast<String>(),
     ));
   }
 
@@ -629,21 +632,9 @@ class LandingPageController extends GetxController {
 
   updateGroupUser(Group group) async {
     try {
-      loadingDialog();
       isFilter(false);
-      Group currentGroup = group;
-      QuerySnapshot<Object?> postSnapshot =
-          await _groups.where('name', isEqualTo: group.name).get();
-      if (postSnapshot.docs.isNotEmpty) {
-        currentGroup.docId = postSnapshot.docs.first.id;
-        await _groups
-            .doc(currentGroup.docId)
-            .update(currentGroup.toJson())
-            .then((value) {
-          Get.back();
-          getAllUsers(currentGroup);
-        });
-      }
+      _groups.doc(group.docId).update(group.toJson());
+      getAllUsers(group);
     } catch (e) {
       Get.back();
       Get.snackbar(

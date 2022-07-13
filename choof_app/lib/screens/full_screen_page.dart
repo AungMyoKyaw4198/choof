@@ -264,19 +264,13 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                 backgroundColor:
                                                                     const Color(
                                                                         bgColor),
-                                                                label: Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      bottom:
-                                                                          5),
-                                                                  child: Text(
-                                                                      fullScreenController
-                                                                          .post
-                                                                          .value
-                                                                          .tags[
-                                                                              index]
-                                                                          .trim()),
-                                                                ),
+                                                                label: Text(
+                                                                    fullScreenController
+                                                                        .post
+                                                                        .value
+                                                                        .tags[
+                                                                            index]
+                                                                        .trim()),
                                                                 labelStyle: const TextStyle(
                                                                     color: Colors
                                                                         .white),
@@ -820,9 +814,8 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                         Obx(
                                                                           () =>
                                                                               Container(
-                                                                            height: fullScreenController.editingTextFieldExpanded.value
-                                                                                ? MediaQuery.of(context).size.height / 10
-                                                                                : MediaQuery.of(context).size.height / 20,
+                                                                            height:
+                                                                                MediaQuery.of(context).size.height / 3,
                                                                             child:
                                                                                 Row(
                                                                               mainAxisAlignment: MainAxisAlignment.center,
@@ -830,7 +823,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                                 const SizedBox(
                                                                                   width: 2,
                                                                                 ),
-                                                                                Container(width: 30, height: 30, decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage(fullScreenController.post.value.comments![index].commenterUrl)))),
+                                                                                fullScreenController.isInEditingMode.value ? Container(width: 30, height: 30, decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage(fullScreenController.post.value.comments![index].commenterUrl)))) : Container(width: 30, height: 30, decoration: const BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage('https://i.stack.imgur.com/l60Hf.png')))),
                                                                                 const SizedBox(
                                                                                   width: 10,
                                                                                 ),
@@ -840,14 +833,6 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                                       expands: true,
                                                                                       maxLines: null,
                                                                                       style: const TextStyle(color: Colors.white),
-                                                                                      onChanged: (e) {
-                                                                                        int numLines = '\n'.allMatches(e).length + 1;
-                                                                                        if (numLines > 1 || e.length > 30) {
-                                                                                          fullScreenController.setEditingTextFieldExpanded(true);
-                                                                                        } else {
-                                                                                          fullScreenController.setEditingTextFieldExpanded(false);
-                                                                                        }
-                                                                                      },
                                                                                       decoration: InputDecoration(
                                                                                         border: OutlineInputBorder(
                                                                                           borderRadius: BorderRadius.circular(30.0),
@@ -870,9 +855,13 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                               MainAxisAlignment.end,
                                                                           children: [
                                                                             TextButton(
-                                                                                onPressed: () {
-                                                                                  fullScreenController.deleteComment(widget.commentController, context);
-                                                                                  setState(() {});
+                                                                                onPressed: () async {
+                                                                                  await fullScreenController.deleteComment().then((value) {
+                                                                                    fullScreenController.clearEditingMode();
+                                                                                    FocusScope.of(context).unfocus();
+                                                                                    widget.commentController.clear();
+                                                                                    setState(() {});
+                                                                                  });
                                                                                 },
                                                                                 child: const Text('Delete', style: TextStyle(color: Colors.red))),
                                                                             TextButton(
@@ -986,13 +975,23 @@ class _FullScreenPageState extends State<FullScreenPage>
                                 ),
                                 // Back Button
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 35),
+                                  padding: const EdgeInsets.only(top: 40),
                                   child: Align(
                                     alignment: Alignment.topLeft,
                                     child: IconButton(
-                                      icon: const Icon(
-                                        Icons.arrow_back_ios,
-                                        color: Colors.white,
+                                      icon: const CircleAvatar(
+                                        backgroundColor: Colors.white,
+                                        radius: 13,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(left: 5),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.arrow_back_ios,
+                                              size: 15,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                       onPressed: () {
                                         Get.back();
@@ -1167,19 +1166,13 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                 backgroundColor:
                                                                     const Color(
                                                                         bgColor),
-                                                                label: Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      bottom:
-                                                                          5),
-                                                                  child: Text(
-                                                                      fullScreenController
-                                                                          .post
-                                                                          .value
-                                                                          .tags[
-                                                                              index]
-                                                                          .trim()),
-                                                                ),
+                                                                label: Text(
+                                                                    fullScreenController
+                                                                        .post
+                                                                        .value
+                                                                        .tags[
+                                                                            index]
+                                                                        .trim()),
                                                                 labelStyle: const TextStyle(
                                                                     color: Colors
                                                                         .white),
@@ -1661,9 +1654,8 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                         Obx(
                                                                           () =>
                                                                               Container(
-                                                                            height: fullScreenController.editingTextFieldExpanded.value
-                                                                                ? MediaQuery.of(context).size.height / 10
-                                                                                : MediaQuery.of(context).size.height / 20,
+                                                                            height:
+                                                                                MediaQuery.of(context).size.height / 3,
                                                                             child:
                                                                                 Row(
                                                                               mainAxisAlignment: MainAxisAlignment.center,
@@ -1671,7 +1663,7 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                                 const SizedBox(
                                                                                   width: 2,
                                                                                 ),
-                                                                                Container(width: 30, height: 30, decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage(fullScreenController.post.value.comments![index].commenterUrl)))),
+                                                                                fullScreenController.isInEditingMode.value ? Container(width: 30, height: 30, decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage(fullScreenController.post.value.comments![index].commenterUrl)))) : Container(width: 30, height: 30, decoration: const BoxDecoration(shape: BoxShape.circle, image: DecorationImage(fit: BoxFit.fill, image: NetworkImage('https://i.stack.imgur.com/l60Hf.png')))),
                                                                                 const SizedBox(
                                                                                   width: 10,
                                                                                 ),
@@ -1681,14 +1673,6 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                                       expands: true,
                                                                                       maxLines: null,
                                                                                       style: const TextStyle(color: Colors.white),
-                                                                                      onChanged: (e) {
-                                                                                        int numLines = '\n'.allMatches(e).length + 1;
-                                                                                        if (numLines > 1 || e.length > 30) {
-                                                                                          fullScreenController.setEditingTextFieldExpanded(true);
-                                                                                        } else {
-                                                                                          fullScreenController.setEditingTextFieldExpanded(false);
-                                                                                        }
-                                                                                      },
                                                                                       decoration: InputDecoration(
                                                                                         border: OutlineInputBorder(
                                                                                           borderRadius: BorderRadius.circular(30.0),
@@ -1710,9 +1694,13 @@ class _FullScreenPageState extends State<FullScreenPage>
                                                                               MainAxisAlignment.end,
                                                                           children: [
                                                                             TextButton(
-                                                                                onPressed: () {
-                                                                                  fullScreenController.deleteComment(widget.commentController, context);
-                                                                                  setState(() {});
+                                                                                onPressed: () async {
+                                                                                  await fullScreenController.deleteComment().then((value) {
+                                                                                    fullScreenController.clearEditingMode();
+                                                                                    FocusScope.of(context).unfocus();
+                                                                                    widget.commentController.clear();
+                                                                                    setState(() {});
+                                                                                  });
                                                                                 },
                                                                                 child: const Text('Delete', style: TextStyle(color: Colors.red))),
                                                                             TextButton(
@@ -1828,13 +1816,23 @@ class _FullScreenPageState extends State<FullScreenPage>
                                 ),
                                 // Back Button
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 35),
+                                  padding: const EdgeInsets.only(top: 40),
                                   child: Align(
                                     alignment: Alignment.topLeft,
                                     child: IconButton(
-                                      icon: const Icon(
-                                        Icons.arrow_back_ios,
-                                        color: Colors.white,
+                                      icon: const CircleAvatar(
+                                        backgroundColor: Colors.white,
+                                        radius: 13,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(left: 5),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.arrow_back_ios,
+                                              size: 15,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                       onPressed: () {
                                         Get.back();

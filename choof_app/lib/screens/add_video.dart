@@ -410,6 +410,7 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                                     .checkYoutubeLink(
                                                         addVideoController
                                                             .youtubeLink.text);
+                                            print(isYoutubeLink);
                                             if (isYoutubeLink) {
                                               addVideoController
                                                   .verifyYoutubeLink();
@@ -599,13 +600,15 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                                                           30))),
                                                       padding: const EdgeInsets
                                                               .symmetric(
-                                                          vertical: 10,
                                                           horizontal: 20),
-                                                      child: Text(
-                                                        addVideoController
-                                                            .tagList[index],
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
+                                                      child: Center(
+                                                        child: Text(
+                                                          addVideoController
+                                                              .tagList[index],
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.white,
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
@@ -1031,13 +1034,15 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                                                           30))),
                                                       padding: const EdgeInsets
                                                               .symmetric(
-                                                          vertical: 10,
                                                           horizontal: 20),
-                                                      child: Text(
-                                                        addVideoController
-                                                            .tagList[index],
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
+                                                      child: Center(
+                                                        child: Text(
+                                                          addVideoController
+                                                              .tagList[index],
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.white,
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
@@ -1441,13 +1446,14 @@ class _AddVideoPageState extends State<AddVideoPage> {
                                                                           30))),
                                                   padding: const EdgeInsets
                                                           .symmetric(
-                                                      vertical: 10,
                                                       horizontal: 20),
-                                                  child: Text(
-                                                    addVideoController
-                                                        .tagList[index],
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
+                                                  child: Center(
+                                                    child: Text(
+                                                      addVideoController
+                                                          .tagList[index],
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),

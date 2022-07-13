@@ -75,7 +75,6 @@ class FullScreenController extends GetxController {
   }
 
   clearEditingMode() {
-    isInEditingMode(false);
     editingComment(Comment(
         postName: '',
         postCreator: '',
@@ -88,6 +87,7 @@ class FullScreenController extends GetxController {
     editingController.clear();
     textFieldExpanded(false);
     editingTextFieldExpanded(false);
+    isInEditingMode(false);
   }
 
   editComment(
@@ -100,6 +100,8 @@ class FullScreenController extends GetxController {
       // If document id is empty
       if (metaComment.docId == null) {
         QuerySnapshot<Object?> querySnapshot = await _allComments
+            .where('commentText', isEqualTo: metaComment.commentText)
+            .where('commenter', isEqualTo: metaComment.commenter)
             .where('postName', isEqualTo: post.value.name)
             .where('postLink', isEqualTo: post.value.youtubeLink)
             .where('postCreator', isEqualTo: post.value.creator)
@@ -107,87 +109,90 @@ class FullScreenController extends GetxController {
             .get();
         if (querySnapshot.docs.isNotEmpty) {
           metaComment.docId = querySnapshot.docs.first.id;
-        }
-      }
-      metaComment.commentText = editingController.text;
-      metaComment.addedTime = DateTime.now();
-      await _allComments
-          .doc(metaComment.docId)
-          .update(metaComment.toJson())
-          .then((value) {
-        // Modify Post Comments
-        Post currentPost = post.value;
-        currentPost.comments!.forEach((element) {
-          if (element.commentText == editingComment.value.commentText &&
-              element.commenter == editingComment.value.commenter) {
-            element = metaComment;
-          }
-        });
-        post(currentPost);
-        clearEditingMode();
-        FocusScope.of(context).unfocus();
-        commentController.clear();
-        Get.back();
-      });
-    } catch (e) {
-      Get.back();
-      Get.snackbar(
-        "Something went wrong!",
-        "Please try again later.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-      );
-    }
-  }
-
-  deleteComment(
-      TextEditingController commentController, BuildContext context) async {
-    try {
-      loadingDialog();
-      // Edit Comment
-      Comment metaComment = editingComment.value;
-      // If document id is empty
-      if (metaComment.docId == null) {
-        QuerySnapshot<Object?> querySnapshot = await _allComments
-            .where('postName', isEqualTo: post.value.name)
-            .where('postLink', isEqualTo: post.value.youtubeLink)
-            .where('postCreator', isEqualTo: post.value.creator)
-            .where('postGroup', isEqualTo: post.value.groupName)
-            .get();
-        if (querySnapshot.docs.isNotEmpty) {
-          metaComment.docId = querySnapshot.docs.first.id;
-        }
-      }
-      metaComment.commentText = editingController.text;
-      metaComment.commentText = editingController.text;
-      // Modify Post Comments
-      Post currentPost = post.value;
-      List<Comment> currentComments = post.value.comments!;
-
-      for (int i = 0; i < currentPost.comments!.length; i++) {
-        if (currentPost.comments![i].commentText == metaComment.commentText &&
-            currentPost.comments![i].commenter == metaComment.commenter) {
-          currentComments.removeAt(i);
-        }
-        if (i == currentPost.comments!.length - 1) {
-          currentPost.comments = currentComments;
-          post(currentPost);
-          await _allComments.doc(metaComment.docId).delete().then((value) {
+          metaComment.commentText = editingController.text.trim();
+          await _allComments
+              .doc(metaComment.docId)
+              .update(metaComment.toJson())
+              .then((value) {
+            // Modify Post Comments
+            Post currentPost = post.value;
+            currentPost.comments!.forEach((element) {
+              if (element.commentText == editingComment.value.commentText &&
+                  element.commenter == editingComment.value.commenter) {
+                element = metaComment;
+              }
+            });
+            post(currentPost);
             clearEditingMode();
             FocusScope.of(context).unfocus();
             commentController.clear();
             Get.back();
           });
         }
+      } else {
+        metaComment.commentText = editingController.text.trim();
+        await _allComments
+            .doc(metaComment.docId)
+            .update(metaComment.toJson())
+            .then((value) {
+          // Modify Post Comments
+          Post currentPost = post.value;
+          currentPost.comments!.forEach((element) {
+            if (element.commentText == editingComment.value.commentText &&
+                element.commenter == editingComment.value.commenter) {
+              element = metaComment;
+            }
+          });
+          post(currentPost);
+          clearEditingMode();
+          FocusScope.of(context).unfocus();
+          commentController.clear();
+          Get.back();
+        });
       }
     } catch (e) {
       Get.back();
-      Get.snackbar(
-        "Something went wrong!",
-        "Please try again later.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-      );
+    }
+  }
+
+  Future deleteComment() async {
+    try {
+      loadingDialog();
+      // Edit Comment
+      Comment metaComment = editingComment.value;
+
+      // If document id is empty
+      if (metaComment.docId == null) {
+        QuerySnapshot<Object?> querySnapshot = await _allComments
+            .where('commentText', isEqualTo: metaComment.commentText)
+            .where('commenter', isEqualTo: metaComment.commenter)
+            .where('postName', isEqualTo: post.value.name)
+            .where('postLink', isEqualTo: post.value.youtubeLink)
+            .where('postCreator', isEqualTo: post.value.creator)
+            .where('postGroup', isEqualTo: post.value.groupName)
+            .get();
+        if (querySnapshot.docs.isNotEmpty) {
+          metaComment.docId = querySnapshot.docs.first.id;
+        }
+      }
+      await _allComments.doc(metaComment.docId).delete();
+
+      // Modify Post Comments
+      Post currentPost = post.value;
+      List<Comment> currentComments = post.value.comments!;
+      for (int i = 0; i < currentPost.comments!.length; i++) {
+        if (currentPost.comments![i].commentText == metaComment.commentText &&
+            currentPost.comments![i].commenter == metaComment.commenter) {
+          currentComments.removeAt(i);
+          if (i == currentPost.comments!.length - 1) {
+            currentPost.comments = currentComments;
+            post(currentPost);
+          }
+        }
+      }
+      Get.back();
+    } catch (e) {
+      Get.back();
     }
   }
 

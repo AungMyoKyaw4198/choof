@@ -697,7 +697,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                                           'This post contains sensitive subjects!',
                                           style: TextStyle(
                                               color: Colors.white,
-                                              fontSize: 20,
+                                              fontSize: 15,
                                               fontWeight: FontWeight.bold),
                                         ),
                                         const SizedBox(
@@ -929,62 +929,73 @@ class _VideoWidgetState extends State<VideoWidget> {
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              width: 2,
-                            ),
-                            Container(
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
                                 width: 30,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                        fit: BoxFit.fill,
-                                        image: NetworkImage(widget
-                                            .commentList.first.commenterUrl)))),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                              child: widget.commentList.first.commentText
-                                          .length <
-                                      300
-                                  ? Text(
-                                      widget.commentList.first.commentText,
-                                      overflow: TextOverflow.fade,
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    )
-                                  : Stack(
-                                      alignment: Alignment.bottomRight,
-                                      children: [
-                                          Container(
-                                            child: Text(
-                                              widget.commentList.first
-                                                      .commentText
-                                                      .substring(0, 300) +
-                                                  '...',
-                                              overflow: TextOverflow.fade,
-                                              style: const TextStyle(
-                                                  color: Colors.white),
+                                alignment: Alignment.topCenter,
+                                child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: NetworkImage(widget
+                                                .commentList
+                                                .first
+                                                .commenterUrl)))),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: widget.commentList.first.commentText
+                                            .length <
+                                        300
+                                    ? Container(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          widget.commentList.first.commentText,
+                                          overflow: TextOverflow.fade,
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
+                                      )
+                                    : Stack(
+                                        alignment: Alignment.bottomRight,
+                                        children: [
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                widget.commentList.first
+                                                        .commentText
+                                                        .substring(0, 300) +
+                                                    '...',
+                                                overflow: TextOverflow.fade,
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
                                             ),
-                                          ),
-                                          InkWell(
-                                            onTap: () {
-                                              widget.viewCommentFunction();
-                                            },
-                                            child: const Text(
-                                              'more',
-                                              style: TextStyle(
-                                                  color: Colors.white70),
+                                            InkWell(
+                                              onTap: () {
+                                                widget.viewCommentFunction();
+                                              },
+                                              child: const Text(
+                                                'more',
+                                                style: TextStyle(
+                                                    color: Colors.white70),
+                                              ),
                                             ),
-                                          ),
-                                        ]),
-                            ),
-                          ],
+                                          ]),
+                              ),
+                            ],
+                          ),
                         ),
                         TextButton(
                             onPressed: () {
@@ -1042,7 +1053,9 @@ class _VideoWidgetState extends State<VideoWidget> {
                     decoration: InputDecoration(
                       hintText: 'Add a comment...',
                       hintStyle: const TextStyle(color: Colors.white70),
-                      contentPadding: const EdgeInsets.only(top: 6, left: 3),
+                      contentPadding: EdgeInsets.only(
+                          top: MediaQuery.of(context).size.height * 0.01,
+                          left: 3),
                       filled: true,
                       fillColor: const Color(bgColor),
                       suffixIcon: Padding(

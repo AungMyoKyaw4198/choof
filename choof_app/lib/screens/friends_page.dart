@@ -467,6 +467,7 @@ Download from AppleStore : https://appstoreconnect.apple.com/apps/1621921507/app
                                     duration: const Duration(seconds: 3),
                                   );
                                 }).catchError((e) {
+                                  // ignore: avoid_print
                                   print(e);
                                   Get.snackbar(
                                     'Failed to send Email.',

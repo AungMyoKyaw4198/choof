@@ -185,80 +185,69 @@ class _ViewGroupState extends State<ViewGroup> {
                   ? AppBar(
                       backgroundColor: const Color(bgColor),
                       centerTitle: true,
-                      leading: IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () {
-                          if (widget.isFromAddGroup) {
-                            Get.back();
-                            Get.back();
-                          } else if (widget.isFromGroup) {
-                            landingPagecontroller.changeTabIndex(1);
-                            if (widget.isFromFullScreenPage) {
-                              Get.back();
-                              Get.back();
-                            } else {
-                              Get.back();
-                            }
-                          } else {
-                            landingPagecontroller.changeTabIndex(0);
-                            if (widget.isFromFullScreenPage) {
-                              Get.back();
-                              Get.back();
-                            } else {
-                              Get.back();
-                            }
-                          }
-                        },
-                      ),
-                      title: Row(
+                      leadingWidth: 200,
+                      leading: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Obx(
-                              () => Text(
-                                viewGroupController.groupName.value
-                                        .contains('#')
-                                    ? viewGroupController.groupName.value
-                                        .substring(
-                                            0,
-                                            viewGroupController.groupName.value
-                                                .indexOf('#'))
-                                    : viewGroupController.groupName.value,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    overflow: TextOverflow.ellipsis),
-                              ),
-                            ),
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () {
+                              if (widget.isFromAddGroup) {
+                                Get.back();
+                                Get.back();
+                              } else if (widget.isFromGroup) {
+                                landingPagecontroller.changeTabIndex(1);
+                                if (widget.isFromFullScreenPage) {
+                                  Get.back();
+                                  Get.back();
+                                } else {
+                                  Get.back();
+                                }
+                              } else {
+                                landingPagecontroller.changeTabIndex(0);
+                                if (widget.isFromFullScreenPage) {
+                                  Get.back();
+                                  Get.back();
+                                } else {
+                                  Get.back();
+                                }
+                              }
+                            },
                           ),
                           landingPagecontroller.userProfile.value.name ==
                                   widget.currentGroup.owner
                               ? Row(
                                   children: [
                                     IconButton(
-                                        onPressed: () {
-                                          if (widget.isFromGroup) {
-                                            Get.to(() => EditGroupPage(
-                                                      currentGroup:
-                                                          widget.currentGroup,
-                                                      index: 1,
-                                                    ))!
-                                                .then(
-                                                    (value) => _pullRefresh());
-                                          } else {
-                                            Get.to(() => EditGroupPage(
-                                                      currentGroup:
-                                                          widget.currentGroup,
-                                                      index: 0,
-                                                    ))!
-                                                .then(
-                                                    (value) => _pullRefresh());
-                                          }
-                                        },
-                                        icon: const Icon(
-                                          Icons.edit,
-                                          size: 20,
-                                        ))
+                                      onPressed: () {
+                                        if (widget.isFromGroup) {
+                                          Get.to(() => EditGroupPage(
+                                                    currentGroup:
+                                                        widget.currentGroup,
+                                                    index: 1,
+                                                  ))!
+                                              .then((value) => _pullRefresh());
+                                        } else {
+                                          Get.to(() => EditGroupPage(
+                                                    currentGroup:
+                                                        widget.currentGroup,
+                                                    index: 0,
+                                                  ))!
+                                              .then((value) => _pullRefresh());
+                                        }
+                                      },
+                                      icon: const CircleAvatar(
+                                        backgroundColor: Colors.white,
+                                        radius: 12,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.edit,
+                                            size: 15,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 )
                               : const SizedBox.shrink(),
@@ -332,6 +321,40 @@ class _ViewGroupState extends State<ViewGroup> {
                       },
                       child: ListView(
                         children: [
+                          // Group Name
+                          Center(
+                            child: Obx(
+                              () => !landingPagecontroller.isDeviceTablet.value
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10, right: 10, top: 10),
+                                      child: Obx(
+                                        () => Text(
+                                          viewGroupController.groupName.value
+                                                  .contains('#')
+                                              ? viewGroupController
+                                                  .groupName.value
+                                                  .substring(
+                                                      0,
+                                                      viewGroupController
+                                                          .groupName.value
+                                                          .indexOf('#'))
+                                              : viewGroupController
+                                                  .groupName.value,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              overflow: TextOverflow.ellipsis,
+                                              fontSize: 23),
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                          ),
+
                           // Title
                           Obx(
                             () => landingPagecontroller.isDeviceTablet.value
@@ -455,7 +478,7 @@ class _ViewGroupState extends State<ViewGroup> {
                           ),
                           // Friends area
                           Container(
-                            margin: const EdgeInsets.symmetric(vertical: 15),
+                            margin: const EdgeInsets.symmetric(vertical: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -542,7 +565,7 @@ class _ViewGroupState extends State<ViewGroup> {
                                                           : groupMembers.length,
                                                       (index) {
                                                 return Positioned(
-                                                    left: index * 20,
+                                                    right: index * 20,
                                                     child: Container(
                                                         width: 35,
                                                         height: 35,
@@ -584,7 +607,9 @@ class _ViewGroupState extends State<ViewGroup> {
                                                   style: const TextStyle(
                                                       color: Colors.white),
                                                 )
-                                              : const SizedBox.shrink();
+                                              : const SizedBox(
+                                                  width: 10,
+                                                );
                                         } else {
                                           return const SizedBox.shrink();
                                         }
@@ -751,8 +776,8 @@ class _ViewGroupState extends State<ViewGroup> {
 
                           // Sorting Container
                           Container(
-                            height: MediaQuery.of(context).size.height / 20,
-                            margin: const EdgeInsets.symmetric(vertical: 15),
+                            height: MediaQuery.of(context).size.height / 30,
+                            margin: const EdgeInsets.only(top: 8, bottom: 8),
                             child: ListView(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
@@ -1923,6 +1948,39 @@ class _ViewGroupState extends State<ViewGroup> {
                       },
                       child: ListView(
                         children: [
+                          // Group Name
+                          Center(
+                            child: Obx(
+                              () => !landingPagecontroller.isDeviceTablet.value
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10, right: 10, top: 10),
+                                      child: Obx(
+                                        () => Text(
+                                          viewGroupController.groupName.value
+                                                  .contains('#')
+                                              ? viewGroupController
+                                                  .groupName.value
+                                                  .substring(
+                                                      0,
+                                                      viewGroupController
+                                                          .groupName.value
+                                                          .indexOf('#'))
+                                              : viewGroupController
+                                                  .groupName.value,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              overflow: TextOverflow.ellipsis,
+                                              fontSize: 23),
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                          ),
                           // Title
                           Obx(
                             () => landingPagecontroller.isDeviceTablet.value
@@ -2046,7 +2104,7 @@ class _ViewGroupState extends State<ViewGroup> {
                           ),
                           // Friends area
                           Container(
-                            margin: const EdgeInsets.symmetric(vertical: 15),
+                            margin: const EdgeInsets.symmetric(vertical: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -2133,7 +2191,7 @@ class _ViewGroupState extends State<ViewGroup> {
                                                           : groupMembers.length,
                                                       (index) {
                                                 return Positioned(
-                                                    left: index * 20,
+                                                    right: index * 20,
                                                     child: Container(
                                                         width: 35,
                                                         height: 35,
@@ -2170,12 +2228,16 @@ class _ViewGroupState extends State<ViewGroup> {
                                             }
                                           }
                                           return groupMembers.length > 5
-                                              ? Text(
-                                                  '+${groupMembers.length - 5}',
-                                                  style: const TextStyle(
-                                                      color: Colors.white),
+                                              ? Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(horizontal: 5),
+                                                  child: Text(
+                                                    '+${groupMembers.length - 5}',
+                                                    style: const TextStyle(
+                                                        color: Colors.white),
+                                                  ),
                                                 )
-                                              : const SizedBox.shrink();
+                                              : const SizedBox(width: 10);
                                         } else {
                                           return const SizedBox.shrink();
                                         }
@@ -2342,8 +2404,8 @@ class _ViewGroupState extends State<ViewGroup> {
 
                           // Sorting Container
                           Container(
-                            height: MediaQuery.of(context).size.height / 20,
-                            margin: const EdgeInsets.symmetric(vertical: 15),
+                            height: MediaQuery.of(context).size.height / 30,
+                            margin: const EdgeInsets.only(top: 8, bottom: 8),
                             child: ListView(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,

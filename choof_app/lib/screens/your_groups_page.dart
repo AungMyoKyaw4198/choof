@@ -435,9 +435,8 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                             ? const SizedBox.shrink()
                             : Container(
                                 margin:
-                                    const EdgeInsets.symmetric(vertical: 15),
-                                height:
-                                    MediaQuery.of(context).size.height / 9.8,
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                height: 85,
                                 child: ListView(
                                     shrinkWrap: true,
                                     scrollDirection: Axis.horizontal,
@@ -696,7 +695,7 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                       // Sorting Container
                       Container(
                         height: MediaQuery.of(context).size.height / 30,
-                        margin: const EdgeInsets.symmetric(vertical: 15),
+                        margin: const EdgeInsets.only(top: 10, bottom: 8),
                         child: ListView(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
@@ -712,25 +711,29 @@ class _YourGroupsPageState extends State<YourGroupsPage> {
                                       height:
                                           MediaQuery.of(context).size.height /
                                               20,
-                                      child: Row(
-                                        children: [
-                                          Image.asset(
-                                            'assets/icons/UpDownArrow.png',
-                                            width: 20,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                20,
-                                          ),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          const Text(
-                                            'Last Updated',
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          )
-                                        ],
+                                      child: Center(
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Image.asset(
+                                              'assets/icons/UpDownArrow.png',
+                                              width: 20,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  20,
+                                            ),
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            const Text(
+                                              'Last Updated',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   )

@@ -98,7 +98,7 @@ class ViewGroupController extends GetxController {
               metaCmts.add(currentComment);
             });
           }
-          metaCmts.sort((a, b) => b.addedTime.compareTo(a.addedTime));
+          metaCmts.sort((a, b) => a.addedTime.compareTo(b.addedTime));
           currentPost.comments = metaCmts;
           //  ----
 
@@ -114,13 +114,10 @@ class ViewGroupController extends GetxController {
         List<String> uniquelist =
             metaAllTags.where((tag) => set.add(tag.trim())).toList();
         allTags(uniquelist);
-        // sort(true);
         // ---------------------
       } else {
         loaded(true);
       }
-
-      // loaded(true);
     } catch (e) {
       // ignore: avoid_print
       print(e);

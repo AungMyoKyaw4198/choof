@@ -486,9 +486,8 @@ class _FavouritePageState extends State<FavouritePage> {
                             ? const SizedBox.shrink()
                             : Container(
                                 margin:
-                                    const EdgeInsets.symmetric(vertical: 15),
-                                height:
-                                    MediaQuery.of(context).size.height / 9.8,
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                height: 85,
                                 child: ListView(
                                     shrinkWrap: true,
                                     scrollDirection: Axis.horizontal,
@@ -752,7 +751,7 @@ class _FavouritePageState extends State<FavouritePage> {
                       // Sorting Container
                       Container(
                         height: MediaQuery.of(context).size.height / 30,
-                        margin: const EdgeInsets.symmetric(vertical: 15),
+                        margin: const EdgeInsets.only(top: 10, bottom: 8),
                         child: ListView(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,

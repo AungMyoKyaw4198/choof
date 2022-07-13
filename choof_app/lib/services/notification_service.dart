@@ -7,12 +7,17 @@ class NotificationService {
 
   static Future<NotificationDetails> _notificationDetails() async {
     return const NotificationDetails(
-        android: AndroidNotificationDetails('channel id', 'channel name',
-            channelDescription: 'channel description',
-            importance: Importance.max,
-            playSound: true,
-            // icon: '@mipmap/ic_noti',
-            icon: '@mipmap/ic_launcher'),
+        android: AndroidNotificationDetails(
+          'channel id',
+          'channel name',
+          channelDescription: 'channel description',
+          importance: Importance.max,
+          playSound: true,
+          priority: Priority.high,
+          ongoing: true,
+          icon: '@mipmap/ic_launcher',
+          styleInformation: BigTextStyleInformation(''),
+        ),
         iOS: IOSNotificationDetails());
   }
 
