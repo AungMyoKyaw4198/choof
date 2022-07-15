@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:get/get.dart';
 
 import '../models/group.dart';
@@ -32,45 +35,93 @@ Future<void> reportPost(
       isHTML: false,
     );
 
-    await FlutterEmailSender.send(email).then((value) async {
-      loadingDialog();
-      QuerySnapshot<Object?> querySnapshot =
-          await _allPosts.where('name', isEqualTo: post.name).get();
-      if (querySnapshot.docs.isNotEmpty) {
-        editPost.docId = querySnapshot.docs.first.id;
-        editPost.isReported = true;
-        await _allPosts.doc(editPost.docId).update(editPost.toJson());
-        await _reportedPosts.add({
-          'videoDocId': editPost.docId,
-          'videoName': editPost.name,
-          'videoLink': editPost.youtubeLink,
-          'videoCreator': editPost.creator,
-          'reportedUser': reportedUser.name,
-          'reportedReason': reportedReason,
+    QuerySnapshot<Object?> querySnapshot = await _allPosts
+        .where('name', isEqualTo: post.name)
+        .where('groupName', isEqualTo: post.groupName)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      editPost.docId = querySnapshot.docs.first.id;
+      editPost.isReported = true;
+      await _allPosts.doc(editPost.docId).update(editPost.toJson());
+      await _reportedPosts.add({
+        'videoDocId': editPost.docId,
+        'videoName': editPost.name,
+        'videoLink': editPost.youtubeLink,
+        'videoCreator': editPost.creator,
+        'reportedUser': reportedUser.name,
+        'reportedReason': reportedReason,
+      });
+    }
+
+    if (Platform.isIOS) {
+      final bool canSend = await FlutterMailer.canSendMail();
+      if (canSend) {
+        await FlutterEmailSender.send(email).then((value) async {
+          loadingDialog();
+          Get.back();
+          infoDialog(
+            title:
+                'Thank you for your action, we will investigate the issue promptly.',
+            content: '',
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  child: const Text('OK'))
+            ],
+          );
+        }).catchError((e) {
+          print(e);
+          Get.snackbar(
+            'Sorry. Actions cannot be fullfill this time.',
+            '',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+          );
         });
+      } else {
+        loadingDialog();
+        Get.back();
+        infoDialog(
+          title:
+              'Thank you for your action, we will investigate the issue promptly.',
+          content: '',
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text('OK'))
+          ],
+        );
       }
-      Get.back();
-      infoDialog(
-        title:
-            'Thank you for your action, we will investigate the issue promptly.',
-        content: '',
-        actions: [
-          TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: const Text('OK'))
-        ],
-      );
-    }).catchError((e) {
-      print(e);
-      Get.snackbar(
-        'Sorry. Actions cannot be fullfill this time.',
-        '',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-      );
-    });
+    } else {
+      await FlutterEmailSender.send(email).then((value) async {
+        loadingDialog();
+        Get.back();
+        infoDialog(
+          title:
+              'Thank you for your action, we will investigate the issue promptly.',
+          content: '',
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text('OK'))
+          ],
+        );
+      }).catchError((e) {
+        print(e);
+        Get.snackbar(
+          'Sorry. Actions cannot be fullfill this time.',
+          '',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+        );
+      });
+    }
   } catch (e) {
     Get.snackbar(
       'Error! Please try again later.',
@@ -99,30 +150,81 @@ Future<void> reportUser(
       isHTML: false,
     );
 
-    await FlutterEmailSender.send(email).then((value) async {
-      loadingDialog();
-      Get.back();
-      infoDialog(
-        title:
-            'Thank you for your action, we will investigate the issue promptly.',
-        content: '',
-        actions: [
-          TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: const Text('OK'))
-        ],
-      );
-    }).catchError((e) {
-      Get.snackbar(
-        'Sorry. Actions cannot be fullfill this time.',
-        '',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-      );
-    });
-  } catch (e) {}
+    if (Platform.isIOS) {
+      final bool canSend = await FlutterMailer.canSendMail();
+      if (canSend) {
+        await FlutterEmailSender.send(email).then((value) async {
+          loadingDialog();
+          Get.back();
+          infoDialog(
+            title:
+                'Thank you for your action, we will investigate the issue promptly.',
+            content: '',
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  child: const Text('OK'))
+            ],
+          );
+        }).catchError((e) {
+          Get.snackbar(
+            'Sorry. Actions cannot be fullfill this time.',
+            '',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+          );
+        });
+      } else {
+        loadingDialog();
+        Get.back();
+        infoDialog(
+          title:
+              'Thank you for your action, we will investigate the issue promptly.',
+          content: '',
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text('OK'))
+          ],
+        );
+      }
+    } else {
+      await FlutterEmailSender.send(email).then((value) async {
+        loadingDialog();
+        Get.back();
+        infoDialog(
+          title:
+              'Thank you for your action, we will investigate the issue promptly.',
+          content: '',
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text('OK'))
+          ],
+        );
+      }).catchError((e) {
+        Get.snackbar(
+          'Sorry. Actions cannot be fullfill this time.',
+          '',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+        );
+      });
+    }
+  } catch (e) {
+    Get.snackbar(
+      'Error! Please try again later.',
+      '',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+    );
+  }
 }
 
 Future<void> blockUser({

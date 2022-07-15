@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:choof_app/screens/widgets/shared_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:get/get.dart';
 
 import '../controllers/landing_page_controller.dart';
@@ -453,29 +456,67 @@ Download from AppleStore : https://appstoreconnect.apple.com/apps/1621921507/app
                                   recipients: [_filter.text],
                                   isHTML: false,
                                 );
-                                await FlutterEmailSender.send(email)
-                                    .then((value) {
-                                  landingPagecontroller.addInvitedUserToGroup(
-                                      _filter.text, widget.group);
-                                  _filter.clear();
-                                  landingPagecontroller.updateIsFilter(false);
-                                  Get.snackbar(
-                                    'Email Sent',
-                                    '',
-                                    snackPosition: SnackPosition.BOTTOM,
-                                    backgroundColor: Colors.white,
-                                    duration: const Duration(seconds: 3),
-                                  );
-                                }).catchError((e) {
-                                  // ignore: avoid_print
-                                  print(e);
-                                  Get.snackbar(
-                                    'Failed to send Email.',
-                                    '',
-                                    snackPosition: SnackPosition.BOTTOM,
-                                    backgroundColor: Colors.red,
-                                  );
-                                });
+
+                                if (Platform.isIOS) {
+                                  final bool canSend =
+                                      await FlutterMailer.canSendMail();
+                                  if (canSend) {
+                                    await FlutterEmailSender.send(email)
+                                        .then((value) {
+                                      landingPagecontroller
+                                          .addInvitedUserToGroup(
+                                              _filter.text, widget.group);
+                                      _filter.clear();
+                                      landingPagecontroller
+                                          .updateIsFilter(false);
+                                      Get.snackbar(
+                                        'Email Sent',
+                                        '',
+                                        snackPosition: SnackPosition.BOTTOM,
+                                        backgroundColor: Colors.white,
+                                        duration: const Duration(seconds: 3),
+                                      );
+                                    }).catchError((e) {
+                                      // ignore: avoid_print
+                                      print(e);
+                                      Get.snackbar(
+                                        'Failed to send Email.',
+                                        '',
+                                        snackPosition: SnackPosition.BOTTOM,
+                                        backgroundColor: Colors.red,
+                                      );
+                                    });
+                                  } else {
+                                    landingPagecontroller.addInvitedUserToGroup(
+                                        _filter.text, widget.group);
+                                    _filter.clear();
+                                    landingPagecontroller.updateIsFilter(false);
+                                  }
+                                } else {
+                                  await FlutterEmailSender.send(email)
+                                      .then((value) {
+                                    landingPagecontroller.addInvitedUserToGroup(
+                                        _filter.text, widget.group);
+                                    _filter.clear();
+                                    landingPagecontroller.updateIsFilter(false);
+                                    Get.snackbar(
+                                      'Email Sent',
+                                      '',
+                                      snackPosition: SnackPosition.BOTTOM,
+                                      backgroundColor: Colors.white,
+                                      duration: const Duration(seconds: 3),
+                                    );
+                                  }).catchError((e) {
+                                    // ignore: avoid_print
+                                    print(e);
+                                    Get.snackbar(
+                                      'Failed to send Email.',
+                                      '',
+                                      snackPosition: SnackPosition.BOTTOM,
+                                      backgroundColor: Colors.red,
+                                    );
+                                  });
+                                }
                               }
                             }
                           },

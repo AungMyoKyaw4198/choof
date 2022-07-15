@@ -1,14 +1,27 @@
+import 'package:choof_app/screens/web_view_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/landing_page_controller.dart';
 import '../utils/app_constant.dart';
 
-class SettingsPage extends StatelessWidget {
-  SettingsPage({Key? key}) : super(key: key);
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({Key? key}) : super(key: key);
 
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
   final landingPagecontroller = Get.find<LandingPageController>();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,11 +164,9 @@ class SettingsPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 43),
                     child: InkWell(
                       onTap: () {
-                        launchUrl(Uri.parse('http://choof.club/help/'))
-                            .then((value) {
-                          // ignore: avoid_print
-                          print(value);
-                        });
+                        Get.to(() => const WebViewPage(
+                              url: 'http://choof.club/help/',
+                            ));
                       },
                       child: Row(
                         children: const [
@@ -173,7 +184,7 @@ class SettingsPage extends StatelessWidget {
                           )
                         ],
                       ),
-                    ))
+                    )),
               ],
             )),
       ),
